@@ -1,4 +1,4 @@
-# Salidas de compilacion
+﻿# Salidas de compilacion
 [Bb]in/
 [Oo]bj/
 
@@ -9,10 +9,6 @@
 
 # Paquetes NuGet (se restauran con "nuget restore")
 packages/
-
-# Bases de datos locales (pueden contener datos de pacientes)
-*.mdf
-*.ldf
 
 # Logs de la API (NLog)
 App_Data/logs/
