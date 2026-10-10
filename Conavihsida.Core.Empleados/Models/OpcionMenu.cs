@@ -41,7 +41,7 @@ namespace Conavihsida.Core.Empleados.Models
                 Descripcion = "Lotes, existencias y despacho de recetas.",
                 Controlador = "Farmacia",
                 RolesPermitidos = new[] { NombresRol.Farmaceutico },
-                Disponible = false
+                Disponible = true
             },
             new OpcionMenu
             {

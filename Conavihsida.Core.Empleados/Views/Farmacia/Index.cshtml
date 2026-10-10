@@ -1,0 +1,134 @@
+@model FarmaciaInicioViewModel
+@{
+    ViewBag.Title = "Farmacia";
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <h1 class="titulo-pagina">Farmacia</h1>
+        <p class="subtitulo">Recetas por despachar, existencias y alertas de inventario.</p>
+    </div>
+    <a class="boton boton-primario" href="@Url.Action("NuevoLote")">Registrar lote</a>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Exito))
+{
+    <div class="aviso aviso-exito" role="status">@Model.Exito</div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="aviso aviso-error" role="alert">@Model.Error</div>
+}
+
+<div class="resumen">
+    <div class="resumen-dato @(Model.RecetasPendientes.Count > 0 ? "resumen-info" : "")">
+        <span class="resumen-numero">@Model.RecetasPendientes.Count</span>
+        <span class="resumen-nombre">Recetas por despachar</span>
+    </div>
+    <div class="resumen-dato @(Model.VencidosConExistencia > 0 ? "resumen-error" : "")">
+        <span class="resumen-numero">@Model.VencidosConExistencia</span>
+        <span class="resumen-nombre">Lotes vencidos con existencia</span>
+    </div>
+    <div class="resumen-dato @(Model.PorVencer > 0 ? "resumen-alerta" : "")">
+        <span class="resumen-numero">@Model.PorVencer</span>
+        <span class="resumen-nombre">Lotes que vencen en @FarmaciaInicioViewModel.DiasAviso días</span>
+    </div>
+    <div class="resumen-dato @(Model.BajoMinimo > 0 ? "resumen-alerta" : "")">
+        <span class="resumen-numero">@Model.BajoMinimo</span>
+        <span class="resumen-nombre">Lotes en su mínimo o por debajo</span>
+    </div>
+</div>
+
+<h2 class="titulo-seccion">Recetas por despachar</h2>
+@using (Html.BeginForm("BuscarReceta", "Farmacia", FormMethod.Get, new { @class = "buscador" }))
+{
+    <label for="q" class="solo-lectores">Número de receta</label>
+    <input type="text" id="q" name="q" inputmode="numeric" maxlength="9" placeholder="Número de receta" />
+    <button type="submit" class="boton boton-primario">Buscar receta</button>
+}
+
+@if (Model.RecetasPendientes.Count == 0)
+{
+    <p class="dato-suave">No hay recetas esperando despacho.</p>
+}
+else
+{
+    <div class="tabla-contenedor">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Receta</th>
+                    <th>Emitida</th>
+                    <th>Medicamento</th>
+                    <th class="numero">Cantidad</th>
+                    <th><span class="solo-lectores">Acción</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var receta in Model.RecetasPendientes)
+                {
+                    <tr>
+                        <td>n.º @receta.Id</td>
+                        <td>@receta.FechaEmision.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@Model.NombreMedicamento(receta.MedicamentoId)</td>
+                        <td class="numero">@receta.CantidadPrescrita</td>
+                        <td class="celda-accion"><a href="@Url.Action("Receta", new { id = receta.Id })">Ver y despachar</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<h2 class="titulo-seccion">Lotes y existencias</h2>
+@if (Model.Lotes.Count == 0)
+{
+    <p class="dato-suave">Todavía no hay lotes registrados.</p>
+}
+else
+{
+    <div class="tabla-contenedor">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Medicamento</th>
+                    <th>Lote</th>
+                    <th>Caduca</th>
+                    <th class="numero">Existencia</th>
+                    <th class="numero">Mín. / Máx.</th>
+                    <th>Alertas</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var lote in Model.Lotes)
+                {
+                    <tr>
+                        <td>@lote.MedicamentoNombre</td>
+                        <td class="codigo">@lote.NumeroLote</td>
+                        <td>@lote.FechaCaducidad.ToString("dd/MM/yyyy")</td>
+                        <td class="numero">@lote.ExistenciaActual</td>
+                        <td class="numero">@lote.ExistenciaMinima / @(lote.ExistenciaMaxima == null ? "—" : lote.ExistenciaMaxima.Value.ToString())</td>
+                        <td>
+                            @if (lote.Vencido)
+                            {
+                                <span class="estado estado-alerta-error">Vencido</span>
+                            }
+                            else if (lote.PorVencer)
+                            {
+                                <span class="estado estado-alerta">Vence en @lote.DiasParaCaducar días</span>
+                            }
+                            @if (!lote.Vencido && lote.ExistenciaActual == 0)
+                            {
+                                <span class="estado estado-alerta">Agotado</span>
+                            }
+                            else if (!lote.Vencido && lote.BajoMinimo)
+                            {
+                                <span class="estado estado-alerta">Bajo mínimo</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

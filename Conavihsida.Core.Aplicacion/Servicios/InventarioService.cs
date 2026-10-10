@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Conavihsida.Core.Aplicacion.Comun;
+using Conavihsida.Core.Domain.Catalogos;
 using Conavihsida.Core.Domain.Entidades;
 using Conavihsida.Core.Domain.Repositorios;
 
@@ -44,6 +45,23 @@ namespace Conavihsida.Core.Aplicacion.Servicios
                 _auditoria.Registrar(usuarioId, null, terminal, "ConsultarReceta", "recetas", recetaId, null);
             }
             return receta;
+        }
+
+        /// <summary>
+        /// Recetas en un estado; sin estado, las Activas (las que esperan
+        /// despacho). null si el estado no existe.
+        /// </summary>
+        public List<Receta> ListarRecetas(string estado, int usuarioId, string terminal)
+        {
+            estado = string.IsNullOrWhiteSpace(estado) ? EstadosReceta.Activa : estado.Trim();
+            if (!EstadosReceta.EsValido(estado))
+            {
+                return null;
+            }
+
+            var recetas = _inventario.ObtenerRecetasPorEstado(estado);
+            _auditoria.Registrar(usuarioId, null, terminal, "ListarRecetas", "recetas", null, "estado=" + estado);
+            return recetas;
         }
 
         public ResultadoOperacion<LoteMedicamento> RegistrarLote(

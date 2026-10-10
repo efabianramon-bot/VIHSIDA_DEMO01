@@ -430,6 +430,73 @@ a.tarjeta:hover {
     color: var(--texto-suave);
 }
 
+.estado-alerta {
+    background: var(--alerta-fondo);
+    border-color: #efd88f;
+    color: var(--alerta);
+}
+
+.estado-alerta-error {
+    background: var(--error-fondo);
+    border-color: #efc2bd;
+    color: var(--error);
+}
+
+/* ---------- Encabezado con accion y resumen de cifras ---------- */
+
+.encabezado-pagina {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.resumen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+    margin-bottom: 8px;
+}
+
+.resumen-dato {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 18px;
+    background: var(--superficie);
+    border: 1px solid var(--borde);
+    border-left-width: 5px;
+    border-radius: var(--radio);
+}
+
+.resumen-numero {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.resumen-nombre {
+    font-size: 14px;
+    color: var(--texto-suave);
+}
+
+.resumen-info {
+    border-left-color: var(--primario);
+}
+
+.resumen-alerta {
+    border-left-color: #d99a00;
+}
+
+.resumen-error {
+    border-left-color: var(--error);
+}
+
+.resumen-error .resumen-numero {
+    color: var(--error);
+}
+
 /* ---------- Buscador ---------- */
 
 .buscador {
@@ -567,6 +634,26 @@ a.tarjeta:hover {
 .acciones {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
+}
+
+.acciones-en-panel,
+.aviso-en-panel {
+    margin: 16px 0 0;
+}
+
+.formulario-estrecho {
+    max-width: 760px;
+}
+
+.boton-neutro {
+    background: var(--superficie);
+    border-color: var(--borde);
+    color: var(--texto);
+}
+
+.boton-neutro:hover {
+    background: var(--fondo);
 }
 
 /* ---------- Login ---------- */

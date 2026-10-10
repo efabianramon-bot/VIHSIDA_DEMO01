@@ -1,0 +1,62 @@
+@model RegistrarLoteViewModel
+@{
+    ViewBag.Title = "Registrar lote";
+    var lote = Model.Lote;
+}
+
+<p class="migas"><a href="@Url.Action("Index")">Farmacia</a> / Registrar lote</p>
+<h1 class="titulo-pagina">Registrar lote</h1>
+<p class="subtitulo">Cada entrada de medicamento se registra como un lote nuevo, con su fecha de caducidad.</p>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="aviso aviso-error" role="alert">@Model.Error</div>
+}
+
+@using (Html.BeginForm("NuevoLote", "Farmacia", FormMethod.Post, new { @class = "panel formulario-estrecho" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="campo">
+        <label for="lote_MedicamentoId">Medicamento</label>
+        <select id="lote_MedicamentoId" name="lote.MedicamentoId" required>
+            <option value="">— Elige un medicamento —</option>
+            @foreach (var medicamento in Model.Medicamentos)
+            {
+                <option value="@medicamento.Id" @(lote.MedicamentoId == medicamento.Id ? "selected" : "")>@medicamento.NombreCompleto</option>
+            }
+        </select>
+    </div>
+
+    <div class="fila-campos">
+        <div class="campo">
+            <label for="lote_NumeroLote">Número de lote</label>
+            <input type="text" id="lote_NumeroLote" name="lote.NumeroLote" maxlength="50" required value="@lote.NumeroLote" />
+        </div>
+        <div class="campo">
+            <label for="lote_FechaCaducidad">Fecha de caducidad</label>
+            <input type="date" id="lote_FechaCaducidad" name="lote.FechaCaducidad" required
+                   value="@(lote.FechaCaducidad == null ? "" : lote.FechaCaducidad.Value.ToString("yyyy-MM-dd"))" />
+        </div>
+    </div>
+
+    <div class="fila-campos">
+        <div class="campo">
+            <label for="lote_Cantidad">Cantidad recibida</label>
+            <input type="number" id="lote_Cantidad" name="lote.Cantidad" min="1" step="1" required value="@lote.Cantidad" />
+        </div>
+        <div class="campo">
+            <label for="lote_ExistenciaMinima">Existencia mínima</label>
+            <input type="number" id="lote_ExistenciaMinima" name="lote.ExistenciaMinima" min="0" step="1" value="@lote.ExistenciaMinima" />
+        </div>
+        <div class="campo">
+            <label for="lote_ExistenciaMaxima">Existencia máxima (opcional)</label>
+            <input type="number" id="lote_ExistenciaMaxima" name="lote.ExistenciaMaxima" min="0" step="1" value="@lote.ExistenciaMaxima" />
+        </div>
+    </div>
+
+    <div class="acciones">
+        <button type="submit" class="boton boton-primario">Registrar lote</button>
+        <a class="boton boton-neutro" href="@Url.Action("Index")">Cancelar</a>
+    </div>
+}

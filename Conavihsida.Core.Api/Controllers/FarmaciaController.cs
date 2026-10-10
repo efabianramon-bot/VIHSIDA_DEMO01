@@ -54,6 +54,19 @@ namespace Conavihsida.Core.Api.Controllers
             return Created(Request.RequestUri + "/" + resultado.Valor.Id, resultado.Valor);
         }
 
+        // Sin ?estado= devuelve las Activas: la cola de recetas por despachar.
+        [HttpGet, Route("recetas")]
+        [RequiereRol(NombresRol.Farmaceutico)]
+        public IHttpActionResult ListarRecetas([FromUri] string estado = null)
+        {
+            var recetas = CrearServicio().ListarRecetas(estado, Identidad.UsuarioId.Value, ObtenerTerminal());
+            if (recetas == null)
+            {
+                return BadRequest("El estado debe ser Activa, Dispensada, Vencida o Cancelada.");
+            }
+            return Ok(recetas);
+        }
+
         [HttpGet, Route("recetas/{recetaId:int}")]
         [RequiereRol(NombresRol.Farmaceutico)]
         public IHttpActionResult ObtenerReceta(int recetaId)
