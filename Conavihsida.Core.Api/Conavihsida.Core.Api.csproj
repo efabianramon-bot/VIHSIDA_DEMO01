@@ -131,8 +131,10 @@
     <Compile Include="Handlers\LoggingHandler.cs" />
     <Compile Include="Handlers\TransaccionesHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Seguridad\AuditoriaAccesos.cs" />
     <Compile Include="Seguridad\IdentidadLlamada.cs" />
     <Compile Include="Seguridad\RequiereRolAttribute.cs" />
+    <Compile Include="Seguridad\SoloElPacienteAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NLog.config">

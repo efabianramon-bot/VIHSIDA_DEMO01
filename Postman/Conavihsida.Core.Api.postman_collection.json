@@ -66,6 +66,10 @@
       "value": "1"
     },
     {
+      "key": "otroPacienteId",
+      "value": "2"
+    },
+    {
       "key": "medicoId",
       "value": "1"
     },
@@ -1211,7 +1215,7 @@
     },
     {
       "name": "8. Portal del paciente (citas, facturas, resultados)",
-      "description": "Endpoints que consume el Portal Web a traves del Gateway.",
+      "description": "Endpoints que consume el Portal Web a traves del Gateway. El encabezado X-Paciente-Id simula al paciente autenticado: solo puede ver y tocar lo suyo (Ley 172-13).",
       "item": [
         {
           "name": "Listar medicos",
@@ -1285,7 +1289,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/citas"
           }
         },
@@ -1306,6 +1315,10 @@
           "request": {
             "method": "POST",
             "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -1333,7 +1346,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/citas/{{citaId}}/cancelar?pacienteId={{pacienteId}}"
           }
         },
@@ -1352,7 +1370,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/facturas"
           }
         },
@@ -1371,7 +1394,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/facturas/{{facturaId}}"
           }
         },
@@ -1391,6 +1419,10 @@
           "request": {
             "method": "POST",
             "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -1418,8 +1450,164 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/resultados"
+          }
+        },
+        {
+          "name": "Otro paciente pide estas facturas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{otroPacienteId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/facturas"
+          }
+        },
+        {
+          "name": "Otro paciente pide estos resultados",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{otroPacienteId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/resultados"
+          }
+        },
+        {
+          "name": "Otro paciente agenda a nombre de este",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{otroPacienteId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/citas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pacienteId\": {{pacienteId}},\n  \"medicoId\": {{medicoId}},\n  \"fecha\": \"{{fecha}}\",\n  \"hora\": \"10:00\",\n  \"motivo\": \"x\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Otro paciente cancela una cita ajena",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{otroPacienteId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/citas/{{citaId}}/cancelar?pacienteId={{pacienteId}}"
+          }
+        },
+        {
+          "name": "Citas sin identificar al paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', function () { pm.expect(pm.response.code).to.be.oneOf([401]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/citas"
+          }
+        },
+        {
+          "name": "Empleado pide las facturas de un paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', function () { pm.expect(pm.response.code).to.be.oneOf([401]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/facturas"
           }
         }
       ]

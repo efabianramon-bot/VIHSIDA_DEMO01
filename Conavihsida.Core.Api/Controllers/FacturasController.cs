@@ -1,12 +1,14 @@
 ﻿using System.Net;
 using System.Web.Http;
 using Conavihsida.Core.Api.Dtos;
+using Conavihsida.Core.Api.Seguridad;
 using Conavihsida.Core.Aplicacion.Servicios;
 using Conavihsida.Core.Data;
 
 namespace Conavihsida.Core.Api.Controllers
 {
     [RoutePrefix("api/pacientes/{pacienteId:int}/facturas")]
+    [SoloElPaciente]
     public class FacturasController : BaseApiController
     {
         private FacturacionService CrearServicio()
