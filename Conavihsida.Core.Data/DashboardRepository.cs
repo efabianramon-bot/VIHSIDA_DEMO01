@@ -33,8 +33,8 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@Inactivo", EstadosExpediente.Inactivo);
                 cmd.Parameters.AddWithValue("@Transferido", EstadosExpediente.Transferido);
                 cmd.Parameters.AddWithValue("@Desde", desde);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     reader.Read();
                     return new PacientesActivosVista
@@ -71,8 +71,8 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@Vencida", EstadosReceta.Vencida);
                 cmd.Parameters.AddWithValue("@Cancelada", EstadosReceta.Cancelada);
                 cmd.Parameters.AddWithValue("@Desde", desde);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     reader.Read();
                     return new AdherenciaVista
@@ -108,8 +108,8 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@Pagada", EstadosFactura.Pagada);
                 cmd.Parameters.AddWithValue("@Salida", TiposMovimiento.Salida);
                 cmd.Parameters.AddWithValue("@Desde", desde);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     reader.Read();
                     int subsidiadas = reader.GetInt32(0);

@@ -106,6 +106,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\LogConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AuditoriaController.cs" />
     <Compile Include="Controllers\AuthController.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="Handlers\ApiKeyHandler.cs" />
     <Compile Include="Handlers\CorsHandler.cs" />
     <Compile Include="Handlers\LoggingHandler.cs" />
+    <Compile Include="Handlers\TransaccionesHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Seguridad\IdentidadLlamada.cs" />
     <Compile Include="Seguridad\RequiereRolAttribute.cs" />

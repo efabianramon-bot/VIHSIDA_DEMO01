@@ -38,12 +38,12 @@ namespace Conavihsida.Core.Data
             var consultas = new List<HistorialClinico>();
             using (var conn = new SqlConnection(_connectionString))
             {
-                conn.Open();
+                conn.AbrirConLog();
 
                 using (var cmd = new SqlCommand(sqlConsultas, conn))
                 {
                     cmd.Parameters.AddWithValue("@Codigo", codigoSerologico);
-                    using (var reader = cmd.ExecuteReader())
+                    using (var reader = cmd.ExecuteReaderConLog())
                     {
                         while (reader.Read())
                         {
@@ -69,7 +69,7 @@ namespace Conavihsida.Core.Data
                 using (var cmd = new SqlCommand(sqlRecetas, conn))
                 {
                     cmd.Parameters.AddWithValue("@Codigo", codigoSerologico);
-                    using (var reader = cmd.ExecuteReader())
+                    using (var reader = cmd.ExecuteReaderConLog())
                     {
                         while (reader.Read())
                         {
@@ -119,7 +119,7 @@ namespace Conavihsida.Core.Data
 
             using (var conn = new SqlConnection(_connectionString))
             {
-                conn.Open();
+                conn.AbrirConLog();
                 using (var tx = conn.BeginTransaction())
                 {
                     try
@@ -135,7 +135,7 @@ namespace Conavihsida.Core.Data
                                 (object)consulta.DiagnosticoDetalle ?? DBNull.Value);
                             cmd.Parameters.AddWithValue("@NotasClinicas",
                                 (object)consulta.NotasClinicas ?? DBNull.Value);
-                            consulta.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                            consulta.Id = Convert.ToInt32(cmd.ExecuteScalarConLog());
                         }
 
                         foreach (var receta in consulta.Recetas)
@@ -155,21 +155,21 @@ namespace Conavihsida.Core.Data
                                 cmd.Parameters.AddWithValue("@CantidadPrescrita", receta.CantidadPrescrita);
                                 cmd.Parameters.AddWithValue("@FechaEmision", receta.FechaEmision);
                                 cmd.Parameters.AddWithValue("@Estado", receta.Estado);
-                                receta.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                                receta.Id = Convert.ToInt32(cmd.ExecuteScalarConLog());
                             }
                         }
 
-                        tx.Commit();
+                        tx.CommitConLog();
                         return true;
                     }
                     catch (SqlException ex) when (ex.Number == SqlErrorViolacionForanea)
                     {
-                        tx.Rollback();
+                        tx.RollbackConLog();
                         return false;
                     }
                     catch
                     {
-                        tx.Rollback();
+                        tx.RollbackConLog();
                         throw;
                     }
                 }

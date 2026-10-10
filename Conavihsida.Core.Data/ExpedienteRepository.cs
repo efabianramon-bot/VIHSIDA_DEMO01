@@ -67,10 +67,10 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@FechaApertura", expediente.FechaApertura);
                 cmd.Parameters.AddWithValue("@Estado", expediente.Estado);
 
-                conn.Open();
+                conn.AbrirConLog();
                 try
                 {
-                    cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQueryConLog();
                     return true;
                 }
                 catch (SqlException ex) when (ex.Number == SqlErrorViolacionUnique
@@ -97,10 +97,10 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@Estado", estado);
                 cmd.Parameters.AddWithValue("@Codigo", codigoSerologico);
 
-                conn.Open();
+                conn.AbrirConLog();
                 try
                 {
-                    return cmd.ExecuteNonQuery() > 0;
+                    return cmd.ExecuteNonQueryConLog() > 0;
                 }
                 catch (SqlException ex) when (ex.Number == SqlErrorViolacionForanea)
                 {
@@ -111,8 +111,8 @@ namespace Conavihsida.Core.Data
 
         private static ExpedienteClinico LeerUno(SqlConnection conn, SqlCommand cmd)
         {
-            conn.Open();
-            using (var reader = cmd.ExecuteReader())
+            conn.AbrirConLog();
+            using (var reader = cmd.ExecuteReaderConLog())
             {
                 if (!reader.Read())
                 {

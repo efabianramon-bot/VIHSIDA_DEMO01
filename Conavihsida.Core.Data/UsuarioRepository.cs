@@ -27,8 +27,8 @@ namespace Conavihsida.Core.Data
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Username", username);
 
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     // Primer conjunto de datos: Datos generales del usuario
                     if (reader.Read())
@@ -75,8 +75,8 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@DireccionIP", (object)ip ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@MensajeError", (object)mensajeError ?? DBNull.Value);
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                conn.AbrirConLog();
+                cmd.ExecuteNonQueryConLog();
             }
         }
 

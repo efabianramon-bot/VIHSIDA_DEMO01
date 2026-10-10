@@ -8,10 +8,12 @@ namespace Conavihsida.Core.Api
         {
             // Logging, CORS y llave de API envuelven TODAS las peticiones,
             // antes de llegar a cualquier controlador. El orden importa:
-            // CORS va antes que la llave (ver CorsHandler).
+            // CORS va antes que la llave (ver CorsHandler) y el log de
+            // transacciones despues (ver TransaccionesHandler).
             config.MessageHandlers.Add(new Handlers.LoggingHandler());
             config.MessageHandlers.Add(new Handlers.CorsHandler());
             config.MessageHandlers.Add(new Handlers.ApiKeyHandler());
+            config.MessageHandlers.Add(new Handlers.TransaccionesHandler());
 
             config.MapHttpAttributeRoutes();
 

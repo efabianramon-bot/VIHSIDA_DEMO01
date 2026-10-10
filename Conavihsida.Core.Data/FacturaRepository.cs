@@ -32,8 +32,8 @@ namespace Conavihsida.Core.Data
             using (var cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@PacienteID", pacienteId);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     while (reader.Read())
                     {
@@ -53,8 +53,8 @@ namespace Conavihsida.Core.Data
             {
                 cmd.Parameters.AddWithValue("@PacienteID", pacienteId);
                 cmd.Parameters.AddWithValue("@FacturaID", facturaId);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     if (reader.Read())
                     {
@@ -76,8 +76,8 @@ namespace Conavihsida.Core.Data
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
             {
-                conn.Open();
-                return Convert.ToInt32(cmd.ExecuteScalar());
+                conn.AbrirConLog();
+                return Convert.ToInt32(cmd.ExecuteScalarConLog());
             }
         }
 
@@ -85,7 +85,7 @@ namespace Conavihsida.Core.Data
         {
             using (var conn = new SqlConnection(_connectionString))
             {
-                conn.Open();
+                conn.AbrirConLog();
                 using (var tx = conn.BeginTransaction())
                 {
                     try
@@ -103,10 +103,10 @@ namespace Conavihsida.Core.Data
                             cmdFactura.Parameters.AddWithValue("@Pendiente", EstadosFactura.Pendiente);
                             cmdFactura.Parameters.AddWithValue("@FacturaID", pago.FacturaId);
 
-                            int filas = cmdFactura.ExecuteNonQuery();
+                            int filas = cmdFactura.ExecuteNonQueryConLog();
                             if (filas != 1)
                             {
-                                tx.Rollback();
+                                tx.RollbackConLog();
                                 return false;
                             }
                         }
@@ -126,7 +126,7 @@ namespace Conavihsida.Core.Data
                             cmdPago.Parameters.AddWithValue("@CajeroID",
                                 (object)pago.CajeroId ?? DBNull.Value);
                             cmdPago.Parameters.AddWithValue("@FechaPago", pago.FechaPago);
-                            cmdPago.ExecuteNonQuery();
+                            cmdPago.ExecuteNonQueryConLog();
                         }
 
                         // 3) RN-05: el comprobante se genera en la MISMA transaccion que el pago.
@@ -140,17 +140,17 @@ namespace Conavihsida.Core.Data
                             cmdComprobante.Parameters.AddWithValue("@NumeroRecibo", comprobante.NumeroRecibo);
                             cmdComprobante.Parameters.AddWithValue("@NumeroFactura", comprobante.NumeroFactura);
                             cmdComprobante.Parameters.AddWithValue("@FechaEmision", comprobante.FechaEmision);
-                            cmdComprobante.ExecuteNonQuery();
+                            cmdComprobante.ExecuteNonQueryConLog();
                         }
 
-                        tx.Commit();
+                        tx.CommitConLog();
                         return true;
                     }
                     catch (Exception)
                     {
                         // Ante cualquier fallo (BD caida, violacion de FK, etc.) no dejamos
                         // nada a medias: ni factura pagada sin pago, ni pago sin comprobante.
-                        tx.Rollback();
+                        tx.RollbackConLog();
                         return false;
                     }
                 }

@@ -36,8 +36,8 @@ namespace Conavihsida.Core.Data
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
             {
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     while (reader.Read())
                     {
@@ -61,8 +61,8 @@ namespace Conavihsida.Core.Data
             using (var cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@MedicoID", medicoId);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     if (reader.Read())
                     {
@@ -90,8 +90,8 @@ namespace Conavihsida.Core.Data
             using (var cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@PacienteID", pacienteId);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     while (reader.Read())
                     {
@@ -127,8 +127,8 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@MedicoID", medicoId);
                 cmd.Parameters.Add("@Fecha", SqlDbType.Date).Value = fecha.Date;
                 cmd.Parameters.AddWithValue("@Cancelada", EstadosCita.Cancelada);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     while (reader.Read())
                     {
@@ -157,10 +157,10 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@Estado", cita.Estado);
                 cmd.Parameters.AddWithValue("@FechaCreacion", cita.FechaCreacion);
 
-                conn.Open();
+                conn.AbrirConLog();
                 try
                 {
-                    object resultado = cmd.ExecuteScalar();
+                    object resultado = cmd.ExecuteScalarConLog();
                     return Convert.ToInt32(resultado);
                 }
                 catch (SqlException ex) when (ex.Number == SqlErrorViolacionUnique
@@ -184,8 +184,8 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@Cancelada", EstadosCita.Cancelada);
                 cmd.Parameters.AddWithValue("@CitaID", citaId);
                 cmd.Parameters.AddWithValue("@PacienteID", pacienteId);
-                conn.Open();
-                int filas = cmd.ExecuteNonQuery();
+                conn.AbrirConLog();
+                int filas = cmd.ExecuteNonQueryConLog();
                 return filas > 0;
             }
         }
