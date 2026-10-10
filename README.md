@@ -20,6 +20,7 @@ Incluye además una aplicación de consola para pruebas manuales.
 | `Conavihsida.Core.Aplicacion` | Biblioteca | Servicios con las reglas de negocio (autenticación, expediente, historial, inventario, dashboard, citas, facturación, auditoría) y `ResultadoOperacion<T>`. |
 | `Conavihsida.Core.Domain` | Biblioteca | Entidades, catálogos, vistas e interfaces de repositorio. |
 | `Conavihsida.Core.Data` | Biblioteca | Repositorios sobre SQL Server. |
+| `Conavihsida.Core.Empleados` | ASP.NET MVC 5 | Aplicación de empleados (RF-CORE-06, 07 y 08): login y portales por rol. No toca la base: todo lo pide a la API. |
 | `VIHSIDA_DEMO01` | Consola | Programa de demostración y menú de pruebas (`PruebasCoreMenu`). |
 
 La carpeta `UsuarioRepository` contiene un proyecto aparte que no forma parte
@@ -40,6 +41,25 @@ La API lee dos valores de `Conavihsida.Core.Api/Web.config`:
 - Ajuste `CoreApi:ApiKey`: llave compartida que debe enviar quien llame a la API.
 - Ajuste `CoreApi:CorsOrigenes`: orígenes del Portal Web autorizados a llamar a
   la API desde el navegador (CORS), separados por coma.
+
+## Aplicación de empleados
+
+`Conavihsida.Core.Empleados` es la interfaz interna para Médico, Farmacia,
+Administrador y Auditor. El empleado entra con su usuario; la aplicación
+llama a `POST /api/auth/login` y, desde ahí, envía en cada llamada a la API
+la llave, `X-Usuario-Id` y `X-Roles`. El menú muestra solo los portales del
+rol, y la API vuelve a comprobar el rol en cada petición.
+
+Para usarla hay que tener corriendo **los dos proyectos**:
+
+1. En Visual Studio, clic derecho en la solución → *Configure Startup
+   Projects* → *Multiple startup projects*, y pon en *Start*
+   `Conavihsida.Core.Api` y `Conavihsida.Core.Empleados`.
+2. La aplicación abre en `http://localhost:58950/` y busca la API en
+   `http://localhost:58942/` (ajuste `CoreApi:BaseUrl` de su `Web.config`).
+3. El ajuste `CoreApi:ApiKey` de su `Web.config` debe ser igual al de la API.
+
+Los usuarios de prueba están en `Database/Datos/usuarios_prueba.sql`.
 
 ## Base de datos
 

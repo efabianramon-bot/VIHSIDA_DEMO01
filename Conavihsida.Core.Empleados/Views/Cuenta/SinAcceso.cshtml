@@ -1,0 +1,9 @@
+@{
+    ViewBag.Title = "Sin acceso";
+}
+
+<section class="mensaje">
+    <h1>Tu rol no tiene acceso a esta pantalla</h1>
+    <p>Si crees que deberías poder entrar, pídele a un administrador que revise tus roles.</p>
+    <a class="boton boton-primario" href="@Url.Action("Index", "Inicio")">Volver al inicio</a>
+</section>
