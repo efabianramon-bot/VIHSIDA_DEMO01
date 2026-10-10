@@ -50,6 +50,7 @@
     <Compile Include="Servicios\CitaService.cs" />
     <Compile Include="Servicios\ExpedienteService.cs" />
     <Compile Include="Servicios\FacturacionService.cs" />
+    <Compile Include="Servicios\HistorialService.cs" />
     <Compile Include="Servicios\ResultadoService.cs" />
   </ItemGroup>
   <ItemGroup>
