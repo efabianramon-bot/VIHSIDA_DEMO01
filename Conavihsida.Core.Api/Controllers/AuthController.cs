@@ -1,6 +1,7 @@
 using System.Net;
 using System.Web.Http;
 using Conavihsida.Core.Api.Dtos;
+using Conavihsida.Core.Api.Seguridad;
 using Conavihsida.Core.Aplicacion.Servicios;
 using Conavihsida.Core.Data;
 using Conavihsida.Core.Domain.Catalogos;
@@ -39,6 +40,15 @@ namespace Conavihsida.Core.Api.Controllers
             }
 
             return Ok(resultado.Valor);
+        }
+
+        // Devuelve la identidad tal como la recibio el CORE. Sirve para
+        // comprobar que el Gateway esta mandando bien los encabezados.
+        [HttpGet, Route("yo"), RequiereRol]
+        public IHttpActionResult Yo()
+        {
+            var identidad = Identidad;
+            return Ok(new { usuarioId = identidad.UsuarioId, roles = identidad.Roles });
         }
     }
 }

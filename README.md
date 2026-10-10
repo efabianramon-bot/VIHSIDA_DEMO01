@@ -36,9 +36,20 @@ La API lee dos valores de `Conavihsida.Core.Api/Web.config`:
 Todas las peticiones deben incluir el header `X-Api-Key`; sin él la API
 responde `401`. Las respuestas son JSON en camelCase.
 
+El JWT lo genera y valida el Gateway. Al reenviar una petición, el Gateway
+indica quién la hace con estos encabezados:
+
+- `X-Usuario-Id` y `X-Roles` para empleados. Varios roles van separados por
+  coma, por ejemplo `X-Roles: Medico,Administrador`.
+- `X-Paciente-Id` para pacientes del Portal Web.
+
+Los endpoints marcados con `[RequiereRol(...)]` responden `401` si falta
+`X-Usuario-Id` y `403` si el empleado no tiene alguno de los roles permitidos.
+
 | Método | Ruta | Descripción |
 | --- | --- | --- |
 | POST | `/api/auth/login` | Valida usuario y contraseña; devuelve el usuario y sus roles, sin token (`401` si no son válidos). |
+| GET | `/api/auth/yo` | Devuelve la identidad de empleado recibida en los encabezados (`401` si falta). |
 | GET | `/api/medicos` | Lista los médicos. |
 | GET | `/api/medicos/{medicoId}/horarios?fecha=` | Horarios disponibles de un médico en una fecha. |
 | GET | `/api/pacientes/{pacienteId}/citas` | Citas del paciente. |

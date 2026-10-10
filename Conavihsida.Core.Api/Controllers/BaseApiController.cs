@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Net.Http;
 using System.Web.Http;
+using Conavihsida.Core.Api.Seguridad;
 using Conavihsida.Core.Aplicacion.Servicios;
 using Conavihsida.Core.Data;
 
@@ -22,6 +23,12 @@ namespace Conavihsida.Core.Api.Controllers
         protected static AuditoriaService CrearAuditoriaService()
         {
             return new AuditoriaService(new AuditoriaRepository(ConnectionString));
+        }
+
+        /// <summary>Empleado o paciente detras de la peticion, segun el Gateway.</summary>
+        protected IdentidadLlamada Identidad
+        {
+            get { return IdentidadLlamada.Leer(Request); }
         }
 
         /// <summary>Terminal que va a la auditoria: quien llamo, no un dato sensible.</summary>

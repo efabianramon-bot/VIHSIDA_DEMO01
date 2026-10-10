@@ -121,6 +121,8 @@
     <Compile Include="Handlers\ApiKeyHandler.cs" />
     <Compile Include="Handlers\LoggingHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Seguridad\IdentidadLlamada.cs" />
+    <Compile Include="Seguridad\RequiereRolAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NLog.config">
