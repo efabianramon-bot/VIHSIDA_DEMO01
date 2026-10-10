@@ -58,6 +58,10 @@ ALTER TABLE [dbo].[Citas] ADD  DEFAULT (getdate()) FOR [FechaCreacion]
 GO
 ALTER TABLE [dbo].[Citas]  WITH CHECK ADD CHECK  (([Estado]='Cancelada' OR [Estado]='Pendiente' OR [Estado]='Confirmada'))
 GO
+ALTER TABLE [dbo].[Citas]  WITH CHECK ADD  CONSTRAINT [CK_Citas_Hora] CHECK  (([Hora] like '[0-1][0-9]:[0-5][0-9]' OR [Hora] like '2[0-3]:[0-5][0-9]'))
+GO
+ALTER TABLE [dbo].[Citas] CHECK CONSTRAINT [CK_Citas_Hora]
+GO
 
 CREATE TABLE [dbo].[Comprobantes](
 	[ComprobanteID] [int] IDENTITY(1,1) NOT NULL,
@@ -157,6 +161,10 @@ ALTER TABLE [dbo].[HistorialClinico] ADD  DEFAULT (getdate()) FOR [FechaConsulta
 GO
 ALTER TABLE [dbo].[HistorialClinico]  WITH CHECK ADD CHECK  (([ConteoCD4] IS NULL OR [ConteoCD4]>=(0)))
 GO
+ALTER TABLE [dbo].[HistorialClinico]  WITH CHECK ADD  CONSTRAINT [CK_HistorialClinico_CargaViral] CHECK  (([CargaViral] IS NULL OR [CargaViral]>=(0)))
+GO
+ALTER TABLE [dbo].[HistorialClinico] CHECK CONSTRAINT [CK_HistorialClinico_CargaViral]
+GO
 
 CREATE TABLE [dbo].[LotesMedicamento](
 	[LoteID] [int] IDENTITY(1,1) NOT NULL,
@@ -196,6 +204,11 @@ CREATE TABLE [dbo].[Medicamentos](
 PRIMARY KEY CLUSTERED 
 (
 	[MedicamentoID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_Medicamentos_Nombre] UNIQUE NONCLUSTERED 
+(
+	[Nombre] ASC,
+	[Presentacion] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
@@ -338,6 +351,10 @@ ALTER TABLE [dbo].[ResultadosLab] ADD  DEFAULT ('Pendiente') FOR [Estado]
 GO
 ALTER TABLE [dbo].[ResultadosLab]  WITH CHECK ADD CHECK  (([Estado]='Listo' OR [Estado]='Pendiente'))
 GO
+ALTER TABLE [dbo].[ResultadosLab]  WITH CHECK ADD  CONSTRAINT [CK_ResultadosLab_Listo_Requiere_Fecha] CHECK  (([Estado]<>'Listo' OR [FechaResultado] IS NOT NULL))
+GO
+ALTER TABLE [dbo].[ResultadosLab] CHECK CONSTRAINT [CK_ResultadosLab_Listo_Requiere_Fecha]
+GO
 
 CREATE TABLE [dbo].[Roles](
 	[RolID] [int] IDENTITY(1,1) NOT NULL,
@@ -373,6 +390,10 @@ PRIMARY KEY CLUSTERED
 ) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[SesionesLog] ADD  DEFAULT (getdate()) FOR [FechaIntento]
+GO
+ALTER TABLE [dbo].[SesionesLog]  WITH CHECK ADD  CONSTRAINT [CK_SesionesLog_OrigenAcceso] CHECK  (([OrigenAcceso]='CORE' OR [OrigenAcceso]='CAJA' OR [OrigenAcceso]='WEB'))
+GO
+ALTER TABLE [dbo].[SesionesLog] CHECK CONSTRAINT [CK_SesionesLog_OrigenAcceso]
 GO
 
 CREATE TABLE [dbo].[UsuarioRoles](
