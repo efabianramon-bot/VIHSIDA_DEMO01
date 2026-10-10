@@ -1,0 +1,178 @@
+@model ExpedienteViewModel
+@{
+    ViewBag.Title = "Expediente " + Model.Expediente.CodigoSerologico;
+    var expediente = Model.Expediente;
+}
+
+<p class="migas"><a href="@Url.Action("Index")">Portal Médico</a> / Expediente</p>
+
+<div class="encabezado-expediente">
+    <div>
+        <h1 class="titulo-pagina codigo">@expediente.CodigoSerologico</h1>
+        <p class="dato-suave">
+            Abierto el @expediente.FechaApertura.ToString("dd/MM/yyyy")
+        </p>
+    </div>
+    <span class="estado estado-@expediente.Estado.ToLowerInvariant()">@expediente.Estado</span>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Exito))
+{
+    <div class="aviso aviso-exito" role="status">@Model.Exito</div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="aviso aviso-error" role="alert">@Model.Error</div>
+}
+
+@if (Model.Paciente != null)
+{
+    <section class="panel">
+        <h2>Paciente</h2>
+        <dl class="datos">
+            <div><dt>Nombre</dt><dd>@Model.Paciente.NombreCompleto</dd></div>
+            <div><dt>Cédula</dt><dd>@(string.IsNullOrEmpty(Model.Paciente.Cedula) ? "Sin registrar" : Model.Paciente.Cedula)</dd></div>
+            <div>
+                <dt>Nacimiento</dt>
+                <dd>@(Model.Paciente.FechaNacimiento == null ? "Sin registrar" : Model.Paciente.FechaNacimiento.Value.ToString("dd/MM/yyyy"))</dd>
+            </div>
+        </dl>
+    </section>
+}
+
+<h2 class="titulo-seccion">Historial clínico</h2>
+@if (Model.Consultas.Count == 0)
+{
+    <p class="dato-suave">Este expediente todavía no tiene consultas.</p>
+}
+else
+{
+    foreach (var consulta in Model.Consultas)
+    {
+        <article class="panel consulta">
+            <header class="consulta-encabezado">
+                <h3>Consulta del @consulta.FechaConsulta.ToString("dd/MM/yyyy HH:mm")</h3>
+                <div class="indicadores">
+                    <span class="indicador">
+                        <span class="indicador-nombre">Carga viral</span>
+                        <span class="indicador-valor">@(consulta.CargaViral == null ? "—" : consulta.CargaViral.Value.ToString("#,0.##") + " copias/mL")</span>
+                    </span>
+                    <span class="indicador">
+                        <span class="indicador-nombre">CD4</span>
+                        <span class="indicador-valor">@(consulta.ConteoCd4 == null ? "—" : consulta.ConteoCd4.Value.ToString("#,0") + " cél/µL")</span>
+                    </span>
+                </div>
+            </header>
+
+            @if (!string.IsNullOrEmpty(consulta.DiagnosticoDetalle))
+            {
+                <p><strong>Diagnóstico y evolución.</strong> @consulta.DiagnosticoDetalle</p>
+            }
+            @if (!string.IsNullOrEmpty(consulta.NotasClinicas))
+            {
+                <p><strong>Notas.</strong> @consulta.NotasClinicas</p>
+            }
+
+            @if (consulta.Recetas != null && consulta.Recetas.Count > 0)
+            {
+                <div class="tabla-contenedor">
+                    <table class="tabla tabla-compacta">
+                        <thead>
+                            <tr>
+                                <th>Receta</th>
+                                <th>Medicamento</th>
+                                <th>Esquema TARV</th>
+                                <th class="numero">Cantidad</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var receta in consulta.Recetas)
+                            {
+                                <tr>
+                                    <td>n.º @receta.Id</td>
+                                    <td>@Model.NombreMedicamento(receta.MedicamentoId)</td>
+                                    <td>@(string.IsNullOrEmpty(receta.EsquemaTarv) ? "—" : receta.EsquemaTarv)</td>
+                                    <td class="numero">@receta.CantidadPrescrita</td>
+                                    <td><span class="estado estado-@receta.Estado.ToLowerInvariant()">@receta.Estado</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </article>
+    }
+}
+
+<h2 class="titulo-seccion">Registrar consulta</h2>
+@if (!Model.AdmiteConsultas)
+{
+    <div class="aviso aviso-alerta">El expediente está @expediente.Estado.ToLowerInvariant(): no admite nuevas consultas.</div>
+}
+else
+{
+    using (Html.BeginForm("RegistrarConsulta", "Medico", FormMethod.Post, new { @class = "panel formulario-clinico" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="codigo" value="@expediente.CodigoSerologico" />
+
+        <div class="campo">
+            <label for="consulta_DiagnosticoDetalle">Diagnóstico y evolución</label>
+            <textarea id="consulta_DiagnosticoDetalle" name="consulta.DiagnosticoDetalle" rows="3">@Model.NuevaConsulta.DiagnosticoDetalle</textarea>
+        </div>
+
+        <div class="campo">
+            <label for="consulta_NotasClinicas">Notas clínicas</label>
+            <textarea id="consulta_NotasClinicas" name="consulta.NotasClinicas" rows="2">@Model.NuevaConsulta.NotasClinicas</textarea>
+        </div>
+
+        <div class="fila-campos">
+            <div class="campo">
+                <label for="consulta_CargaViral">Carga viral (copias/mL)</label>
+                <input type="number" id="consulta_CargaViral" name="consulta.CargaViral" min="0" step="0.01"
+                       value="@(Model.NuevaConsulta.CargaViral == null ? "" : Model.NuevaConsulta.CargaViral.Value.ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+            </div>
+            <div class="campo">
+                <label for="consulta_ConteoCd4">Conteo de CD4 (cél/µL)</label>
+                <input type="number" id="consulta_ConteoCd4" name="consulta.ConteoCd4" min="0" step="1"
+                       value="@Model.NuevaConsulta.ConteoCd4" />
+            </div>
+        </div>
+
+        <fieldset class="recetas">
+            <legend>Recetas TARV (opcional)</legend>
+            <p class="dato-suave">Deja sin medicamento las filas que no uses. La consulta y sus recetas se guardan juntas.</p>
+            @for (int i = 0; i < Model.NuevaConsulta.Recetas.Count; i++)
+            {
+                var receta = Model.NuevaConsulta.Recetas[i];
+                <div class="fila-receta">
+                    <div class="campo campo-ancho">
+                        <label for="receta_@(i)_medicamento">Medicamento @(i + 1)</label>
+                        <select id="receta_@(i)_medicamento" name="consulta.Recetas[@i].MedicamentoId">
+                            <option value="">— Ninguno —</option>
+                            @foreach (var medicamento in Model.Medicamentos)
+                            {
+                                <option value="@medicamento.Id" @(receta.MedicamentoId == medicamento.Id ? "selected" : "")>@medicamento.NombreCompleto</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="campo campo-ancho">
+                        <label for="receta_@(i)_esquema">Esquema</label>
+                        <input type="text" id="receta_@(i)_esquema" name="consulta.Recetas[@i].EsquemaTarv"
+                               maxlength="150" value="@receta.EsquemaTarv" placeholder="Ej.: 1 tableta diaria" />
+                    </div>
+                    <div class="campo campo-corto">
+                        <label for="receta_@(i)_cantidad">Cantidad</label>
+                        <input type="number" id="receta_@(i)_cantidad" name="consulta.Recetas[@i].CantidadPrescrita"
+                               min="1" step="1" value="@receta.CantidadPrescrita" />
+                    </div>
+                </div>
+            }
+        </fieldset>
+
+        <div class="acciones">
+            <button type="submit" class="boton boton-primario">Guardar consulta</button>
+        </div>
+    }
+}

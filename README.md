@@ -59,7 +59,16 @@ Para usarla hay que tener corriendo **los dos proyectos**:
    `http://localhost:58942/` (ajuste `CoreApi:BaseUrl` de su `Web.config`).
 3. El ajuste `CoreApi:ApiKey` de su `Web.config` debe ser igual al de la API.
 
-Los usuarios de prueba están en `Database/Datos/usuarios_prueba.sql`.
+Los usuarios de prueba están en `Database/Datos/usuarios_prueba.sql`. Para el
+rol Médico usa `medico2.prueba` (`Database/Datos/medico_prueba.sql`), con la
+misma contraseña: el usuario `medico.prueba` original tiene un hash de relleno
+y no puede iniciar sesión.
+
+Portales disponibles:
+
+- **Portal Médico** (rol Médico): busca por cédula o por código serológico,
+  abre el expediente de un paciente que no lo tiene, muestra el historial con
+  carga viral, CD4 y recetas, y registra consultas con sus recetas TARV.
 
 ## Base de datos
 
@@ -86,7 +95,7 @@ Los destinos y formatos se cambian en `Conavihsida.Core.Api/NLog.config`.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 55 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 60 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -115,6 +124,8 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | --- | --- | --- |
 | POST | `/api/auth/login` | Valida usuario y contraseña; devuelve el usuario y sus roles, sin token (`401` si no son válidos). |
 | GET | `/api/auth/yo` | Devuelve la identidad de empleado recibida en los encabezados (`401` si falta). |
+| GET | `/api/clinica/expedientes` | Lista de expedientes (código, estado y apertura). Solo rol Médico. |
+| GET | `/api/clinica/pacientes?cedula=` o `?pacienteId=` | Identifica a un paciente y dice si tiene expediente. Es el único cruce entre identidad y código serológico; solo rol Médico y siempre auditado. |
 | GET | `/api/clinica/expediente/{codigo}` | Expediente clínico por código serológico. Solo rol Médico (`403` para los demás). |
 | POST | `/api/clinica/expediente` | Abre el expediente de un paciente y genera su código serológico. Solo rol Médico. |
 | PUT | `/api/clinica/expediente/{codigo}` | Cambia el médico responsable y el estado. Solo rol Médico. |

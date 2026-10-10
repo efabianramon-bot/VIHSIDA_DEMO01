@@ -70,6 +70,10 @@
       "value": "2"
     },
     {
+      "key": "cedulaPaciente",
+      "value": "000-0000002-0"
+    },
+    {
       "key": "medicoId",
       "value": "1"
     },
@@ -417,6 +421,148 @@
               }
             ],
             "url": "{{baseUrl}}/api/clinica/expediente/NO-EXISTE"
+          }
+        },
+        {
+          "name": "Listar expedientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Trae al menos un expediente', function () { pm.expect(pm.response.json().length).to.be.above(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expedientes"
+          }
+        },
+        {
+          "name": "Identificar paciente por cedula",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Dice si tiene expediente', function () { pm.expect(pm.response.json()).to.have.property('nombreCompleto'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/pacientes?cedula={{cedulaPaciente}}"
+          }
+        },
+        {
+          "name": "Identificar paciente con cedula inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', function () { pm.expect(pm.response.code).to.be.oneOf([404]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/pacientes?cedula=999-9999999-9"
+          }
+        },
+        {
+          "name": "Identificar paciente sin criterio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/pacientes"
+          }
+        },
+        {
+          "name": "Cajero intenta identificar a un paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/pacientes?cedula={{cedulaPaciente}}"
           }
         },
         {

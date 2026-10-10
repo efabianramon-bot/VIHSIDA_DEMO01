@@ -33,7 +33,7 @@ namespace Conavihsida.Core.Empleados.Models
                 Descripcion = "Expedientes, historial clínico, consultas y recetas.",
                 Controlador = "Medico",
                 RolesPermitidos = new[] { NombresRol.Medico },
-                Disponible = false
+                Disponible = true
             },
             new OpcionMenu
             {

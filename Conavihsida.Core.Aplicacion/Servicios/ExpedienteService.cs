@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using Conavihsida.Core.Aplicacion.Comun;
 using Conavihsida.Core.Domain.Catalogos;
 using Conavihsida.Core.Domain.Entidades;
 using Conavihsida.Core.Domain.Repositorios;
+using Conavihsida.Core.Domain.Vistas;
 
 namespace Conavihsida.Core.Aplicacion.Servicios
 {
@@ -17,6 +20,9 @@ namespace Conavihsida.Core.Aplicacion.Servicios
         private const string AlfabetoCodigo = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         private const int LargoAleatorioCodigo = 10;
         private const int IntentosCodigo = 3;
+
+        // La cedula dominicana tiene 11 digitos (000-0000000-0).
+        private const int LargoCedula = 11;
 
         private readonly IExpedienteRepository _expedientes;
         private readonly AuditoriaService _auditoria;
@@ -35,6 +41,39 @@ namespace Conavihsida.Core.Aplicacion.Servicios
                 Auditar(usuarioId, terminal, "ConsultarExpediente", codigoSerologico);
             }
             return expediente;
+        }
+
+        public List<ExpedienteClinico> ListarExpedientes(int usuarioId, string terminal)
+        {
+            var lista = _expedientes.Listar();
+            _auditoria.Registrar(usuarioId, null, terminal, "ListarExpedientes", "expedientes_clinicos", null, null);
+            return lista;
+        }
+
+        /// <summary>
+        /// Identifica a un paciente por cedula o por Id y dice si ya tiene
+        /// expediente. Indica solo uno de los dos criterios. Devuelve null
+        /// si el criterio no es valido o el paciente no existe.
+        /// </summary>
+        public PacienteClinicoVista BuscarPaciente(string cedula, int? pacienteId, int usuarioId, string terminal)
+        {
+            string digitos = SoloDigitos(cedula);
+            bool porCedula = digitos.Length == LargoCedula;
+            bool porId = pacienteId != null && pacienteId > 0;
+            if (!porCedula && !porId)
+            {
+                return null;
+            }
+
+            var paciente = _expedientes.BuscarPaciente(porCedula ? digitos : null, porCedula ? null : pacienteId);
+            if (paciente != null)
+            {
+                // Aqui va el PacienteID y NO el codigo serologico, por la
+                // misma razon que en Auditar(): no juntarlos en la bitacora.
+                _auditoria.Registrar(usuarioId, paciente.PacienteId, terminal, "IdentificarPaciente",
+                    "pacientes", paciente.PacienteId, null);
+            }
+            return paciente;
         }
 
         public ResultadoOperacion<ExpedienteClinico> AbrirExpediente(int pacienteId, int? medicoResponsableId,
@@ -98,6 +137,11 @@ namespace Conavihsida.Core.Aplicacion.Servicios
         {
             _auditoria.Registrar(usuarioId, null, terminal, accion, "expedientes_clinicos", null,
                 "codigo=" + codigoSerologico);
+        }
+
+        private static string SoloDigitos(string texto)
+        {
+            return new string((texto ?? string.Empty).Where(char.IsDigit).ToArray());
         }
 
         private static string GenerarCodigo()
