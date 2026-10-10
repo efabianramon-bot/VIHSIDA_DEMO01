@@ -55,6 +55,11 @@ Los endpoints marcados con `[RequiereRol(...)]` responden `401` si falta
 | PUT | `/api/clinica/expediente/{codigo}` | Cambia el médico responsable y el estado. Solo rol Médico. |
 | GET | `/api/clinica/expediente/{codigo}/historial` | Consultas del expediente con carga viral, CD4 y recetas. Solo rol Médico. |
 | POST | `/api/clinica/expediente/{codigo}/consultas` | Registra una consulta y sus recetas TARV en una sola transacción. Solo rol Médico. |
+| GET | `/api/farmacia/medicamentos` | Catálogo de medicamentos. Roles Farmacéutico, Médico y Administrador. |
+| GET | `/api/farmacia/lotes?medicamentoId=` | Lotes con caducidad, existencias y avisos de vencido o bajo mínimo. Roles Farmacéutico y Administrador. |
+| POST | `/api/farmacia/lotes` | Registra un lote y su entrada de inventario. Solo rol Farmacéutico. |
+| GET | `/api/farmacia/recetas/{recetaId}` | Consulta una receta antes de despacharla. Solo rol Farmacéutico. |
+| POST | `/api/farmacia/recetas/{recetaId}/despachar` | Despacha una receta activa y descuenta el stock (`409` si no está activa o no hay existencia). Solo rol Farmacéutico. |
 | GET | `/api/medicos` | Lista los médicos. |
 | GET | `/api/medicos/{medicoId}/horarios?fecha=` | Horarios disponibles de un médico en una fecha. |
 | GET | `/api/pacientes/{pacienteId}/citas` | Citas del paciente. |
