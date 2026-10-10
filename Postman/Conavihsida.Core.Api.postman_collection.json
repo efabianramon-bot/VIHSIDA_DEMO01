@@ -1,0 +1,1513 @@
+{
+  "info": {
+    "name": "Conavihsida Core API",
+    "description": "Pruebas de Conavihsida.Core.Api para la demo, en el orden del flujo: login, seguridad por rol, expediente, consulta y receta, farmacia, auditoria y dashboard.\n\nAntes de usarla:\n1. Levanta la API desde Visual Studio y ajusta baseUrl si usa otro puerto.\n2. Pon en la variable apiKey el valor de CoreApi:ApiKey de Web.config (como valor actual, para que no se sincronice).\n3. Pon en clavePrueba la contraseña anotada en Database/Datos/usuarios_prueba.sql (tambien como valor actual).\n4. La base debe tener cargados los scripts de Database/Migraciones y Database/Datos.\n\nLos encabezados X-Usuario-Id y X-Roles simulan lo que agrega el Gateway despues de validar el JWT.\n\nPara correr todo: clic derecho en la coleccion, Run collection. Las carpetas 4 y 5 deben ir en orden.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-Api-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:58942"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "clavePrueba",
+      "value": ""
+    },
+    {
+      "key": "origenWeb",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "usuarioMedico",
+      "value": "1"
+    },
+    {
+      "key": "usuarioAdmin",
+      "value": "2"
+    },
+    {
+      "key": "usuarioFarmacia",
+      "value": "3"
+    },
+    {
+      "key": "usuarioAuditor",
+      "value": "4"
+    },
+    {
+      "key": "usuarioCajero",
+      "value": "5"
+    },
+    {
+      "key": "pacienteId",
+      "value": "1"
+    },
+    {
+      "key": "medicoId",
+      "value": "1"
+    },
+    {
+      "key": "medicamentoId",
+      "value": "1"
+    },
+    {
+      "key": "codigo",
+      "value": "COD-TEST-0001"
+    },
+    {
+      "key": "facturaId",
+      "value": "1"
+    },
+    {
+      "key": "recetaId",
+      "value": ""
+    },
+    {
+      "key": "citaId",
+      "value": "0"
+    },
+    {
+      "key": "fecha",
+      "value": "2026-10-20"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Login y roles (RF-CORE-01)",
+      "description": "El CORE valida la contraseña y devuelve usuario y roles. El token JWT lo genera el Gateway. Requiere la variable clavePrueba.",
+      "item": [
+        {
+          "name": "Login del cajero",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Devuelve el rol Cajero', function () { pm.expect(pm.response.json().roles).to.include('Cajero'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"cajero.prueba\",\n  \"password\": \"{{clavePrueba}}\",\n  \"origen\": \"CAJA\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login con usuario inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', function () { pm.expect(pm.response.code).to.be.oneOf([401]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"no.existe\",\n  \"password\": \"x\",\n  \"origen\": \"WEB\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login con origen invalido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"cajero.prueba\",\n  \"password\": \"x\",\n  \"origen\": \"OTRO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Quien soy (encabezados del Gateway)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/yo"
+          }
+        },
+        {
+          "name": "Quien soy sin identidad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', function () { pm.expect(pm.response.code).to.be.oneOf([401]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auth/yo"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Criterio 5: el Cajero no entra a lo clinico",
+      "description": "Cada intento responde 403 y queda en la bitacora como AccesoDenegado.",
+      "item": [
+        {
+          "name": "Cajero pide un expediente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}"
+          }
+        },
+        {
+          "name": "Cajero intenta registrar una consulta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/consultas",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"diagnosticoDetalle\": \"x\" }"
+            }
+          }
+        },
+        {
+          "name": "Farmaceutico pide el historial",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/historial"
+          }
+        },
+        {
+          "name": "Paciente pide un expediente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', function () { pm.expect(pm.response.code).to.be.oneOf([401]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Expediente clinico (RF-CORE-02)",
+      "description": "Solo rol Medico. El expediente se identifica por codigo serologico, no por la identidad del paciente.",
+      "item": [
+        {
+          "name": "Medico consulta el expediente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}"
+          }
+        },
+        {
+          "name": "Expediente inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', function () { pm.expect(pm.response.code).to.be.oneOf([404]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/NO-EXISTE"
+          }
+        },
+        {
+          "name": "Abrir expediente (201 si el paciente no tiene, 409 si ya tiene)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201 o 409', function () { pm.expect(pm.response.code).to.be.oneOf([201, 409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pacienteId\": {{pacienteId}},\n  \"medicoResponsableId\": {{medicoId}}\n}"
+            }
+          }
+        },
+        {
+          "name": "Actualizar medico responsable y estado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicoResponsableId\": {{medicoId}},\n  \"estado\": \"Activo\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Actualizar con estado invalido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicoResponsableId\": {{medicoId}},\n  \"estado\": \"Cerrado\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Consulta y receta TARV (RF-CORE-03)",
+      "description": "La consulta y sus recetas se guardan en una sola transaccion. La primera peticion guarda recetaId para la carpeta 5.",
+      "item": [
+        {
+          "name": "Registrar consulta con receta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', function () { pm.expect(pm.response.code).to.be.oneOf([201]); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('recetaId', pm.response.json().recetas[0].id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/consultas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnosticoDetalle\": \"Control trimestral\",\n  \"notasClinicas\": \"Continuar esquema\",\n  \"cargaViral\": 40,\n  \"conteoCd4\": 710,\n  \"recetas\": [\n    { \"medicamentoId\": {{medicamentoId}}, \"esquemaTarv\": \"TLD 1 tableta diaria\", \"cantidadPrescrita\": 30 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Consulta con medicamento inexistente (no guarda nada)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/consultas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnosticoDetalle\": \"x\",\n  \"recetas\": [ { \"medicamentoId\": 999999, \"cantidadPrescrita\": 5 } ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Consulta vacia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/consultas",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Historial del expediente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Trae al menos una consulta', function () { pm.expect(pm.response.json().length).to.be.above(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/historial"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Farmacia e inventario (RF-CORE-04)",
+      "description": "Solo se saca stock despachando una receta Activa. Ejecuta antes la carpeta 4 para tener recetaId.",
+      "item": [
+        {
+          "name": "Catalogo de medicamentos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/medicamentos"
+          }
+        },
+        {
+          "name": "Registrar lote",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', function () { pm.expect(pm.response.code).to.be.oneOf([201]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicamentoId\": {{medicamentoId}},\n  \"numeroLote\": \"DEMO-{{$timestamp}}\",\n  \"fechaCaducidad\": \"2028-12-31\",\n  \"cantidad\": 100,\n  \"existenciaMinima\": 10,\n  \"existenciaMaxima\": 500\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar lote vencido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicamentoId\": {{medicamentoId}},\n  \"numeroLote\": \"VENCIDO-{{$timestamp}}\",\n  \"fechaCaducidad\": \"2020-01-01\",\n  \"cantidad\": 10,\n  \"existenciaMinima\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Lotes y existencias",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/lotes"
+          }
+        },
+        {
+          "name": "Consultar la receta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('La receta esta Activa', function () { pm.expect(pm.response.json().estado).to.eql('Activa'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/recetas/{{recetaId}}"
+          }
+        },
+        {
+          "name": "Despachar la receta (descuenta stock)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/recetas/{{recetaId}}/despachar"
+          }
+        },
+        {
+          "name": "Despachar la misma receta otra vez",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/recetas/{{recetaId}}/despachar"
+          }
+        },
+        {
+          "name": "Medico intenta despachar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/recetas/{{recetaId}}/despachar"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Auditoria (RF-CORE-05, criterio 6)",
+      "description": "Bitacora con usuario, terminal, fecha y hora de cada operacion critica. Roles Auditor y Administrador.",
+      "item": [
+        {
+          "name": "Ultimos registros de la bitacora",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAuditor}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Auditor"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auditoria?maximo=20"
+          }
+        },
+        {
+          "name": "Accesos denegados",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Hay accesos denegados registrados', function () { pm.expect(pm.response.json().length).to.be.above(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAuditor}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Auditor"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auditoria?accion=AccesoDenegado"
+          }
+        },
+        {
+          "name": "Lo que hizo el farmaceutico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auditoria?usuarioId={{usuarioFarmacia}}"
+          }
+        },
+        {
+          "name": "Cajero intenta ver la bitacora",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auditoria"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Dashboard ejecutivo (RF-CORE-08)",
+      "description": "Solo rol Administrador. Devuelve unicamente totales.",
+      "item": [
+        {
+          "name": "Resumen con los cuatro indicadores",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard"
+          }
+        },
+        {
+          "name": "Pacientes activos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/pacientes-activos"
+          }
+        },
+        {
+          "name": "Adherencia al tratamiento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/adherencia?dias=90"
+          }
+        },
+        {
+          "name": "Inventario critico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/inventario-critico?diasAviso=60"
+          }
+        },
+        {
+          "name": "Ejecucion de subsidios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/subsidios"
+          }
+        },
+        {
+          "name": "Medico intenta ver el dashboard",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Portal del paciente (citas, facturas, resultados)",
+      "description": "Endpoints que consume el Portal Web a traves del Gateway.",
+      "item": [
+        {
+          "name": "Listar medicos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/medicos"
+          }
+        },
+        {
+          "name": "Horarios disponibles de un medico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/medicos/{{medicoId}}/horarios?fecha={{fecha}}"
+          }
+        },
+        {
+          "name": "Horarios sin fecha (mensaje claro)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/medicos/{{medicoId}}/horarios"
+          }
+        },
+        {
+          "name": "Citas del paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/citas"
+          }
+        },
+        {
+          "name": "Agendar cita (409 si el horario ya esta tomado)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201 o 409', function () { pm.expect(pm.response.code).to.be.oneOf([201, 409]); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('citaId', pm.response.json().id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/citas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pacienteId\": {{pacienteId}},\n  \"medicoId\": {{medicoId}},\n  \"fecha\": \"{{fecha}}\",\n  \"hora\": \"09:00\",\n  \"motivo\": \"Consulta de seguimiento\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancelar cita (404 si no se agendo ninguna)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200 o 404', function () { pm.expect(pm.response.code).to.be.oneOf([200, 404]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/citas/{{citaId}}/cancelar?pacienteId={{pacienteId}}"
+          }
+        },
+        {
+          "name": "Facturas del paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/facturas"
+          }
+        },
+        {
+          "name": "Detalle de factura",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/facturas/{{facturaId}}"
+          }
+        },
+        {
+          "name": "Pagar factura (409 si ya esta pagada)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200 o 409', function () { pm.expect(pm.response.code).to.be.oneOf([200, 409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/facturas/{{facturaId}}/pagar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"formaPago\": \"Tarjeta\",\n  \"referenciaPasarela\": \"REF-PRUEBA-0001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resultados de laboratorio del paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/resultados"
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. CORS y llave de API",
+      "description": "El navegador del Portal Web solo recibe permiso si su origen esta en CoreApi:CorsOrigenes de Web.config.",
+      "item": [
+        {
+          "name": "Preflight desde un origen permitido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 204', function () { pm.expect(pm.response.code).to.be.oneOf([204]); });",
+                  "pm.test('Autoriza el origen', function () { pm.expect(pm.response.headers.get('Access-Control-Allow-Origin')).to.eql(pm.collectionVariables.get('origenWeb')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "OPTIONS",
+            "header": [
+              {
+                "key": "Access-Control-Request-Method",
+                "value": "GET"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origenWeb}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/medicos"
+          }
+        },
+        {
+          "name": "Preflight desde un origen ajeno",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "OPTIONS",
+            "header": [
+              {
+                "key": "Access-Control-Request-Method",
+                "value": "GET"
+              },
+              {
+                "key": "Origin",
+                "value": "http://sitio-ajeno.example"
+              }
+            ],
+            "url": "{{baseUrl}}/api/medicos"
+          }
+        },
+        {
+          "name": "Peticion sin X-Api-Key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', function () { pm.expect(pm.response.code).to.be.oneOf([401]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/medicos",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

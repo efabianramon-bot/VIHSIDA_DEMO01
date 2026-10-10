@@ -24,9 +24,16 @@ namespace Conavihsida.Core.Api.Controllers
         }
 
         [HttpGet, Route("medicos/{medicoId:int}/horarios")]
-        public IHttpActionResult HorariosDisponibles(int medicoId, [FromUri] DateTime fecha)
+        public IHttpActionResult HorariosDisponibles(int medicoId, [FromUri] DateTime? fecha = null)
         {
-            return Ok(CrearServicio().ObtenerHorariosDisponibles(medicoId, fecha));
+            // Si la fecha falta o no se entiende, fecha llega null. Antes la
+            // API respondia 404 sin explicar nada.
+            if (fecha == null)
+            {
+                return BadRequest("Indica la fecha en la URL con el formato ?fecha=AAAA-MM-DD.");
+            }
+
+            return Ok(CrearServicio().ObtenerHorariosDisponibles(medicoId, fecha.Value));
         }
 
         [HttpGet, Route("pacientes/{pacienteId:int}/citas")]
