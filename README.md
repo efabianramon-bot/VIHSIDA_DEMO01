@@ -30,6 +30,24 @@ La API lee dos valores de `Conavihsida.Core.Api/Web.config`:
 
 - Cadena de conexión `ConavihsidaCoreDb`: base de datos SQL Server del CORE.
 - Ajuste `CoreApi:ApiKey`: llave compartida que debe enviar quien llame a la API.
+- Ajuste `CoreApi:CorsOrigenes`: orígenes del Portal Web autorizados a llamar a
+  la API desde el navegador (CORS), separados por coma.
+
+## Base de datos
+
+Para crear la base desde cero, ejecuta en este orden:
+
+1. `Database/ConavihsidaCoreDb_schema.sql` (estructura).
+2. Los scripts de `Database/Migraciones/` (roles y restricciones).
+3. Los scripts de `Database/Datos/` (solo desarrollo y demo: usuarios, paciente,
+   medicamentos y facturas de prueba).
+
+## Pruebas con Postman
+
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 49 peticiones
+con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
+llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
+*Run collection* para ejecutarlas todas.
 
 ## Endpoints
 
