@@ -107,11 +107,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Controllers\CitasController.cs" />
     <Compile Include="Controllers\FacturasController.cs" />
     <Compile Include="Controllers\ResultadosController.cs" />
     <Compile Include="Dtos\AgendarCitaRequest.cs" />
+    <Compile Include="Dtos\LoginRequest.cs" />
     <Compile Include="Dtos\PagarFacturaRequest.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -119,6 +121,8 @@
     <Compile Include="Handlers\ApiKeyHandler.cs" />
     <Compile Include="Handlers\LoggingHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Seguridad\IdentidadLlamada.cs" />
+    <Compile Include="Seguridad\RequiereRolAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NLog.config">

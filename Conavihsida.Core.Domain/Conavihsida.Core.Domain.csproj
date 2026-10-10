@@ -56,6 +56,7 @@
     <Compile Include="Entidades\Receta.cs" />
     <Compile Include="Entidades\RegistroAuditoria.cs" />
     <Compile Include="Entidades\ResultadoLab.cs" />
+    <Compile Include="Entidades\UsuarioAutenticado.cs" />
     <Compile Include="Entidades\Conavihsida.Core.Domain.Entidades.cs" />
     <Compile Include="obj\Debug\.NETFramework,Version=v4.8.AssemblyAttributes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Repositorios\ICitaRepository.cs" />
     <Compile Include="Repositorios\IFacturaRepository.cs" />
     <Compile Include="Repositorios\IResultadoRepository.cs" />
+    <Compile Include="Repositorios\IUsuarioRepository.cs" />
     <Compile Include="Vistas\ResultadoPacienteVista.cs" />
   </ItemGroup>
   <ItemGroup>

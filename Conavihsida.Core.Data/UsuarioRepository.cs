@@ -8,7 +8,7 @@ using BCrypt.Net;
 namespace Conavihsida.Core.Data
 {
     using System.Data.SqlClient;
-    public class UsuarioRepository
+    public class UsuarioRepository : Conavihsida.Core.Domain.Repositorios.IUsuarioRepository
     {
         private readonly string _connectionString;
         
@@ -127,6 +127,27 @@ namespace Conavihsida.Core.Data
                 Exitoso = true,
                 Mensaje = "Autenticación exitosa",
                 Usuario = usuario
+            };
+        }
+
+        public Conavihsida.Core.Domain.Entidades.UsuarioAutenticado ValidarCredenciales(
+            string username, string password, string origenAcceso, string direccionIp, out string mensajeError)
+        {
+            var resultado = Autenticar(username, password, origenAcceso, direccionIp);
+            if (!resultado.Exitoso)
+            {
+                mensajeError = resultado.Mensaje;
+                return null;
+            }
+
+            mensajeError = null;
+            return new Conavihsida.Core.Domain.Entidades.UsuarioAutenticado
+            {
+                Id = resultado.Usuario.UsuarioID,
+                Username = resultado.Usuario.Username,
+                Nombres = resultado.Usuario.Nombres,
+                Apellidos = resultado.Usuario.Apellidos,
+                Roles = resultado.Usuario.Roles
             };
         }
 
