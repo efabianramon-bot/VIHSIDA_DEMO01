@@ -65,6 +65,7 @@
     <Compile Include="Repositorios\IExpedienteRepository.cs" />
     <Compile Include="Repositorios\IFacturaRepository.cs" />
     <Compile Include="Repositorios\IHistorialRepository.cs" />
+    <Compile Include="Repositorios\IInventarioRepository.cs" />
     <Compile Include="Repositorios\IResultadoRepository.cs" />
     <Compile Include="Repositorios\IUsuarioRepository.cs" />
     <Compile Include="Vistas\ResultadoPacienteVista.cs" />
