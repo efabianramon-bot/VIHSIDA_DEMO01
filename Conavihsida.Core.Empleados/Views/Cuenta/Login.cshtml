@@ -1,0 +1,33 @@
+@model LoginViewModel
+@{
+    ViewBag.Title = "Iniciar sesión";
+}
+
+<section class="login">
+    <div class="login-encabezado">
+        <span class="marca-sigla">CONAVIHSIDA</span>
+        <h1>Aplicación de empleados</h1>
+        <p>Entra con tu usuario institucional.</p>
+    </div>
+
+    @using (Html.BeginForm("Login", "Cuenta", FormMethod.Post, new { @class = "formulario", autocomplete = "off" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.ReturnUrl)
+
+        if (!string.IsNullOrEmpty(Model.Error))
+        {
+            <div class="aviso aviso-error" role="alert">@Model.Error</div>
+        }
+
+        <label for="Usuario">Usuario</label>
+        @Html.TextBoxFor(m => m.Usuario, new { autofocus = "autofocus", maxlength = 50, autocomplete = "username" })
+
+        <label for="Clave">Contraseña</label>
+        <input type="password" id="Clave" name="Clave" maxlength="100" autocomplete="current-password" />
+
+        <button type="submit" class="boton boton-primario">Entrar</button>
+    }
+
+    <p class="login-pie">Acceso exclusivo para personal autorizado. Cada ingreso queda registrado.</p>
+</section>

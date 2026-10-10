@@ -1,0 +1,56 @@
+@{
+    var sesion = EmpleadoPrincipal.SesionActual(Context);
+    var menu = MenuPrincipal.Para(sesion);
+    var controladorActual = (string)ViewContext.RouteData.Values["controller"];
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title · CONAVIHSIDA</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/sitio.css")" />
+</head>
+<body class="@(sesion == null ? "sin-sesion" : "")">
+    @if (sesion != null)
+    {
+        <header class="barra">
+            <a class="marca" href="@Url.Action("Index", "Inicio")">
+                <span class="marca-sigla">CONAVIHSIDA</span>
+                <span class="marca-app">Aplicación de empleados</span>
+            </a>
+
+            <nav class="menu" aria-label="Portales">
+                @foreach (var opcion in menu)
+                {
+                    if (opcion.Disponible)
+                    {
+                        <a class="menu-item @(opcion.Controlador == controladorActual ? "activo" : "")"
+                           href="@Url.Action("Index", opcion.Controlador)">@opcion.Titulo</a>
+                    }
+                    else
+                    {
+                        <span class="menu-item inactivo" title="En construcción">@opcion.Titulo</span>
+                    }
+                }
+            </nav>
+
+            <div class="usuario">
+                <div class="usuario-datos">
+                    <span class="usuario-nombre">@sesion.NombreCompleto</span>
+                    <span class="usuario-rol">@string.Join(" · ", sesion.Roles.Select(NombresRol.Mostrar))</span>
+                </div>
+                @using (Html.BeginForm("Salir", "Cuenta", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="boton boton-secundario">Salir</button>
+                }
+            </div>
+        </header>
+    }
+
+    <main class="contenido">
+        @RenderBody()
+    </main>
+</body>
+</html>

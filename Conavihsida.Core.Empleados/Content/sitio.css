@@ -1,0 +1,372 @@
+/* Estilos de la aplicacion de empleados. Sin librerias externas: la
+   aplicacion debe funcionar en la red interna, sin salir a internet. */
+
+:root {
+    --fondo: #f3f5f8;
+    --superficie: #ffffff;
+    --borde: #d6dce5;
+    --texto: #1c2733;
+    --texto-suave: #5a6878;
+    --primario: #0f5c7a;
+    --primario-oscuro: #0a4359;
+    --primario-claro: #e3f1f6;
+    --error: #a3271f;
+    --error-fondo: #fbe9e7;
+    --exito: #1d6b3c;
+    --exito-fondo: #e4f4ea;
+    --alerta: #8a5a00;
+    --alerta-fondo: #fdf3d8;
+    --radio: 8px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+h1, h2, h3 {
+    line-height: 1.25;
+    margin: 0;
+}
+
+a {
+    color: var(--primario);
+}
+
+/* ---------- Barra superior ---------- */
+
+.barra {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 0 24px;
+    min-height: 60px;
+    background: var(--primario-oscuro);
+    color: #fff;
+    flex-wrap: wrap;
+}
+
+.marca {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 0;
+}
+
+.marca-sigla {
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    font-size: 15px;
+}
+
+.marca-app {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.menu {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+    flex-wrap: wrap;
+}
+
+.menu-item {
+    padding: 8px 14px;
+    border-radius: var(--radio);
+    color: #fff;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+a.menu-item:hover,
+.menu-item.activo {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.menu-item.inactivo {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.usuario {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 0;
+}
+
+.usuario form {
+    margin: 0;
+}
+
+.usuario-datos {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+.usuario-nombre {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.usuario-rol {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* ---------- Contenido ---------- */
+
+.contenido {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+}
+
+.titulo-pagina {
+    font-size: 26px;
+    margin-bottom: 6px;
+}
+
+.subtitulo {
+    color: var(--texto-suave);
+    margin: 0 0 24px;
+}
+
+/* ---------- Botones ---------- */
+
+.boton {
+    display: inline-block;
+    padding: 9px 18px;
+    border: 1px solid transparent;
+    border-radius: var(--radio);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.boton-primario {
+    background: var(--primario);
+    color: #fff;
+}
+
+.boton-primario:hover {
+    background: var(--primario-oscuro);
+}
+
+.boton-secundario {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.55);
+    color: #fff;
+    padding: 6px 14px;
+    font-size: 14px;
+}
+
+.boton-secundario:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.boton:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #f0b429;
+    outline-offset: 2px;
+}
+
+/* ---------- Avisos ---------- */
+
+.aviso {
+    padding: 12px 16px;
+    border-radius: var(--radio);
+    border: 1px solid transparent;
+    margin: 0 0 16px;
+}
+
+.aviso-error {
+    background: var(--error-fondo);
+    border-color: #efc2bd;
+    color: var(--error);
+}
+
+.aviso-info {
+    background: var(--primario-claro);
+    border-color: #b9dbe7;
+    color: var(--primario-oscuro);
+}
+
+.aviso-exito {
+    background: var(--exito-fondo);
+    border-color: #b5dfc4;
+    color: var(--exito);
+}
+
+.aviso-alerta {
+    background: var(--alerta-fondo);
+    border-color: #efd88f;
+    color: var(--alerta);
+}
+
+/* ---------- Tarjetas del inicio ---------- */
+
+.tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.tarjeta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 22px;
+    background: var(--superficie);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    color: var(--texto);
+    text-decoration: none;
+}
+
+a.tarjeta:hover {
+    border-color: var(--primario);
+    box-shadow: 0 2px 10px rgba(15, 92, 122, 0.14);
+}
+
+.tarjeta h2 {
+    font-size: 19px;
+    color: var(--primario-oscuro);
+}
+
+.tarjeta p {
+    margin: 0;
+    color: var(--texto-suave);
+    flex: 1;
+}
+
+.tarjeta-accion {
+    font-weight: 600;
+    color: var(--primario);
+}
+
+.tarjeta-inactiva h2 {
+    color: var(--texto-suave);
+}
+
+.etiqueta {
+    align-self: flex-start;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--fondo);
+    border: 1px solid var(--borde);
+    color: var(--texto-suave);
+    font-size: 13px;
+}
+
+/* ---------- Login ---------- */
+
+body.sin-sesion .contenido {
+    max-width: 420px;
+    padding-top: 9vh;
+}
+
+.login {
+    background: var(--superficie);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    padding: 32px;
+}
+
+.login-encabezado {
+    margin-bottom: 22px;
+}
+
+.login-encabezado .marca-sigla {
+    color: var(--primario);
+}
+
+.login-encabezado h1 {
+    font-size: 22px;
+    margin: 4px 0;
+}
+
+.login-encabezado p,
+.login-pie {
+    margin: 0;
+    color: var(--texto-suave);
+    font-size: 14px;
+}
+
+.login-pie {
+    margin-top: 20px;
+}
+
+.formulario {
+    display: flex;
+    flex-direction: column;
+}
+
+.formulario label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.formulario input[type="text"],
+.formulario input[type="password"] {
+    padding: 10px 12px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    font: inherit;
+    margin-bottom: 16px;
+}
+
+.formulario .boton {
+    margin-top: 4px;
+}
+
+/* ---------- Mensajes a pagina completa ---------- */
+
+.mensaje {
+    background: var(--superficie);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    padding: 32px;
+    max-width: 560px;
+}
+
+.mensaje h1 {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.mensaje p {
+    color: var(--texto-suave);
+    margin: 0 0 20px;
+}
+
+@media (max-width: 640px) {
+    .barra {
+        padding: 0 16px;
+        gap: 8px;
+    }
+
+    .usuario-datos {
+        text-align: left;
+    }
+
+    .contenido {
+        padding: 24px 16px 40px;
+    }
+}
