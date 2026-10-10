@@ -1,0 +1,76 @@
+@model MedicoInicioViewModel
+@{
+    ViewBag.Title = "Portal Médico";
+}
+
+<h1 class="titulo-pagina">Portal Médico</h1>
+<p class="subtitulo">Busca al paciente por su cédula o abre un expediente por su código serológico.</p>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="aviso aviso-error" role="alert">@Model.Error</div>
+}
+
+@using (Html.BeginForm("Buscar", "Medico", FormMethod.Get, new { @class = "buscador" }))
+{
+    <label for="q" class="solo-lectores">Cédula o código de expediente</label>
+    <input type="text" id="q" name="q" value="@Model.Busqueda" maxlength="20" autofocus
+           placeholder="Cédula (000-0000000-0) o código (EXP-…)" />
+    <button type="submit" class="boton boton-primario">Buscar</button>
+}
+
+@if (Model.PacienteSinExpediente != null)
+{
+    var paciente = Model.PacienteSinExpediente;
+    <section class="panel">
+        <h2>@paciente.NombreCompleto</h2>
+        <p class="dato-suave">
+            Cédula @paciente.Cedula
+            @if (paciente.FechaNacimiento != null)
+            {
+                <text>· Nacimiento @paciente.FechaNacimiento.Value.ToString("dd/MM/yyyy")</text>
+            }
+        </p>
+        <p>Este paciente todavía no tiene expediente clínico.</p>
+        @using (Html.BeginForm("AbrirExpediente", "Medico", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="pacienteId" value="@paciente.PacienteId" />
+            <button type="submit" class="boton boton-primario">Abrir expediente</button>
+        }
+    </section>
+}
+
+<h2 class="titulo-seccion">Expedientes</h2>
+@if (Model.Expedientes.Count == 0)
+{
+    <p class="dato-suave">Todavía no hay expedientes abiertos.</p>
+}
+else
+{
+    <div class="tabla-contenedor">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Código serológico</th>
+                    <th>Estado</th>
+                    <th>Apertura</th>
+                    <th><span class="solo-lectores">Acción</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var expediente in Model.Expedientes)
+                {
+                    <tr>
+                        <td class="codigo">@expediente.CodigoSerologico</td>
+                        <td><span class="estado estado-@expediente.Estado.ToLowerInvariant()">@expediente.Estado</span></td>
+                        <td>@expediente.FechaApertura.ToString("dd/MM/yyyy")</td>
+                        <td class="celda-accion">
+                            <a href="@Url.Action("Expediente", new { codigo = expediente.CodigoSerologico })">Abrir</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

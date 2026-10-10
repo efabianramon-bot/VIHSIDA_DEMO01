@@ -70,6 +70,7 @@
     <Compile Include="Repositorios\IResultadoRepository.cs" />
     <Compile Include="Repositorios\IUsuarioRepository.cs" />
     <Compile Include="Vistas\DashboardVistas.cs" />
+    <Compile Include="Vistas\PacienteClinicoVista.cs" />
     <Compile Include="Vistas\ResultadoPacienteVista.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -10,4 +10,12 @@ SELECT 'paciente2.prueba@conavihsida.test', 'SIN-ACCESO', '', 'Paciente Dos De P
        '000-0000002-0', '1990-01-01'
 WHERE NOT EXISTS (SELECT 1 FROM dbo.Pacientes p
                   WHERE p.Correo = 'paciente2.prueba@conavihsida.test');
+
+-- Tercer paciente, que se deja SIN expediente a proposito: sirve para
+-- mostrar en el Portal Medico la apertura de un expediente nuevo.
+INSERT INTO dbo.Pacientes (Correo, PasswordHash, PasswordSalt, NombreCompleto, Cedula, FechaNacimiento)
+SELECT 'paciente3.prueba@conavihsida.test', 'SIN-ACCESO', '', 'Paciente Tres De Prueba',
+       '000-0000003-0', '1985-06-15'
+WHERE NOT EXISTS (SELECT 1 FROM dbo.Pacientes p
+                  WHERE p.Correo = 'paciente3.prueba@conavihsida.test');
 GO

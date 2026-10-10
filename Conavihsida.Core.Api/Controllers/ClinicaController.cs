@@ -23,6 +23,27 @@ namespace Conavihsida.Core.Api.Controllers
             return new ExpedienteService(repo, CrearAuditoriaService());
         }
 
+        [HttpGet, Route("expedientes")]
+        public IHttpActionResult ListarExpedientes()
+        {
+            return Ok(CrearServicio().ListarExpedientes(Identidad.UsuarioId.Value, ObtenerTerminal()));
+        }
+
+        // Unico punto donde se cruza la identidad civil con el codigo del
+        // expediente; por eso es solo para Medico y siempre se audita.
+        [HttpGet, Route("pacientes")]
+        public IHttpActionResult BuscarPaciente([FromUri] string cedula = null, [FromUri] int? pacienteId = null)
+        {
+            if (string.IsNullOrWhiteSpace(cedula) && pacienteId == null)
+            {
+                return BadRequest("Indica la cedula o el pacienteId del paciente.");
+            }
+
+            var paciente = CrearServicio().BuscarPaciente(
+                cedula, pacienteId, Identidad.UsuarioId.Value, ObtenerTerminal());
+            return paciente == null ? (IHttpActionResult)NotFound() : Ok(paciente);
+        }
+
         [HttpGet, Route("expediente/{codigo}")]
         public IHttpActionResult ObtenerExpediente(string codigo)
         {
