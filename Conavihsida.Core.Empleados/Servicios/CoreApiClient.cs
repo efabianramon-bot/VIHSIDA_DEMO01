@@ -134,7 +134,9 @@ namespace Conavihsida.Core.Empleados.Servicios
             return new HttpClient
             {
                 BaseAddress = new Uri(ConfigurationManager.AppSettings["CoreApi:BaseUrl"]),
-                Timeout = TimeSpan.FromSeconds(15)
+                // Holgado a proposito: la primera llamada tras arrancar puede
+                // tardar mientras la API y la base de datos despiertan.
+                Timeout = TimeSpan.FromSeconds(30)
             };
         }
     }

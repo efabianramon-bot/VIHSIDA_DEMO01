@@ -952,6 +952,119 @@
           }
         },
         {
+          "name": "Cola de recetas por despachar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Todas estan Activas', function () { pm.response.json().forEach(function (r) { pm.expect(r.estado).to.eql('Activa'); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/recetas"
+          }
+        },
+        {
+          "name": "Recetas ya dispensadas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/recetas?estado=Dispensada"
+          }
+        },
+        {
+          "name": "Recetas con un estado que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/recetas?estado=Perdida"
+          }
+        },
+        {
+          "name": "Medico pide la cola de farmacia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/recetas"
+          }
+        },
+        {
           "name": "Consultar la receta",
           "event": [
             {

@@ -29,6 +29,9 @@ namespace Conavihsida.Core.Domain.Repositorios
         /// <summary>null si no existe.</summary>
         Receta ObtenerReceta(int recetaId);
 
+        /// <summary>Recetas en ese estado (ver EstadosReceta), la mas antigua primero.</summary>
+        List<Receta> ObtenerRecetasPorEstado(string estado);
+
         /// <summary>
         /// RF-CORE-04: despacha la receta completa en UNA transaccion. Solo
         /// si esta Activa: la marca Dispensada, descuenta el stock de los

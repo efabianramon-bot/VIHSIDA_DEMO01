@@ -1,0 +1,88 @@
+@model RecetaViewModel
+@{
+    ViewBag.Title = "Receta n.º " + Model.Receta.Id;
+    var receta = Model.Receta;
+}
+
+<p class="migas"><a href="@Url.Action("Index")">Farmacia</a> / Receta</p>
+
+<div class="encabezado-expediente">
+    <div>
+        <h1 class="titulo-pagina">Receta n.º @receta.Id</h1>
+        <p class="dato-suave">Emitida el @receta.FechaEmision.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+    <span class="estado estado-@receta.Estado.ToLowerInvariant()">@receta.Estado</span>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Exito))
+{
+    <div class="aviso aviso-exito" role="status">@Model.Exito</div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="aviso aviso-error" role="alert">@Model.Error</div>
+}
+
+<section class="panel">
+    <h2>Qué entregar</h2>
+    <dl class="datos">
+        <div><dt>Medicamento</dt><dd>@Model.MedicamentoNombre</dd></div>
+        <div><dt>Cantidad</dt><dd>@receta.CantidadPrescrita</dd></div>
+        <div><dt>Esquema</dt><dd>@(string.IsNullOrEmpty(receta.EsquemaTarv) ? "—" : receta.EsquemaTarv)</dd></div>
+        <div><dt>Expediente</dt><dd class="codigo">@receta.CodigoSerologico</dd></div>
+    </dl>
+</section>
+
+@if (Model.EstaActiva)
+{
+    <section class="panel">
+        <h2>Existencia disponible</h2>
+        @if (Model.LotesDisponibles.Count == 0)
+        {
+            <p>No hay lotes vigentes con existencia de este medicamento.</p>
+        }
+        else
+        {
+            <p class="dato-suave">
+                @Model.ExistenciaDisponible unidades en lotes vigentes. El despacho toma primero del lote que caduca antes.
+            </p>
+            <div class="tabla-contenedor">
+                <table class="tabla tabla-compacta">
+                    <thead>
+                        <tr><th>Lote</th><th>Caduca</th><th class="numero">Existencia</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var lote in Model.LotesDisponibles)
+                        {
+                            <tr>
+                                <td class="codigo">@lote.NumeroLote</td>
+                                <td>@lote.FechaCaducidad.ToString("dd/MM/yyyy")</td>
+                                <td class="numero">@lote.ExistenciaActual</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @if (!Model.AlcanzaLaExistencia)
+        {
+            <div class="aviso aviso-alerta aviso-en-panel">
+                La existencia no alcanza para despachar la receta completa (faltan @(receta.CantidadPrescrita - Model.ExistenciaDisponible)).
+                Registra un lote antes de despachar.
+            </div>
+        }
+        else
+        {
+            using (Html.BeginForm("Despachar", "Farmacia", new { id = receta.Id }, FormMethod.Post, new { @class = "acciones acciones-en-panel" }))
+            {
+                @Html.AntiForgeryToken()
+                <button type="submit" class="boton boton-primario">Despachar @receta.CantidadPrescrita unidades</button>
+            }
+        }
+    </section>
+}
+else
+{
+    <div class="aviso aviso-info">Esta receta está @receta.Estado.ToLowerInvariant(): ya no se puede despachar.</div>
+}

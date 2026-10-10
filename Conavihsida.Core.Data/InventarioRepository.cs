@@ -166,25 +166,51 @@ namespace Conavihsida.Core.Data
                 conn.AbrirConLog();
                 using (var reader = cmd.ExecuteReaderConLog())
                 {
-                    if (!reader.Read())
-                    {
-                        return null;
-                    }
-
-                    int ordinalEsquema = reader.GetOrdinal("EsquemaTARV");
-                    return new Receta
-                    {
-                        Id = reader.GetInt32(reader.GetOrdinal("RecetaID")),
-                        HistorialId = reader.GetInt32(reader.GetOrdinal("HistorialID")),
-                        CodigoSerologico = reader.GetString(reader.GetOrdinal("CodigoSerologico")),
-                        MedicamentoId = reader.GetInt32(reader.GetOrdinal("MedicamentoID")),
-                        EsquemaTarv = reader.IsDBNull(ordinalEsquema) ? null : reader.GetString(ordinalEsquema),
-                        CantidadPrescrita = reader.GetInt32(reader.GetOrdinal("CantidadPrescrita")),
-                        FechaEmision = reader.GetDateTime(reader.GetOrdinal("FechaEmision")),
-                        Estado = reader.GetString(reader.GetOrdinal("Estado"))
-                    };
+                    return reader.Read() ? LeerReceta(reader) : null;
                 }
             }
+        }
+
+        public List<Receta> ObtenerRecetasPorEstado(string estado)
+        {
+            // La mas antigua primero: es la que lleva mas tiempo esperando.
+            const string sql = @"
+                SELECT RecetaID, HistorialID, CodigoSerologico, MedicamentoID, EsquemaTARV,
+                       CantidadPrescrita, FechaEmision, Estado
+                FROM Recetas WHERE Estado = @Estado
+                ORDER BY FechaEmision, RecetaID;";
+
+            var lista = new List<Receta>();
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Estado", estado);
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
+                {
+                    while (reader.Read())
+                    {
+                        lista.Add(LeerReceta(reader));
+                    }
+                }
+            }
+            return lista;
+        }
+
+        private static Receta LeerReceta(SqlDataReader reader)
+        {
+            int ordinalEsquema = reader.GetOrdinal("EsquemaTARV");
+            return new Receta
+            {
+                Id = reader.GetInt32(reader.GetOrdinal("RecetaID")),
+                HistorialId = reader.GetInt32(reader.GetOrdinal("HistorialID")),
+                CodigoSerologico = reader.GetString(reader.GetOrdinal("CodigoSerologico")),
+                MedicamentoId = reader.GetInt32(reader.GetOrdinal("MedicamentoID")),
+                EsquemaTarv = reader.IsDBNull(ordinalEsquema) ? null : reader.GetString(ordinalEsquema),
+                CantidadPrescrita = reader.GetInt32(reader.GetOrdinal("CantidadPrescrita")),
+                FechaEmision = reader.GetDateTime(reader.GetOrdinal("FechaEmision")),
+                Estado = reader.GetString(reader.GetOrdinal("Estado"))
+            };
         }
 
         public ResultadoDespacho DespacharReceta(int recetaId, int usuarioId, DateTime fecha,

@@ -68,6 +68,11 @@
         public const string Dispensada = "Dispensada";
         public const string Vencida = "Vencida";
         public const string Cancelada = "Cancelada";
+
+        public static bool EsValido(string valor)
+        {
+            return valor == Activa || valor == Dispensada || valor == Vencida || valor == Cancelada;
+        }
     }
 
     public static class EstadosResultado
