@@ -21,6 +21,12 @@ namespace Conavihsida.Core.Domain.Entidades
             get { return FechaCaducidad.Date < DateTime.Today; }
         }
 
+        /// <summary>Dias que faltan para que caduque; negativo si ya vencio.</summary>
+        public int DiasParaCaducar
+        {
+            get { return (FechaCaducidad.Date - DateTime.Today).Days; }
+        }
+
         /// <summary>Existencia en el minimo o por debajo: hay que reponer.</summary>
         public bool BajoMinimo
         {

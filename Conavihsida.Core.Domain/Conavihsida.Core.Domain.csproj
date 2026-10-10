@@ -62,12 +62,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositorios\IAuditoriaRepository.cs" />
     <Compile Include="Repositorios\ICitaRepository.cs" />
+    <Compile Include="Repositorios\IDashboardRepository.cs" />
     <Compile Include="Repositorios\IExpedienteRepository.cs" />
     <Compile Include="Repositorios\IFacturaRepository.cs" />
     <Compile Include="Repositorios\IHistorialRepository.cs" />
     <Compile Include="Repositorios\IInventarioRepository.cs" />
     <Compile Include="Repositorios\IResultadoRepository.cs" />
     <Compile Include="Repositorios\IUsuarioRepository.cs" />
+    <Compile Include="Vistas\DashboardVistas.cs" />
     <Compile Include="Vistas\ResultadoPacienteVista.cs" />
   </ItemGroup>
   <ItemGroup>
