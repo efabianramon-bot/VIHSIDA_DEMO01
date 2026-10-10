@@ -110,9 +110,11 @@
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Controllers\CitasController.cs" />
+    <Compile Include="Controllers\ClinicaController.cs" />
     <Compile Include="Controllers\FacturasController.cs" />
     <Compile Include="Controllers\ResultadosController.cs" />
     <Compile Include="Dtos\AgendarCitaRequest.cs" />
+    <Compile Include="Dtos\ExpedienteRequests.cs" />
     <Compile Include="Dtos\LoginRequest.cs" />
     <Compile Include="Dtos\PagarFacturaRequest.cs" />
     <Compile Include="Global.asax.cs">

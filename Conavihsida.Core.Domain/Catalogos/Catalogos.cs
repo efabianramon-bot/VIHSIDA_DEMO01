@@ -23,6 +23,18 @@
         }
     }
 
+    public static class EstadosExpediente
+    {
+        public const string Activo = "Activo";
+        public const string Inactivo = "Inactivo";
+        public const string Transferido = "Transferido";
+
+        public static bool EsValido(string valor)
+        {
+            return valor == Activo || valor == Inactivo || valor == Transferido;
+        }
+    }
+
     public static class EstadosCita
     {
         public const string Confirmada = "Confirmada";
