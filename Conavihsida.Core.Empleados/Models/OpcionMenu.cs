@@ -49,7 +49,7 @@ namespace Conavihsida.Core.Empleados.Models
                 Descripcion = "Pacientes activos, adherencia, inventario crítico y subsidios.",
                 Controlador = "Dashboard",
                 RolesPermitidos = new[] { NombresRol.Administrador },
-                Disponible = false
+                Disponible = true
             },
             new OpcionMenu
             {
@@ -57,7 +57,7 @@ namespace Conavihsida.Core.Empleados.Models
                 Descripcion = "Quién hizo qué, desde dónde y cuándo.",
                 Controlador = "Auditoria",
                 RolesPermitidos = new[] { NombresRol.Auditor, NombresRol.Administrador },
-                Disponible = false
+                Disponible = true
             }
         };
 

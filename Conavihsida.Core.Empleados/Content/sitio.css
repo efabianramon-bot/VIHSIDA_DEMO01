@@ -497,6 +497,275 @@ a.tarjeta:hover {
     color: var(--error);
 }
 
+/* ---------- Dashboard ---------- */
+
+.periodos {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.periodo {
+    padding: 6px 14px;
+    border: 1px solid var(--borde);
+    border-radius: 999px;
+    background: var(--superficie);
+    color: var(--texto);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.periodo:hover {
+    border-color: var(--primario);
+}
+
+.periodo.activo {
+    background: var(--primario);
+    border-color: var(--primario);
+    color: #fff;
+    font-weight: 600;
+}
+
+.tablero {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 18px;
+    margin-top: 8px;
+}
+
+.indicador-panel {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.indicador-panel h2 {
+    margin-bottom: 0;
+}
+
+.cifra-principal {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cifra {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.cifra-nombre {
+    color: var(--texto-suave);
+    font-size: 14px;
+}
+
+.cifras-fila {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.cifra-chica {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    border: 1px solid var(--borde);
+    border-left-width: 5px;
+    border-radius: var(--radio);
+}
+
+.cifra-chica .cifra {
+    font-size: 30px;
+}
+
+.cifra-alerta {
+    border-left-color: #d99a00;
+}
+
+.cifra-error {
+    border-left-color: var(--error);
+}
+
+.cifra-error .cifra {
+    color: var(--error);
+}
+
+.nota-indicador {
+    margin: 0;
+    color: var(--texto-suave);
+    font-size: 14px;
+}
+
+/* Barras: una pista gris con tramos de color encima. */
+
+.barra-apilada,
+.barra-pista {
+    display: flex;
+    height: 14px;
+    background: #e6ebf1;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.barra-pista {
+    flex: 1;
+    height: 12px;
+}
+
+.tramo {
+    display: block;
+    height: 100%;
+}
+
+.tramo-exito,
+.punto-exito {
+    background: #2e8b57;
+}
+
+.tramo-info,
+.punto-info {
+    background: var(--primario);
+}
+
+.tramo-neutro,
+.punto-neutro {
+    background: #9aa7b6;
+}
+
+.tramo-alerta {
+    background: #d99a00;
+}
+
+.tramo-error {
+    background: var(--error);
+}
+
+.leyenda {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+}
+
+.punto {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.con-anillo {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.barras {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.barra-fila {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.barra-nombre {
+    width: 92px;
+}
+
+.barra-valor {
+    width: 34px;
+    text-align: right;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.anillo {
+    margin: 0;
+    width: 132px;
+    text-align: center;
+}
+
+.anillo svg {
+    width: 120px;
+    height: 120px;
+}
+
+.anillo-fondo,
+.anillo-valor {
+    fill: none;
+    stroke-width: 12;
+}
+
+.anillo-fondo {
+    stroke: #e6ebf1;
+}
+
+.anillo-valor {
+    stroke: var(--primario);
+    stroke-linecap: round;
+}
+
+.anillo-texto {
+    font-size: 22px;
+    font-weight: 700;
+    fill: var(--texto);
+}
+
+.anillo figcaption {
+    font-size: 13px;
+    color: var(--texto-suave);
+}
+
+/* ---------- Bitacora ---------- */
+
+.filtros {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filtros .campo {
+    min-width: 150px;
+    margin-bottom: 0;
+}
+
+.filtros .campo-corto {
+    min-width: 100px;
+    flex: 0 1 120px;
+}
+
+.filtros-acciones {
+    padding-bottom: 1px;
+}
+
+.sin-corte {
+    white-space: nowrap;
+}
+
+.detalle {
+    word-break: break-word;
+    color: var(--texto-suave);
+    min-width: 180px;
+}
+
 /* ---------- Buscador ---------- */
 
 .buscador {
