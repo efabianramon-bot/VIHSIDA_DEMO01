@@ -38,6 +38,7 @@ responde `401`. Las respuestas son JSON en camelCase.
 
 | Método | Ruta | Descripción |
 | --- | --- | --- |
+| POST | `/api/auth/login` | Valida usuario y contraseña; devuelve el usuario y sus roles, sin token (`401` si no son válidos). |
 | GET | `/api/medicos` | Lista los médicos. |
 | GET | `/api/medicos/{medicoId}/horarios?fecha=` | Horarios disponibles de un médico en una fecha. |
 | GET | `/api/pacientes/{pacienteId}/citas` | Citas del paciente. |

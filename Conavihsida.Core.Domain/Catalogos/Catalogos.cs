@@ -11,6 +11,18 @@
         public const string Cajero = "Cajero";
     }
 
+    public static class OrigenesAcceso
+    {
+        public const string Web = "WEB";
+        public const string Caja = "CAJA";
+        public const string Core = "CORE";
+
+        public static bool EsValido(string valor)
+        {
+            return valor == Web || valor == Caja || valor == Core;
+        }
+    }
+
     public static class EstadosCita
     {
         public const string Confirmada = "Confirmada";
