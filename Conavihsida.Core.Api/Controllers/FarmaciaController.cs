@@ -58,7 +58,7 @@ namespace Conavihsida.Core.Api.Controllers
         [RequiereRol(NombresRol.Farmaceutico)]
         public IHttpActionResult ObtenerReceta(int recetaId)
         {
-            var receta = CrearServicio().ObtenerReceta(recetaId);
+            var receta = CrearServicio().ObtenerReceta(recetaId, Identidad.UsuarioId.Value, ObtenerTerminal());
             return receta == null ? (IHttpActionResult)NotFound() : Ok(receta);
         }
 

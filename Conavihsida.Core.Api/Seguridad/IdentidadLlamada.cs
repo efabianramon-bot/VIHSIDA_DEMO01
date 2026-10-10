@@ -44,6 +44,13 @@ namespace Conavihsida.Core.Api.Seguridad
             };
         }
 
+        /// <summary>Terminal para la auditoria: la IP que reporta el Gateway, si la manda.</summary>
+        public static string LeerTerminal(HttpRequestMessage request)
+        {
+            string ip = LeerHeader(request, "X-Forwarded-For");
+            return string.IsNullOrWhiteSpace(ip) ? "CORE-API" : ip;
+        }
+
         private static string LeerHeader(HttpRequestMessage request, string nombre)
         {
             IEnumerable<string> valores;

@@ -13,10 +13,12 @@ namespace Conavihsida.Core.Aplicacion.Servicios
     public class AuthService
     {
         private readonly IUsuarioRepository _usuarios;
+        private readonly AuditoriaService _auditoria;
 
-        public AuthService(IUsuarioRepository usuarios)
+        public AuthService(IUsuarioRepository usuarios, AuditoriaService auditoria)
         {
             _usuarios = usuarios;
+            _auditoria = auditoria;
         }
 
         public ResultadoOperacion<UsuarioAutenticado> Login(string username, string password,
@@ -37,10 +39,17 @@ namespace Conavihsida.Core.Aplicacion.Servicios
             string mensajeError;
             var usuario = _usuarios.ValidarCredenciales(username.Trim(), password, origenAcceso,
                                                         direccionIp, out mensajeError);
+            // El detalle fino de cada intento (usuario tecleado, motivo) ya
+            // queda en SesionesLog; aqui va el rastro para la bitacora general.
             if (usuario == null)
             {
+                _auditoria.Registrar(null, null, direccionIp, "LoginFallido", "usuarios", null,
+                    "origen=" + origenAcceso);
                 return ResultadoOperacion<UsuarioAutenticado>.Fallo(mensajeError);
             }
+
+            _auditoria.Registrar(usuario.Id, null, direccionIp, "IniciarSesion", "usuarios", usuario.Id,
+                "origen=" + origenAcceso);
 
             return ResultadoOperacion<UsuarioAutenticado>.Ok(usuario);
         }
