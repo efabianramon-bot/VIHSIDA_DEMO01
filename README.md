@@ -60,6 +60,7 @@ Los endpoints marcados con `[RequiereRol(...)]` responden `401` si falta
 | POST | `/api/farmacia/lotes` | Registra un lote y su entrada de inventario. Solo rol Farmacéutico. |
 | GET | `/api/farmacia/recetas/{recetaId}` | Consulta una receta antes de despacharla. Solo rol Farmacéutico. |
 | POST | `/api/farmacia/recetas/{recetaId}/despachar` | Despacha una receta activa y descuenta el stock (`409` si no está activa o no hay existencia). Solo rol Farmacéutico. |
+| GET | `/api/auditoria?desde=&hasta=&usuarioId=&accion=&maximo=` | Bitácora de operaciones, lo más reciente primero (100 por defecto, máximo 500). Roles Auditor y Administrador. |
 | GET | `/api/medicos` | Lista los médicos. |
 | GET | `/api/medicos/{medicoId}/horarios?fecha=` | Horarios disponibles de un médico en una fecha. |
 | GET | `/api/pacientes/{pacienteId}/citas` | Citas del paciente. |

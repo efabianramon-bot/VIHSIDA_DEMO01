@@ -31,7 +31,7 @@ namespace Conavihsida.Core.Api.Controllers
                 return BadRequest("El origen debe ser WEB, CAJA o CORE.");
             }
 
-            var servicio = new AuthService(new UsuarioRepository(ConnectionString));
+            var servicio = new AuthService(new UsuarioRepository(ConnectionString), CrearAuditoriaService());
             var resultado = servicio.Login(body.Username, body.Password, body.Origen, ObtenerTerminal());
 
             if (!resultado.Exitoso)

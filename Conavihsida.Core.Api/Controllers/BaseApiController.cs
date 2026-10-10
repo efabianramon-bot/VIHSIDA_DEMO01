@@ -34,18 +34,7 @@ namespace Conavihsida.Core.Api.Controllers
         /// <summary>Terminal que va a la auditoria: quien llamo, no un dato sensible.</summary>
         protected string ObtenerTerminal()
         {
-            return Request.Headers.Contains("X-Forwarded-For")
-                ? Request.Headers.GetValues("X-Forwarded-For").FirstOrDefaultSafe()
-                : "CORE-API";
-        }
-    }
-
-    internal static class EnumerableExtensions
-    {
-        public static string FirstOrDefaultSafe(this System.Collections.Generic.IEnumerable<string> valores)
-        {
-            foreach (var v in valores) return v;
-            return "CORE-API";
+            return IdentidadLlamada.LeerTerminal(Request);
         }
     }
 }

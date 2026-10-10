@@ -36,9 +36,14 @@ namespace Conavihsida.Core.Aplicacion.Servicios
             return _inventario.ObtenerLotes(medicamentoId);
         }
 
-        public Receta ObtenerReceta(int recetaId)
+        public Receta ObtenerReceta(int recetaId, int usuarioId, string terminal)
         {
-            return _inventario.ObtenerReceta(recetaId);
+            var receta = _inventario.ObtenerReceta(recetaId);
+            if (receta != null)
+            {
+                _auditoria.Registrar(usuarioId, null, terminal, "ConsultarReceta", "recetas", recetaId, null);
+            }
+            return receta;
         }
 
         public ResultadoOperacion<LoteMedicamento> RegistrarLote(
