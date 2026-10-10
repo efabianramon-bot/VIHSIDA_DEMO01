@@ -53,6 +53,8 @@ Los endpoints marcados con `[RequiereRol(...)]` responden `401` si falta
 | GET | `/api/clinica/expediente/{codigo}` | Expediente clínico por código serológico. Solo rol Médico (`403` para los demás). |
 | POST | `/api/clinica/expediente` | Abre el expediente de un paciente y genera su código serológico. Solo rol Médico. |
 | PUT | `/api/clinica/expediente/{codigo}` | Cambia el médico responsable y el estado. Solo rol Médico. |
+| GET | `/api/clinica/expediente/{codigo}/historial` | Consultas del expediente con carga viral, CD4 y recetas. Solo rol Médico. |
+| POST | `/api/clinica/expediente/{codigo}/consultas` | Registra una consulta y sus recetas TARV en una sola transacción. Solo rol Médico. |
 | GET | `/api/medicos` | Lista los médicos. |
 | GET | `/api/medicos/{medicoId}/horarios?fecha=` | Horarios disponibles de un médico en una fecha. |
 | GET | `/api/pacientes/{pacienteId}/citas` | Citas del paciente. |

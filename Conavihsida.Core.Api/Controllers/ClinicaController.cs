@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Web.Http;
 using Conavihsida.Core.Api.Dtos;
@@ -5,6 +7,7 @@ using Conavihsida.Core.Api.Seguridad;
 using Conavihsida.Core.Aplicacion.Servicios;
 using Conavihsida.Core.Data;
 using Conavihsida.Core.Domain.Catalogos;
+using Conavihsida.Core.Domain.Entidades;
 
 namespace Conavihsida.Core.Api.Controllers
 {
@@ -64,6 +67,58 @@ namespace Conavihsida.Core.Api.Controllers
             }
 
             return Ok(resultado.Valor);
+        }
+
+        [HttpGet, Route("expediente/{codigo}/historial")]
+        public IHttpActionResult ObtenerHistorial(string codigo)
+        {
+            var consultas = CrearServicioHistorial().ObtenerHistorial(
+                codigo, Identidad.UsuarioId.Value, ObtenerTerminal());
+            return consultas == null ? (IHttpActionResult)NotFound() : Ok(consultas);
+        }
+
+        // El medico de la consulta es siempre quien llama (X-Usuario-Id):
+        // no se acepta en el cuerpo para que nadie firme por otro.
+        [HttpPost, Route("expediente/{codigo}/consultas")]
+        public IHttpActionResult RegistrarConsulta(string codigo, [FromBody] RegistrarConsultaRequest body)
+        {
+            if (body == null)
+            {
+                return BadRequest("El cuerpo de la peticion es obligatorio.");
+            }
+
+            var recetas = (body.Recetas ?? new List<RecetaRequest>())
+                .Where(r => r != null)
+                .Select(r => new Receta
+                {
+                    MedicamentoId = r.MedicamentoId,
+                    EsquemaTarv = r.EsquemaTarv,
+                    CantidadPrescrita = r.CantidadPrescrita
+                })
+                .ToList();
+
+            var resultado = CrearServicioHistorial().RegistrarConsulta(
+                codigo, Identidad.UsuarioId.Value, body.CargaViral, body.ConteoCd4,
+                body.DiagnosticoDetalle, body.NotasClinicas, recetas, ObtenerTerminal());
+
+            if (!resultado.Exitoso)
+            {
+                if (resultado.MensajeError == HistorialService.MensajeExpedienteNoExiste)
+                {
+                    return NotFound();
+                }
+                return Content(HttpStatusCode.Conflict, new { error = resultado.MensajeError });
+            }
+
+            return Created(Request.RequestUri.ToString(), resultado.Valor);
+        }
+
+        private HistorialService CrearServicioHistorial()
+        {
+            return new HistorialService(
+                new HistorialRepository(ConnectionString),
+                new ExpedienteRepository(ConnectionString),
+                CrearAuditoriaService());
         }
     }
 }

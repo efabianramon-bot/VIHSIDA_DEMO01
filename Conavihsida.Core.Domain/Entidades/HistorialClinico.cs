@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Conavihsida.Core.Domain.Entidades
 {
@@ -13,5 +14,8 @@ namespace Conavihsida.Core.Domain.Entidades
         public int? ConteoCd4 { get; set; }
         public string DiagnosticoDetalle { get; set; }
         public string NotasClinicas { get; set; }
+
+        /// <summary>Recetas emitidas en esta consulta; las llena el repositorio.</summary>
+        public List<Receta> Recetas { get; set; }
     }
 }
