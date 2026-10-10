@@ -48,6 +48,7 @@
     <Compile Include="Servicios\AuditoriaService.cs" />
     <Compile Include="Servicios\AuthService.cs" />
     <Compile Include="Servicios\CitaService.cs" />
+    <Compile Include="Servicios\ExpedienteService.cs" />
     <Compile Include="Servicios\FacturacionService.cs" />
     <Compile Include="Servicios\ResultadoService.cs" />
   </ItemGroup>
