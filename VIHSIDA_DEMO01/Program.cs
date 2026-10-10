@@ -37,7 +37,7 @@ namespace VIHSIDA_DEMO01
             Console.Write("Ingrese contraseña: ");
             string password = Console.ReadLine();
 
-            Console.Write("Ingrese origen ('WEB' o 'CAJA_DESKTOP'): ");
+            Console.Write("Ingrese origen ('WEB', 'CAJA' o 'CORE'): ");
             string origen = Console.ReadLine();
 
             Console.WriteLine("\n[PROCESANDO] Consultando procedimientos almacenados en SQL Server...");
