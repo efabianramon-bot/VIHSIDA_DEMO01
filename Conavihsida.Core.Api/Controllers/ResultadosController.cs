@@ -1,10 +1,12 @@
 ﻿using System.Web.Http;
+using Conavihsida.Core.Api.Seguridad;
 using Conavihsida.Core.Aplicacion.Servicios;
 using Conavihsida.Core.Data;
 
 namespace Conavihsida.Core.Api.Controllers
 {
     [RoutePrefix("api/pacientes/{pacienteId:int}/resultados")]
+    [SoloElPaciente]
     public class ResultadosController : BaseApiController
     {
         [HttpGet, Route("")]

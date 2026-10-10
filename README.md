@@ -1,15 +1,23 @@
 # VIHSIDA_DEMO01
 
-Solución .NET Framework 4.8 del CORE de Conavihsida: una Web API para citas,
-facturas y resultados de laboratorio de pacientes, más una aplicación de
-consola para pruebas manuales.
+Solución .NET Framework 4.8 del módulo CORE del Sistema Integral de
+CONAVIHSIDA (SRS v1.2). Es la Web API central del sistema:
+
+- Login de empleados y control de acceso por rol (RF-CORE-01).
+- Expediente clínico confidencial, historial y recetas TARV (RF-CORE-02 y 03).
+- Inventario farmacéutico y despacho de recetas (RF-CORE-04).
+- Auditoría de operaciones y bitácora para el rol Auditor (RF-CORE-05).
+- Indicadores del Dashboard Ejecutivo (RF-CORE-08).
+- Citas, facturas y resultados para el Portal Web del paciente.
+
+Incluye además una aplicación de consola para pruebas manuales.
 
 ## Proyectos
 
 | Proyecto | Tipo | Contenido |
 | --- | --- | --- |
-| `Conavihsida.Core.Api` | ASP.NET Web API 2 | Controladores, DTOs y handlers (`ApiKeyHandler`, `LoggingHandler`). |
-| `Conavihsida.Core.Aplicacion` | Biblioteca | Servicios (`CitaService`, `FacturacionService`, `ResultadoService`, `AuditoriaService`) y `ResultadoOperacion<T>`. |
+| `Conavihsida.Core.Api` | ASP.NET Web API 2 | Controladores, DTOs, handlers (llave de API, CORS, logs) y filtros de seguridad (`RequiereRol`, `SoloElPaciente`). |
+| `Conavihsida.Core.Aplicacion` | Biblioteca | Servicios con las reglas de negocio (autenticación, expediente, historial, inventario, dashboard, citas, facturación, auditoría) y `ResultadoOperacion<T>`. |
 | `Conavihsida.Core.Domain` | Biblioteca | Entidades, catálogos, vistas e interfaces de repositorio. |
 | `Conavihsida.Core.Data` | Biblioteca | Repositorios sobre SQL Server. |
 | `VIHSIDA_DEMO01` | Consola | Programa de demostración y menú de pruebas (`PruebasCoreMenu`). |
@@ -58,7 +66,7 @@ Los destinos y formatos se cambian en `Conavihsida.Core.Api/NLog.config`.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 49 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 55 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -77,6 +85,11 @@ indica quién la hace con estos encabezados:
 
 Los endpoints marcados con `[RequiereRol(...)]` responden `401` si falta
 `X-Usuario-Id` y `403` si el empleado no tiene alguno de los roles permitidos.
+
+Los endpoints de citas, facturas y resultados del paciente llevan
+`[SoloElPaciente]`: responden `401` si falta `X-Paciente-Id` y `403` si ese
+paciente no es el mismo `pacienteId` de la petición. Los catálogos
+`/api/medicos` y sus horarios no lo exigen.
 
 | Método | Ruta | Descripción |
 | --- | --- | --- |

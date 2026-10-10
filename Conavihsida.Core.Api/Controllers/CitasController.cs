@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using Conavihsida.Core.Api.Dtos;
+using Conavihsida.Core.Api.Seguridad;
 using Conavihsida.Core.Aplicacion.Servicios;
 using Conavihsida.Core.Data;
 
@@ -36,13 +37,13 @@ namespace Conavihsida.Core.Api.Controllers
             return Ok(CrearServicio().ObtenerHorariosDisponibles(medicoId, fecha.Value));
         }
 
-        [HttpGet, Route("pacientes/{pacienteId:int}/citas")]
+        [HttpGet, Route("pacientes/{pacienteId:int}/citas"), SoloElPaciente]
         public IHttpActionResult CitasDelPaciente(int pacienteId)
         {
             return Ok(CrearServicio().ObtenerCitasPaciente(pacienteId));
         }
 
-        [HttpPost, Route("citas")]
+        [HttpPost, Route("citas"), SoloElPaciente]
         public IHttpActionResult Agendar([FromBody] AgendarCitaRequest body)
         {
             if (body == null)
@@ -61,7 +62,7 @@ namespace Conavihsida.Core.Api.Controllers
             return Created(Request.RequestUri + "/" + resultado.Valor.Id, resultado.Valor);
         }
 
-        [HttpPost, Route("citas/{citaId:int}/cancelar")]
+        [HttpPost, Route("citas/{citaId:int}/cancelar"), SoloElPaciente]
         public IHttpActionResult Cancelar(int citaId, [FromUri] int pacienteId)
         {
             bool cancelada = CrearServicio().CancelarCita(pacienteId, citaId, ObtenerTerminal());
