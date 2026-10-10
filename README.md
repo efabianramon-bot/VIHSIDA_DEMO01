@@ -42,6 +42,20 @@ Para crear la base desde cero, ejecuta en este orden:
 3. Los scripts de `Database/Datos/` (solo desarrollo y demo: usuarios, paciente,
    medicamentos y facturas de prueba).
 
+## Logs
+
+La API escribe tres archivos por día en `Conavihsida.Core.Api/App_Data/logs/`
+(la carpeta no se versiona ni se sirve por HTTP). Ninguno guarda el cuerpo de
+las peticiones, los parámetros de las consultas ni datos clínicos.
+
+| Archivo | Contenido |
+| --- | --- |
+| `transacciones-AAAA-MM-DD.log` | Una línea por operación de negocio: usuario, roles o paciente, terminal, operación, ruta, código, duración y si quedó `COMPLETADA`, `RECHAZADA` (con el motivo) o en `ERROR`. |
+| `base-datos-AAAA-MM-DD.log` | `ERROR_SQL` y `CONEXION` (errores), `RESTRICCION` (violación de UNIQUE o clave foránea), `LENTA` (más de 500 ms), `COMMIT` y `ROLLBACK`, con el repositorio y método que los originó. |
+| `core-api-AAAA-MM-DD.log` | Log técnico: todas las peticiones con su código y duración, y las excepciones. |
+
+Los destinos y formatos se cambian en `Conavihsida.Core.Api/NLog.config`.
+
 ## Pruebas con Postman
 
 `Postman/Conavihsida.Core.Api.postman_collection.json` contiene 49 peticiones

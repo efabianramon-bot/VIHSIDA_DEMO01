@@ -36,8 +36,8 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@FechaHora", registro.FechaHora);
                 cmd.Parameters.AddWithValue("@Detalle", (object)registro.Detalle ?? System.DBNull.Value);
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                conn.AbrirConLog();
+                cmd.ExecuteNonQueryConLog();
             }
         }
 
@@ -64,8 +64,8 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.Add("@UsuarioID", SqlDbType.Int).Value = (object)usuarioId ?? DBNull.Value;
                 cmd.Parameters.Add("@Accion", SqlDbType.VarChar, 100).Value = (object)accion ?? DBNull.Value;
 
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     while (reader.Read())
                     {

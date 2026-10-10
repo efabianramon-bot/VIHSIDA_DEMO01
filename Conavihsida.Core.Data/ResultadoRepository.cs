@@ -29,8 +29,8 @@ namespace Conavihsida.Core.Data
             using (var cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@PacienteID", pacienteId);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     int ordNota = reader.GetOrdinal("Nota");
                     while (reader.Read())

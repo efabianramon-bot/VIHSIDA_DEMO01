@@ -33,8 +33,8 @@ namespace Conavihsida.Core.Data
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
             {
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     while (reader.Read())
                     {
@@ -70,8 +70,8 @@ namespace Conavihsida.Core.Data
             {
                 cmd.Parameters.Add("@MedicamentoID", SqlDbType.Int).Value =
                     (object)medicamentoId ?? DBNull.Value;
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     while (reader.Read())
                     {
@@ -107,7 +107,7 @@ namespace Conavihsida.Core.Data
 
             using (var conn = new SqlConnection(_connectionString))
             {
-                conn.Open();
+                conn.AbrirConLog();
                 using (var tx = conn.BeginTransaction())
                 {
                     try
@@ -121,7 +121,7 @@ namespace Conavihsida.Core.Data
                             cmd.Parameters.AddWithValue("@ExistenciaMinima", lote.ExistenciaMinima);
                             cmd.Parameters.AddWithValue("@ExistenciaMaxima",
                                 (object)lote.ExistenciaMaxima ?? DBNull.Value);
-                            lote.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                            lote.Id = Convert.ToInt32(cmd.ExecuteScalarConLog());
                         }
 
                         InsertarMovimiento(conn, tx, new MovimientoInventario
@@ -133,19 +133,19 @@ namespace Conavihsida.Core.Data
                             FechaMovimiento = fecha
                         });
 
-                        tx.Commit();
+                        tx.CommitConLog();
                         return true;
                     }
                     catch (SqlException ex) when (ex.Number == SqlErrorViolacionUnique
                                                 || ex.Number == SqlErrorViolacionUniqueConstraint
                                                 || ex.Number == SqlErrorViolacionForanea)
                     {
-                        tx.Rollback();
+                        tx.RollbackConLog();
                         return false;
                     }
                     catch
                     {
-                        tx.Rollback();
+                        tx.RollbackConLog();
                         throw;
                     }
                 }
@@ -163,8 +163,8 @@ namespace Conavihsida.Core.Data
             using (var cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@RecetaID", recetaId);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
                 {
                     if (!reader.Read())
                     {
@@ -214,7 +214,7 @@ namespace Conavihsida.Core.Data
 
             using (var conn = new SqlConnection(_connectionString))
             {
-                conn.Open();
+                conn.AbrirConLog();
                 using (var tx = conn.BeginTransaction())
                 {
                     try
@@ -226,7 +226,7 @@ namespace Conavihsida.Core.Data
                             cmd.Parameters.AddWithValue("@Dispensada", EstadosReceta.Dispensada);
                             cmd.Parameters.AddWithValue("@Activa", EstadosReceta.Activa);
                             cmd.Parameters.AddWithValue("@RecetaID", recetaId);
-                            using (var reader = cmd.ExecuteReader())
+                            using (var reader = cmd.ExecuteReaderConLog())
                             {
                                 if (!reader.Read())
                                 {
@@ -235,9 +235,9 @@ namespace Conavihsida.Core.Data
                                     using (var cmdExiste = new SqlCommand(sqlExiste, conn, tx))
                                     {
                                         cmdExiste.Parameters.AddWithValue("@RecetaID", recetaId);
-                                        existe = Convert.ToInt32(cmdExiste.ExecuteScalar()) > 0;
+                                        existe = Convert.ToInt32(cmdExiste.ExecuteScalarConLog()) > 0;
                                     }
-                                    tx.Rollback();
+                                    tx.RollbackConLog();
                                     return existe ? ResultadoDespacho.RecetaNoActiva : ResultadoDespacho.RecetaNoExiste;
                                 }
                                 medicamentoId = reader.GetInt32(0);
@@ -250,7 +250,7 @@ namespace Conavihsida.Core.Data
                         {
                             cmd.Parameters.AddWithValue("@MedicamentoID", medicamentoId);
                             cmd.Parameters.Add("@Hoy", SqlDbType.Date).Value = fecha.Date;
-                            using (var reader = cmd.ExecuteReader())
+                            using (var reader = cmd.ExecuteReaderConLog())
                             {
                                 while (reader.Read())
                                 {
@@ -283,7 +283,7 @@ namespace Conavihsida.Core.Data
                         if (pendiente > 0)
                         {
                             // Deshace tambien el cambio de estado de la receta.
-                            tx.Rollback();
+                            tx.RollbackConLog();
                             return ResultadoDespacho.StockInsuficiente;
                         }
 
@@ -293,18 +293,18 @@ namespace Conavihsida.Core.Data
                             {
                                 cmd.Parameters.AddWithValue("@Cantidad", salida.Cantidad);
                                 cmd.Parameters.AddWithValue("@LoteID", salida.LoteId);
-                                cmd.ExecuteNonQuery();
+                                cmd.ExecuteNonQueryConLog();
                             }
                             InsertarMovimiento(conn, tx, salida);
                         }
 
-                        tx.Commit();
+                        tx.CommitConLog();
                         movimientos.AddRange(salidas);
                         return ResultadoDespacho.Despachada;
                     }
                     catch
                     {
-                        tx.Rollback();
+                        tx.RollbackConLog();
                         throw;
                     }
                 }
@@ -328,7 +328,7 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@Cantidad", movimiento.Cantidad);
                 cmd.Parameters.AddWithValue("@UsuarioID", movimiento.UsuarioId);
                 cmd.Parameters.AddWithValue("@FechaMovimiento", movimiento.FechaMovimiento);
-                movimiento.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                movimiento.Id = Convert.ToInt32(cmd.ExecuteScalarConLog());
             }
         }
     }

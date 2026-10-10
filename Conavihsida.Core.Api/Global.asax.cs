@@ -6,6 +6,7 @@ namespace Conavihsida.Core.Api
     {
         protected void Application_Start()
         {
+            LogConfig.Register();
             GlobalConfiguration.Configure(WebApiConfig.Register);
         }
     }
