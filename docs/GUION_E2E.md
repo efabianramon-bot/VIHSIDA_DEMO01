@@ -32,7 +32,8 @@ Lo que necesito que me confirmes está en la sección 7.
 
 - En Visual Studio: clic derecho en la solución → *Configure Startup
   Projects* → *Multiple startup projects* → *Start* en los dos.
-- Base de datos: LocalDB, catálogo `ConavihsidaCoreDb`. Para crearla desde
+- Base de datos: LocalDB, catálogo `ConavihsidaCoreDb` (archivos en
+  `Conavihsida.Core.Api/App_Data/`). Para crearla desde
   cero: `Database/ConavihsidaCoreDb_schema.sql`, luego `Database/Migraciones/`
   y luego `Database/Datos/`.
 - La llave de la API es el ajuste `CoreApi:ApiKey` de
@@ -54,8 +55,8 @@ Usuarios de prueba (la contraseña está anotada en
 relleno.
 
 Pacientes de prueba: n.º 1 (sin cédula, expediente `COD-TEST-0001`), n.º 2
-(cédula `000-0000002-0`, con expediente) y n.º 3 (cédula `000-0000003-0`,
-sin expediente, reservado para la demo).
+(cédula `000-0000002-0`) y n.º 3 (cédula `000-0000003-0`). Los dos últimos
+no tienen expediente: sirven para mostrar la apertura en la demo.
 
 ## 3. Contrato entre el Gateway y el CORE
 

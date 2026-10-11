@@ -11,7 +11,9 @@ namespace VIHSIDA_DEMO01
     internal class Program
     {
         // Ajusta tu Connection String según tu servidor local (ej: Server=localhost;Database=CONAVIHSIDA_DB;Integrated Security=True;TrustServerCertificate=True;)
-        private const string ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Database1.mdf;Database=ConavihsidaCoreDb;Integrated Security=True;Connect Timeout=30;";
+        // Misma base que usa la API (ver Conavihsida.Core.Api/Web.config): se
+        // conecta por nombre de catalogo, sin adjuntar ningun archivo .mdf.
+        private const string ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=ConavihsidaCoreDb;Integrated Security=True;Connect Timeout=30;";
 
         static void Main(string[] args)
         {

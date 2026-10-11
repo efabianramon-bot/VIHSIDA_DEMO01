@@ -176,13 +176,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Database1.mdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Database1_log.ldf">
+    <!-- Copia antigua de la base, solo de referencia. NO se copia a la
+         carpeta de salida: antes, al compilar, podia sobrescribir la base
+         real. La base en uso es el catalogo ConavihsidaCoreDb de LocalDB. -->
+    <None Include="Database1.mdf" />
+    <None Include="Database1_log.ldf">
       <DependentUpon>Database1.mdf</DependentUpon>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">

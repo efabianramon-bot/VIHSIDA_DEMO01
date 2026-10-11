@@ -10,6 +10,11 @@
 # Paquetes NuGet (se restauran con "nuget restore")
 packages/
 
+# Base de datos en uso y sus respaldos (pueden contener datos de pacientes)
+Conavihsida.Core.Api/App_Data/*.mdf
+Conavihsida.Core.Api/App_Data/*.ldf
+Database/Respaldos/
+
 # Logs de la API (NLog)
 App_Data/logs/
 *.log
