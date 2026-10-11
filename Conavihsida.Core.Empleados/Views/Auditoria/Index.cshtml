@@ -1,0 +1,104 @@
+@model BitacoraViewModel
+@{
+    ViewBag.Title = "Bitácora de auditoría";
+}
+
+<h1 class="titulo-pagina">Bitácora de auditoría</h1>
+<p class="subtitulo">Cada operación crítica: quién la hizo, desde dónde y cuándo. Es de solo lectura.</p>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="aviso aviso-error" role="alert">@Model.Error</div>
+}
+
+@using (Html.BeginForm("Index", "Auditoria", FormMethod.Get, new { @class = "panel filtros" }))
+{
+    <div class="campo">
+        <label for="desde">Desde</label>
+        <input type="date" id="desde" name="desde" value="@(Model.Desde == null ? "" : Model.Desde.Value.ToString("yyyy-MM-dd"))" />
+    </div>
+    <div class="campo">
+        <label for="hasta">Hasta</label>
+        <input type="date" id="hasta" name="hasta" value="@(Model.Hasta == null ? "" : Model.Hasta.Value.ToString("yyyy-MM-dd"))" />
+    </div>
+    <div class="campo">
+        <label for="accion">Acción</label>
+        <select id="accion" name="accion">
+            <option value="">Todas</option>
+            @foreach (var accion in BitacoraViewModel.AccionesConocidas)
+            {
+                <option value="@accion" @(accion == Model.Accion ? "selected" : "")>@accion</option>
+            }
+        </select>
+    </div>
+    <div class="campo campo-corto">
+        <label for="usuarioId">Usuario n.º</label>
+        <input type="number" id="usuarioId" name="usuarioId" min="1" step="1" value="@Model.UsuarioId" />
+    </div>
+    <div class="campo campo-corto">
+        <label for="maximo">Mostrar</label>
+        <select id="maximo" name="maximo">
+            @foreach (var limite in BitacoraViewModel.Limites)
+            {
+                <option value="@limite" @(limite == Model.Maximo ? "selected" : "")>@limite</option>
+            }
+        </select>
+    </div>
+    <div class="acciones filtros-acciones">
+        <button type="submit" class="boton boton-primario">Filtrar</button>
+        <a class="boton boton-neutro" href="@Url.Action("Index")">Limpiar</a>
+    </div>
+}
+
+@if (Model.Registros.Count == 0)
+{
+    <p class="dato-suave">No hay registros con esos filtros.</p>
+}
+else
+{
+    <p class="dato-suave">
+        @Model.Registros.Count registros, del más reciente al más antiguo@(Model.Registros.Count == Model.Maximo ? " (puede haber más: afina los filtros o sube el límite)" : "").
+    </p>
+    <div class="tabla-contenedor">
+        <table class="tabla tabla-compacta">
+            <thead>
+                <tr>
+                    <th>Fecha y hora</th>
+                    <th>Quién</th>
+                    <th>Terminal</th>
+                    <th>Acción</th>
+                    <th>Sobre</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var registro in Model.Registros)
+                {
+                    <tr>
+                        <td class="sin-corte">@registro.FechaHora.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td class="sin-corte">
+                            @if (registro.UsuarioId != null)
+                            {
+                                <text>Usuario n.º @registro.UsuarioId</text>
+                            }
+                            else if (registro.PacienteId != null)
+                            {
+                                <text>Paciente n.º @registro.PacienteId</text>
+                            }
+                            else
+                            {
+                                <text>—</text>
+                            }
+                        </td>
+                        <td>@(string.IsNullOrEmpty(registro.Terminal) ? "—" : registro.Terminal)</td>
+                        <td>
+                            <span class="estado @(registro.Accion == "AccesoDenegado" || registro.Accion == "LoginFallido" ? "estado-alerta-error" : "estado-inactivo")">@registro.Accion</span>
+                        </td>
+                        <td class="sin-corte">@registro.EntidadAfectada@(registro.EntidadId == null ? "" : " n.º " + registro.EntidadId)</td>
+                        <td class="detalle">@(string.IsNullOrEmpty(registro.Detalle) ? "—" : registro.Detalle)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

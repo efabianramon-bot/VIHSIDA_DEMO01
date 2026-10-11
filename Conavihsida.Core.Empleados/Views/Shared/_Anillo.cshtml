@@ -1,0 +1,18 @@
+@model AnilloViewModel
+@* Grafico de anillo dibujado en SVG, sin librerias. El valor tambien va
+   como texto, asi que se entiende sin ver el dibujo. *@
+<figure class="anillo">
+    <svg viewBox="0 0 120 120" role="img"
+         aria-label="@Model.Rotulo: @(Model.Porcentaje == null ? "sin datos" : Model.Porcentaje.Value.ToString("0.#") + " por ciento")">
+        <circle class="anillo-fondo" cx="60" cy="60" r="52" />
+        @if (Model.Porcentaje != null)
+        {
+            <circle class="anillo-valor" cx="60" cy="60" r="52"
+                    stroke-dasharray="@Model.Trazo" transform="rotate(-90 60 60)" />
+        }
+        <text class="anillo-texto" x="60" y="60" text-anchor="middle" dominant-baseline="central">
+            @(Model.Porcentaje == null ? "—" : Model.Porcentaje.Value.ToString("0.#") + "%")
+        </text>
+    </svg>
+    <figcaption>@Model.Rotulo</figcaption>
+</figure>

@@ -72,6 +72,14 @@ Portales disponibles:
 - **Farmacia** (rol Farmacéutico): cola de recetas por despachar, lotes con
   alertas (vencido, por vencer, agotado, bajo mínimo), registro de lotes y
   despacho de recetas indicando de qué lote sale cada unidad.
+- **Dashboard Ejecutivo** (rol Administrador): pacientes activos, adherencia
+  al tratamiento, inventario crítico y ejecución de subsidios, con gráficos
+  y para periodos de 30, 90, 180 o 365 días. Solo muestra totales.
+- **Bitácora de auditoría** (roles Auditor y Administrador): consulta de la
+  bitácora con filtros por fecha, acción y usuario. Es de solo lectura.
+
+Los gráficos se dibujan con SVG y CSS propios: la aplicación no carga
+ninguna librería ni recurso externo.
 
 ## Base de datos
 

@@ -61,8 +61,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Controllers\AuditoriaController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\FarmaciaController.cs" />
     <Compile Include="Controllers\MedicoController.cs" />
+    <Compile Include="Models\DashboardModels.cs" />
     <Compile Include="Models\FarmaciaModels.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
     <Compile Include="Models\MedicoModels.cs" />
@@ -82,11 +85,14 @@
     <Content Include="Views\Cuenta\Login.cshtml" />
     <Content Include="Views\Cuenta\SinAcceso.cshtml" />
     <Content Include="Views\Inicio\Index.cshtml" />
+    <Content Include="Views\Auditoria\Index.cshtml" />
+    <Content Include="Views\Dashboard\Index.cshtml" />
     <Content Include="Views\Farmacia\Index.cshtml" />
     <Content Include="Views\Farmacia\NuevoLote.cshtml" />
     <Content Include="Views\Farmacia\Receta.cshtml" />
     <Content Include="Views\Medico\Expediente.cshtml" />
     <Content Include="Views\Medico\Index.cshtml" />
+    <Content Include="Views\Shared\_Anillo.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
     <Content Include="Web.config" />

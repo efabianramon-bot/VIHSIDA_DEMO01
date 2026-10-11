@@ -1,0 +1,172 @@
+@model DashboardViewModel
+@{
+    ViewBag.Title = "Dashboard Ejecutivo";
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <h1 class="titulo-pagina">Dashboard Ejecutivo</h1>
+        <p class="subtitulo">Indicadores de los últimos @Model.Dias días. Solo totales: sin datos de pacientes.</p>
+    </div>
+    <nav class="periodos" aria-label="Periodo">
+        @foreach (var periodo in DashboardViewModel.Periodos)
+        {
+            <a class="periodo @(periodo == Model.Dias ? "activo" : "")"
+               href="@Url.Action("Index", new { dias = periodo })"
+               @(periodo == Model.Dias ? "aria-current=page" : "")>@periodo días</a>
+        }
+    </nav>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="aviso aviso-error" role="alert">@Model.Error</div>
+}
+
+@if (Model.Datos != null)
+{
+    var pacientes = Model.Datos.Pacientes;
+    var adherencia = Model.Datos.Adherencia;
+    var inventario = Model.Datos.Inventario;
+    var subsidios = Model.Datos.Subsidios;
+    int recetasContadas = adherencia.RecetasEmitidas - adherencia.RecetasCanceladas;
+
+    <div class="tablero">
+
+        <section class="panel indicador-panel">
+            <h2>Pacientes activos</h2>
+            <div class="cifra-principal">
+                <span class="cifra">@pacientes.Activos</span>
+                <span class="cifra-nombre">expedientes activos de @pacientes.Total</span>
+            </div>
+
+            @if (pacientes.Total > 0)
+            {
+                <div class="barra-apilada" role="img"
+                     aria-label="Activos @pacientes.Activos, inactivos @pacientes.Inactivos, transferidos @pacientes.Transferidos">
+                    <span class="tramo tramo-exito" style="width: @DashboardViewModel.Css(DashboardViewModel.Porcentaje(pacientes.Activos, pacientes.Total))%"></span>
+                    <span class="tramo tramo-neutro" style="width: @DashboardViewModel.Css(DashboardViewModel.Porcentaje(pacientes.Inactivos, pacientes.Total))%"></span>
+                    <span class="tramo tramo-info" style="width: @DashboardViewModel.Css(DashboardViewModel.Porcentaje(pacientes.Transferidos, pacientes.Total))%"></span>
+                </div>
+            }
+            <ul class="leyenda">
+                <li><span class="punto punto-exito"></span>Activos <strong>@pacientes.Activos</strong></li>
+                <li><span class="punto punto-neutro"></span>Inactivos <strong>@pacientes.Inactivos</strong></li>
+                <li><span class="punto punto-info"></span>Transferidos <strong>@pacientes.Transferidos</strong></li>
+            </ul>
+            <p class="nota-indicador">@pacientes.NuevosEnPeriodo expedientes abiertos en el periodo.</p>
+        </section>
+
+        <section class="panel indicador-panel">
+            <h2>Adherencia al tratamiento</h2>
+            <div class="con-anillo">
+                @Html.Partial("_Anillo", new AnilloViewModel { Porcentaje = adherencia.PorcentajeAdherencia, Rotulo = "Recetas retiradas" })
+                <div class="barras">
+                    @foreach (var fila in new[]
+                    {
+                        new { Nombre = "Retiradas", Valor = adherencia.RecetasDispensadas, Clase = "exito" },
+                        new { Nombre = "Sin retirar", Valor = adherencia.RecetasPendientes, Clase = "alerta" },
+                        new { Nombre = "Vencidas", Valor = adherencia.RecetasVencidas, Clase = "error" }
+                    })
+                    {
+                        <div class="barra-fila">
+                            <span class="barra-nombre">@fila.Nombre</span>
+                            <span class="barra-pista"><span class="tramo tramo-@fila.Clase" style="width: @DashboardViewModel.Css(DashboardViewModel.Porcentaje(fila.Valor, recetasContadas))%"></span></span>
+                            <span class="barra-valor">@fila.Valor</span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <p class="nota-indicador">
+                @adherencia.RecetasEmitidas recetas emitidas (@adherencia.RecetasCanceladas canceladas).
+                @adherencia.PacientesConRetiro de @adherencia.PacientesConReceta pacientes con receta retiraron al menos una.
+            </p>
+        </section>
+
+        <section class="panel indicador-panel">
+            <h2>Inventario crítico</h2>
+            <div class="cifras-fila">
+                <div class="cifra-chica @(inventario.LotesVencidosConExistencia > 0 ? "cifra-error" : "")">
+                    <span class="cifra">@inventario.LotesVencidosConExistencia</span>
+                    <span class="cifra-nombre">vencidos con existencia</span>
+                </div>
+                <div class="cifra-chica @(inventario.LotesPorVencer > 0 ? "cifra-alerta" : "")">
+                    <span class="cifra">@inventario.LotesPorVencer</span>
+                    <span class="cifra-nombre">vencen en @inventario.DiasAviso días</span>
+                </div>
+                <div class="cifra-chica @(inventario.LotesBajoMinimo > 0 ? "cifra-alerta" : "")">
+                    <span class="cifra">@inventario.LotesBajoMinimo</span>
+                    <span class="cifra-nombre">en su mínimo o por debajo</span>
+                </div>
+            </div>
+
+            @if (inventario.Lotes != null && inventario.Lotes.Count > 0)
+            {
+                <div class="tabla-contenedor">
+                    <table class="tabla tabla-compacta">
+                        <thead>
+                            <tr><th>Medicamento</th><th>Lote</th><th>Caduca</th><th class="numero">Existencia</th><th>Alerta</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var lote in inventario.Lotes)
+                            {
+                                <tr>
+                                    <td>@lote.MedicamentoNombre</td>
+                                    <td class="codigo">@lote.NumeroLote</td>
+                                    <td>@lote.FechaCaducidad.ToString("dd/MM/yyyy")</td>
+                                    <td class="numero">@lote.ExistenciaActual / @lote.ExistenciaMinima mín.</td>
+                                    <td>
+                                        @if (lote.Vencido)
+                                        {
+                                            <span class="estado estado-alerta-error">Vencido</span>
+                                        }
+                                        else if (lote.ExistenciaActual == 0)
+                                        {
+                                            <span class="estado estado-alerta">Agotado</span>
+                                        }
+                                        else if (lote.BajoMinimo)
+                                        {
+                                            <span class="estado estado-alerta">Bajo mínimo</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="estado estado-alerta">Vence en @lote.DiasParaCaducar días</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="nota-indicador">Ningún lote requiere atención.</p>
+            }
+        </section>
+
+        <section class="panel indicador-panel">
+            <h2>Ejecución de subsidios</h2>
+            <div class="con-anillo">
+                @Html.Partial("_Anillo", new AnilloViewModel { Porcentaje = subsidios.PorcentajeEjecucion, Rotulo = "Facturas descargadas" })
+                <div class="barras">
+                    <div class="barra-fila">
+                        <span class="barra-nombre">Descargadas</span>
+                        <span class="barra-pista"><span class="tramo tramo-exito" style="width: @DashboardViewModel.Css(DashboardViewModel.Porcentaje(subsidios.FacturasDescargadas, subsidios.FacturasSubsidiadas))%"></span></span>
+                        <span class="barra-valor">@subsidios.FacturasDescargadas</span>
+                    </div>
+                    <div class="barra-fila">
+                        <span class="barra-nombre">Pendientes</span>
+                        <span class="barra-pista"><span class="tramo tramo-alerta" style="width: @DashboardViewModel.Css(DashboardViewModel.Porcentaje(subsidios.FacturasPendientes, subsidios.FacturasSubsidiadas))%"></span></span>
+                        <span class="barra-valor">@subsidios.FacturasPendientes</span>
+                    </div>
+                </div>
+            </div>
+            <p class="nota-indicador">
+                @subsidios.FacturasSubsidiadas facturas subsidiadas.
+                @subsidios.EntregasArv entregas de antirretrovirales, @subsidios.UnidadesArvEntregadas.ToString("#,0") unidades, todas al 100 % de subsidio.
+            </p>
+        </section>
+
+    </div>
+}
