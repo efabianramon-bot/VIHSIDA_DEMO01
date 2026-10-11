@@ -104,6 +104,12 @@ las peticiones, los parámetros de las consultas ni datos clínicos.
 
 Los destinos y formatos se cambian en `Conavihsida.Core.Api/NLog.config`.
 
+## Pruebas E2E con el equipo
+
+`docs/GUION_E2E.md` reúne el contrato entre el Gateway y el CORE, el guion
+paso a paso para recorrer los criterios de aceptación y lo que todavía falta
+acordar con Integración y Caja.
+
 ## Pruebas con Postman
 
 `Postman/Conavihsida.Core.Api.postman_collection.json` contiene 64 peticiones
