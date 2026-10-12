@@ -72,6 +72,7 @@
     <Compile Include="Vistas\DashboardVistas.cs" />
     <Compile Include="Vistas\PacienteClinicoVista.cs" />
     <Compile Include="Vistas\ResultadoPacienteVista.cs" />
+    <Compile Include="Vistas\SubsidioVista.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="obj\Debug\Conavihsida.Core.Domain.csproj.AssemblyReference.cache" />

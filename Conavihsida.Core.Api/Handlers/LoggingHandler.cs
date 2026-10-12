@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog;
@@ -28,7 +29,7 @@ namespace Conavihsida.Core.Api.Handlers
                 cronometro.Stop();
 
                 Log.Info("{0} {1} -> {2} ({3} ms)",
-                    request.Method, request.RequestUri.PathAndQuery,
+                    request.Method, RutaSinCedula(request),
                     (int)respuesta.StatusCode, cronometro.ElapsedMilliseconds);
 
                 return respuesta;
@@ -37,9 +38,17 @@ namespace Conavihsida.Core.Api.Handlers
             {
                 cronometro.Stop();
                 Log.Error(ex, "{0} {1} -> EXCEPCION ({2} ms)",
-                    request.Method, request.RequestUri.PathAndQuery, cronometro.ElapsedMilliseconds);
+                    request.Method, RutaSinCedula(request), cronometro.ElapsedMilliseconds);
                 throw;
             }
+        }
+
+        // La cedula identifica a una persona: en el log queda que se
+        // busco por cedula, pero no cual.
+        private static string RutaSinCedula(HttpRequestMessage request)
+        {
+            return Regex.Replace(request.RequestUri.PathAndQuery,
+                @"([?&]cedula=)[^&]*", "$1***", RegexOptions.IgnoreCase);
         }
     }
 }

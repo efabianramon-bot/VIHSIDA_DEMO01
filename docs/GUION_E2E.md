@@ -123,12 +123,13 @@ Content-Type: application/json
 | `/api/farmacia/lotes` (POST), `/api/farmacia/recetas*` | Farmaceutico |
 | `/api/dashboard*` | Administrador |
 | `/api/auditoria` | Auditor, Administrador |
+| `/api/caja/subsidio?cedula=` | Cajero, Administrador |
 | `/api/pacientes/{id}/citas`, `/facturas`, `/resultados`, `/api/citas*` | El propio paciente (`X-Paciente-Id` igual al id) |
 | `/api/medicos`, `/api/medicos/{id}/horarios?fecha=` | Cualquiera con la llave |
 | `/api/auth/yo` | Cualquier empleado; devuelve la identidad que recibió el CORE |
 
 La lista completa, con cada ruta y su descripción, está en el `README.md`.
-La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 64
+La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 80
 peticiones con el código esperado de cada una.
 
 ## 4. Guion paso a paso
@@ -187,7 +188,7 @@ Integración**. Esto es lo que el CORE puede darte para cada uno:
 | --- | --- | --- |
 | `POST /auth/login` | Validar credenciales y dar rol y nombre. | **Listo.** Usa `POST /api/auth/login` con `origen: "CAJA"`. Tienes que adaptar la respuesta: Caja espera `exito`, `token`, `rol` (uno solo), `nombreCompleto` y `mensaje`; el CORE devuelve `roles` (lista), `nombres` y `apellidos`. |
 | `GET /health` | Saber si Integración está arriba. | No necesita al CORE. |
-| `GET /pacientes/{cedula}/subsidio` | Por cédula: si existe, si tiene subsidio, porcentaje y vigencia. | **No existe.** La tabla `Pacientes` del CORE no guarda subsidio, porcentaje ni vigencia. Hay que acordar la regla (pregunta para Beckham). |
+| `GET /pacientes/{cedula}/subsidio` | Por cédula: si existe, si tiene subsidio, porcentaje y vigencia. | **Listo.** Usa `GET /api/caja/subsidio?cedula=` (roles Cajero o Administrador; acepta la cédula con o sin guiones). Responde `{"existe":true,"tieneSubsidio":true,"porcentaje":100,"vigenteHasta":null}`, la forma que espera Caja. Regla acordada con Beckham: expediente activo = 100 %, sin vencimiento. Si la cédula no existe responde `200` con `existe: false`; `400` si no tiene 11 dígitos. Pasa la cédula en la consulta, no en la ruta, para que no quede en los logs. |
 | `POST /sync/turnos` | Guardar turnos de caja. | **No existe.** El CORE no tiene tablas de turnos ni movimientos. |
 | `POST /sync/movimientos` | Guardar movimientos. | **No existe.** |
 | `POST /sync/transacciones` | Guardar cobros y entregas subsidiadas. | **No existe.** |
@@ -222,8 +223,9 @@ Mi propuesta para cerrarlo, a confirmar entre los tres:
   CORS para la web.
 - **HTTPS.** Todo corre en `http` local. Para algo más que la demo, la
   llave y las cookies deben viajar por HTTPS.
-- **Vencimiento de recetas.** Nada pasa una receta al estado `Vencida`; el
-  SRS no define la regla.
+- **Vencimiento de recetas.** Una receta activa pasa a `Vencida` a los 30
+  días de emitida si no se despachó (el SRS no define el plazo; es decisión
+  del equipo).
 
 ## 7. Lo que necesito que Ricardo confirme
 
