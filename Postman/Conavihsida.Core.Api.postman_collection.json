@@ -2543,6 +2543,375 @@
           }
         }
       ]
+    },
+    {
+      "name": "11. Caja: sincronizacion",
+      "description": "Lo que cada terminal de Caja guardo sin conexion y envia despues, a traves de Integracion. El cuerpo y la respuesta { exito, mensaje } son los del contrato de Caja. Reenviar un registro lo actualiza: por eso estas peticiones se pueden repetir. Requiere la migracion 004.",
+      "item": [
+        {
+          "name": "Turno abierto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Responde exito', function () { pm.expect(pm.response.json().exito).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/turnos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 1,\n  \"numeroTurno\": \"TUR-DEMO-0001\",\n  \"usuarioCajero\": \"cajero.prueba\",\n  \"nombreCajero\": \"Cajero De Prueba\",\n  \"caja\": \"CJ01\",\n  \"fechaApertura\": \"2026-10-12T08:00:00\",\n  \"fechaCierre\": null,\n  \"balanceInicial\": 1000.00,\n  \"saldoEsperado\": 1000.00,\n  \"efectivoDeclarado\": null,\n  \"diferencia\": null,\n  \"estado\": \"Abierto\",\n  \"observacion\": \"\"\n}"
+            }
+          }
+        },
+        {
+          "name": "El mismo turno, ya cerrado (se actualiza, no se duplica)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Dice que lo actualizo', function () { pm.expect(pm.response.json().mensaje).to.eql('Registro actualizado.'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/turnos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 1,\n  \"numeroTurno\": \"TUR-DEMO-0001\",\n  \"usuarioCajero\": \"cajero.prueba\",\n  \"nombreCajero\": \"Cajero De Prueba\",\n  \"caja\": \"CJ01\",\n  \"fechaApertura\": \"2026-10-12T08:00:00\",\n  \"fechaCierre\": \"2026-10-12T16:00:00\",\n  \"balanceInicial\": 1000.00,\n  \"saldoEsperado\": 1500.00,\n  \"efectivoDeclarado\": 1500.00,\n  \"diferencia\": 0.00,\n  \"estado\": \"Cerrado\",\n  \"observacion\": \"Cuadre correcto\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Movimiento de caja",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/movimientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 1,\n  \"turnoCajaIdLocal\": 1,\n  \"numeroMovimiento\": \"MOV-DEMO-0001\",\n  \"fecha\": \"2026-10-12T09:15:00\",\n  \"tipo\": \"Subsidio\",\n  \"monto\": 0.00,\n  \"concepto\": \"Entrega de ARV subsidiada\",\n  \"referencia\": \"TRX-DEMO-0001\",\n  \"usuarioCajero\": \"cajero.prueba\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Transaccion subsidiada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/transacciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 1,\n  \"numeroTransaccion\": \"TRX-DEMO-0001\",\n  \"fecha\": \"2026-10-12T09:15:00\",\n  \"cedulaPaciente\": \"000-0000004-0\",\n  \"tipoServicio\": \"Entrega de medicamento\",\n  \"monto\": 0.00,\n  \"formaPago\": \"Subsidiado\",\n  \"esSubsidiado\": true,\n  \"estado\": \"Completada\",\n  \"comprobanteGenerado\": true,\n  \"usuarioCajero\": \"cajero.prueba\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Transaccion cobrada en efectivo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/transacciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 2,\n  \"numeroTransaccion\": \"TRX-DEMO-0002\",\n  \"fecha\": \"2026-10-12T10:00:00\",\n  \"cedulaPaciente\": \"00000000060\",\n  \"tipoServicio\": \"Consulta\",\n  \"monto\": 500.00,\n  \"formaPago\": \"Efectivo\",\n  \"esSubsidiado\": false,\n  \"estado\": \"Completada\",\n  \"comprobanteGenerado\": true,\n  \"usuarioCajero\": \"cajero.prueba\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Comprobante (serie propia de la terminal)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/comprobantes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 1,\n  \"transaccionIdLocal\": 1,\n  \"numeroComprobante\": \"CJ01-000001\",\n  \"fechaGeneracion\": \"2026-10-12T09:16:00\",\n  \"tipoDocumento\": \"RECIBO\",\n  \"esReimpresion\": false,\n  \"cantidadReimpresiones\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Fondo o convenio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/fondos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 1,\n  \"codigo\": \"FON-DEMO-0001\",\n  \"nombre\": \"Presupuesto ARV 2026\",\n  \"tipoFuente\": \"PresupuestoEstatal\",\n  \"organismo\": \"Ministerio de Salud Publica\",\n  \"montoAsignado\": 1000000.00,\n  \"montoUtilizado\": 250000.00,\n  \"fechaInicio\": \"2026-01-01T00:00:00\",\n  \"fechaFin\": \"2026-12-31T00:00:00\",\n  \"activo\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Transaccion con forma de pago invalida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', function () { pm.expect(pm.response.code).to.be.oneOf([400]); });",
+                  "pm.test('Dice que campo corregir', function () { pm.expect(pm.response.json().exito).to.eql(false); pm.expect(pm.response.json().mensaje).to.include('formaPago'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/transacciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 3,\n  \"numeroTransaccion\": \"TRX-DEMO-MALA\",\n  \"fecha\": \"2026-10-12T10:00:00\",\n  \"cedulaPaciente\": \"000-0000004-0\",\n  \"tipoServicio\": \"Consulta\",\n  \"monto\": 10,\n  \"formaPago\": \"Cheque\",\n  \"esSubsidiado\": false,\n  \"estado\": \"Completada\",\n  \"comprobanteGenerado\": false,\n  \"usuarioCajero\": \"cajero.prueba\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Transaccion con una receta que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/transacciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 4,\n  \"numeroTransaccion\": \"TRX-DEMO-MALA\",\n  \"fecha\": \"2026-10-12T10:00:00\",\n  \"cedulaPaciente\": \"000-0000004-0\",\n  \"tipoServicio\": \"Entrega de medicamento\",\n  \"monto\": 0,\n  \"formaPago\": \"Subsidiado\",\n  \"esSubsidiado\": true,\n  \"estado\": \"Completada\",\n  \"comprobanteGenerado\": false,\n  \"usuarioCajero\": \"cajero.prueba\",\n  \"numeroReceta\": 999999\n}"
+            }
+          }
+        },
+        {
+          "name": "Medico intenta sincronizar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/turnos",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        }
+      ]
     }
   ]
 }

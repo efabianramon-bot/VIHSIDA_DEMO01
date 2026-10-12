@@ -90,6 +90,17 @@
         public const string Listo = "Listo";
     }
 
+    // Valores que manda el modulo de Caja al sincronizar. Deben coincidir
+    // con los CHECK de las tablas Caja* y con el contrato de Caja.
+    public static class CatalogosCaja
+    {
+        public static readonly string[] EstadosTurno = { "Abierto", "Cerrado" };
+        public static readonly string[] TiposMovimiento = { "Entrada", "Salida", "Cobro", "Subsidio", "Ajuste" };
+        public static readonly string[] FormasPago = { "Efectivo", "Tarjeta", "Subsidiado" };
+        public static readonly string[] EstadosTransaccion = { "Pendiente", "Completada", "Anulada" };
+        public static readonly string[] TiposFuente = { "PresupuestoEstatal", "DonacionInternacional" };
+    }
+
     public static class TiposMovimiento
     {
         public const string Entrada = "Entrada";
