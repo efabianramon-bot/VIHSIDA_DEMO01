@@ -127,7 +127,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 71 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 72 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -169,7 +169,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | GET | `/api/farmacia/medicamentos` | Catálogo de medicamentos. Roles Farmacéutico, Médico y Administrador. |
 | GET | `/api/farmacia/lotes?medicamentoId=` | Lotes con caducidad, existencias y avisos de vencido o bajo mínimo. Roles Farmacéutico y Administrador. |
 | POST | `/api/farmacia/lotes` | Registra un lote y su entrada de inventario. Solo rol Farmacéutico. |
-| GET | `/api/farmacia/recetas?estado=` | Recetas en un estado; sin `estado`, las Activas (la cola por despachar). Solo rol Farmacéutico. |
+| GET | `/api/farmacia/recetas?estado=` | Recetas en un estado; sin `estado`, las Activas (la cola por despachar). Una receta Activa pasa a `Vencida` a los 30 días de emitida si no se despachó. Solo rol Farmacéutico. |
 | GET | `/api/farmacia/recetas/{recetaId}` | Consulta una receta antes de despacharla. Solo rol Farmacéutico. |
 | POST | `/api/farmacia/recetas/{recetaId}/despachar` | Despacha una receta activa y descuenta el stock (`409` si no está activa o no hay existencia). Solo rol Farmacéutico. |
 | GET | `/api/auditoria?desde=&hasta=&usuarioId=&accion=&maximo=` | Bitácora de operaciones, lo más reciente primero (100 por defecto, máximo 500). Roles Auditor y Administrador. |

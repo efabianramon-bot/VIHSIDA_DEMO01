@@ -45,6 +45,7 @@ namespace Conavihsida.Core.Empleados.Models
         public string EsquemaTarv { get; set; }
         public int CantidadPrescrita { get; set; }
         public DateTime FechaEmision { get; set; }
+        public DateTime FechaVencimiento { get; set; }
         public string Estado { get; set; }
     }
 

@@ -9,7 +9,10 @@
 <div class="encabezado-expediente">
     <div>
         <h1 class="titulo-pagina">Receta n.º @receta.Id</h1>
-        <p class="dato-suave">Emitida el @receta.FechaEmision.ToString("dd/MM/yyyy HH:mm")</p>
+        <p class="dato-suave">
+            Emitida el @receta.FechaEmision.ToString("dd/MM/yyyy HH:mm") ·
+            @(receta.Estado == "Vencida" ? "Venció" : "Vence") el @receta.FechaVencimiento.ToString("dd/MM/yyyy")
+        </p>
     </div>
     <span class="estado estado-@receta.Estado.ToLowerInvariant()">@receta.Estado</span>
 </div>

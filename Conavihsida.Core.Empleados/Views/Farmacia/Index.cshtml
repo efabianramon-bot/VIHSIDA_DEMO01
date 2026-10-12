@@ -59,6 +59,7 @@ else
                 <tr>
                     <th>Receta</th>
                     <th>Emitida</th>
+                    <th>Vence</th>
                     <th>Medicamento</th>
                     <th class="numero">Cantidad</th>
                     <th><span class="solo-lectores">Acción</span></th>
@@ -70,6 +71,7 @@ else
                     <tr>
                         <td>n.º @receta.Id</td>
                         <td>@receta.FechaEmision.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@receta.FechaVencimiento.ToString("dd/MM/yyyy")</td>
                         <td>@Model.NombreMedicamento(receta.MedicamentoId)</td>
                         <td class="numero">@receta.CantidadPrescrita</td>
                         <td class="celda-accion"><a href="@Url.Action("Receta", new { id = receta.Id })">Ver y despachar</a></td>

@@ -33,6 +33,12 @@ namespace Conavihsida.Core.Domain.Repositorios
         List<Receta> ObtenerRecetasPorEstado(string estado);
 
         /// <summary>
+        /// Pasa a Vencida las recetas Activas emitidas antes de esa fecha.
+        /// Devuelve cuantas cambio.
+        /// </summary>
+        int VencerRecetas(DateTime emitidasAntesDe);
+
+        /// <summary>
         /// RF-CORE-04: despacha la receta completa en UNA transaccion. Solo
         /// si esta Activa: la marca Dispensada, descuenta el stock de los
         /// lotes no vencidos que caducan primero y deja un movimiento de

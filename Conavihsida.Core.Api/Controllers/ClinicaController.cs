@@ -93,6 +93,7 @@ namespace Conavihsida.Core.Api.Controllers
         [HttpGet, Route("expediente/{codigo}/historial")]
         public IHttpActionResult ObtenerHistorial(string codigo)
         {
+            VencerRecetasAntiguas();
             var consultas = CrearServicioHistorial().ObtenerHistorial(
                 codigo, Identidad.UsuarioId.Value, ObtenerTerminal());
             return consultas == null ? (IHttpActionResult)NotFound() : Ok(consultas);

@@ -1253,6 +1253,35 @@
           }
         },
         {
+          "name": "Recetas vencidas (30 dias sin despacho)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Todas estan Vencidas', function () { pm.response.json().forEach(function (r) { pm.expect(r.estado).to.eql('Vencida'); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/recetas?estado=Vencida"
+          }
+        },
+        {
           "name": "Recetas con un estado que no existe",
           "event": [
             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Conavihsida.Core.Domain.Catalogos;
 
 namespace Conavihsida.Core.Domain.Entidades
 {
@@ -14,5 +15,11 @@ namespace Conavihsida.Core.Domain.Entidades
 
         /// <summary>Ver Catalogos.EstadosReceta.</summary>
         public string Estado { get; set; }
+
+        /// <summary>Hasta cuando se puede despachar (ver ReglasReceta.DiasVigencia).</summary>
+        public DateTime FechaVencimiento
+        {
+            get { return FechaEmision.AddDays(ReglasReceta.DiasVigencia); }
+        }
     }
 }

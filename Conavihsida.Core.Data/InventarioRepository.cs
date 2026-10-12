@@ -197,6 +197,23 @@ namespace Conavihsida.Core.Data
             return lista;
         }
 
+        public int VencerRecetas(DateTime emitidasAntesDe)
+        {
+            const string sql = @"
+                UPDATE Recetas SET Estado = @Vencida
+                WHERE Estado = @Activa AND FechaEmision < @Limite;";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Vencida", EstadosReceta.Vencida);
+                cmd.Parameters.AddWithValue("@Activa", EstadosReceta.Activa);
+                cmd.Parameters.Add("@Limite", SqlDbType.DateTime).Value = emitidasAntesDe;
+                conn.AbrirConLog();
+                return cmd.ExecuteNonQueryConLog();
+            }
+        }
+
         private static Receta LeerReceta(SqlDataReader reader)
         {
             int ordinalEsquema = reader.GetOrdinal("EsquemaTARV");
