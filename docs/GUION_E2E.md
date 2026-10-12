@@ -1,6 +1,7 @@
 # Guion de pruebas E2E — CORE, Integración, Caja y Web
 
-Preparado por Emilia (CORE) para Ricardo (Integración). 10 de octubre de 2026.
+Preparado por Emilia (CORE) para Ricardo (Integración). Actualizado el 12 de
+octubre de 2026.
 
 Sirve para dos cosas: que Integración sepa exactamente qué expone el CORE y
 qué espera recibir, y que el equipo pueda recorrer juntos los criterios de
@@ -17,11 +18,13 @@ Lo que te toca para que el flujo completo funcione:
    petición al CORE agregando la llave y quién la hace (sección 3).
 3. **Portal Web (Francisco).** Las rutas de citas, facturas y resultados
    exigen desde hoy `X-Paciente-Id`. Sin ese encabezado responden `401`.
-4. **Caja (Beckham).** De los 7 endpoints que Caja espera de ti, hoy solo
-   el login tiene con qué responder desde el CORE. La validación de
-   subsidio y la sincronización no tienen contraparte todavía (sección 5).
+   El paciente entra con `POST /api/auth/paciente/login`.
+4. **Caja (Beckham).** De los 7 endpoints que Caja espera de ti, el login y
+   la validación de subsidio ya tienen con qué responder desde el CORE. La
+   sincronización todavía no (sección 5).
 
-Lo que necesito que me confirmes está en la sección 7.
+Lo que necesito que me confirmes está en la sección 7, y la lista completa
+de lo que le falta a Integración, en la sección 8.
 
 ## 2. Cómo levantar el CORE
 
@@ -195,7 +198,7 @@ Repetir con el Gateway en medio. Lo que hay que comprobar en cada caso:
 
 ### Parte C — Con Caja
 
-No se puede correr todavía. Depende de lo que se acuerde en la sección 5.
+No se puede correr todavía. Depende de las tareas 6 y 8 de la sección 8.
 
 ## 5. Lo que Caja espera de Integración y lo que el CORE tiene hoy
 
@@ -206,7 +209,7 @@ Integración**. Esto es lo que el CORE puede darte para cada uno:
 | --- | --- | --- |
 | `POST /auth/login` | Validar credenciales y dar rol y nombre. | **Listo.** Usa `POST /api/auth/login` con `origen: "CAJA"`. Tienes que adaptar la respuesta: Caja espera `exito`, `token`, `rol` (uno solo), `nombreCompleto` y `mensaje`; el CORE devuelve `roles` (lista), `nombres` y `apellidos`. |
 | `GET /health` | Saber si Integración está arriba. | No necesita al CORE. |
-| `GET /pacientes/{cedula}/subsidio` | Por cédula: si existe, si tiene subsidio, porcentaje y vigencia. | **Listo.** Usa `GET /api/caja/subsidio?cedula=` (roles Cajero o Administrador; acepta la cédula con o sin guiones). Responde `{"existe":true,"tieneSubsidio":true,"porcentaje":100,"vigenteHasta":null}`, la forma que espera Caja. Regla acordada con Beckham: expediente activo = 100 %, sin vencimiento. Si la cédula no existe responde `200` con `existe: false`; `400` si no tiene 11 dígitos. Pasa la cédula en la consulta, no en la ruta, para que no quede en los logs. |
+| `GET /pacientes/{cedula}/subsidio` | Por cédula: si existe, si tiene subsidio, porcentaje y vigencia. | **Listo.** Usa `GET /api/caja/subsidio?cedula=` (roles Cajero o Administrador; acepta la cédula con o sin guiones). Responde `{"existe":true,"tieneSubsidio":true,"porcentaje":100,"vigenteHasta":null}`, la forma que Beckham pidió por mensaje. **Ojo:** el código publicado de Caja (`SubsidioResponseDto`) todavía espera `encontrado`, `tieneSubsidio`, `porcentaje`, `vigente`, `vigenciaHasta` y `mensaje`; mientras Beckham no lo actualice, tienes que traducir los nombres. Regla acordada con Beckham: expediente activo = 100 %, sin vencimiento. Si la cédula no existe responde `200` con `existe: false`; `400` si no tiene 11 dígitos. Pasa la cédula en la consulta, no en la ruta, para que no quede en los logs. |
 | `POST /sync/turnos` | Guardar turnos de caja. | **No existe.** El CORE no tiene tablas de turnos ni movimientos. |
 | `POST /sync/movimientos` | Guardar movimientos. | **No existe.** |
 | `POST /sync/transacciones` | Guardar cobros y entregas subsidiadas. | **No existe.** |
@@ -223,14 +226,21 @@ Dos consecuencias para el flujo E2E:
 - **El indicador de subsidios del Dashboard no ve a Caja.** Se calcula con
   las facturas subsidiadas del propio CORE.
 
-Mi propuesta para cerrarlo, a confirmar entre los tres:
+Lo acordado con Beckham para cerrarlo (falta tu confirmación):
 
-1. Caja agrega un campo opcional `numeroReceta` a la transacción subsidiada.
-2. Integración, al recibir esa transacción, llama a un endpoint nuevo del
-   CORE (por ejemplo `POST /api/caja/descargos`) con el número de receta,
-   el número de transacción y el de comprobante.
-3. El CORE marca la receta como descargada y Farmacia solo puede despachar
-   recetas descargadas.
+1. Caja agrega un campo opcional `numeroReceta` a la transacción subsidiada
+   y a `SyncTransaccionDto`. Todavía no está en su código publicado.
+2. Los datos de Caja quedan guardados en el CORE, que es la fuente oficial;
+   la base local de Caja es solo una cola sin conexión e Integración es el
+   paso, no el almacén.
+3. Integración recibe cada `/sync/*` de Caja y lo reenvía a un endpoint
+   equivalente del CORE. Esos endpoints del CORE **todavía no existen**; los
+   hago yo y te aviso la ruta de cada uno.
+4. Al recibir una transacción con `numeroReceta`, el CORE marca la receta
+   como descargada, Farmacia la muestra como "pendiente de descargo"
+   mientras no llegue, y el Dashboard calcula los subsidios con esos datos.
+5. Los comprobantes de Caja llevan su propia serie con prefijo de terminal
+   (`CJ01-000123`) y no chocan con los `REC-n` / `FAC-n` del CORE.
 
 ## 6. Otros pendientes que afectan la integración
 
@@ -254,10 +264,42 @@ Mi propuesta para cerrarlo, a confirmar entre los tres:
    dura? Beckham también lo necesita para Caja.
 3. ¿Ya envías `X-Usuario-Id`, `X-Roles` y `X-Paciente-Id` con esos nombres
    exactos? ¿Reenvías `X-Forwarded-For`?
-4. ¿Quién autentica a los pacientes del Portal Web: tu Gateway con una
-   tabla propia, o necesitas que el CORE exponga un login de pacientes?
-5. Los datos que Caja sincroniza (`/sync/*`): ¿los guardas tú en
-   Integración, o esperas que el CORE los reciba y los guarde?
-6. ¿Estás de acuerdo con la propuesta de la sección 5 para enlazar el
-   descargo de Caja con la receta?
+4. ¿Aceptas emitir el token del paciente a partir de
+   `POST /api/auth/paciente/login` del CORE (sección 3)? Es la propuesta de
+   Francisco.
+5. ¿Aceptas simular la pasarela de pago (RF-INT-03)? Francisco necesita tu
+   ruta y el formato de la respuesta.
+6. ¿Estás de acuerdo con lo acordado en la sección 5: reenviar al CORE los
+   datos que Caja sincroniza, incluido `numeroReceta`?
 7. ¿Cuándo hacemos la sesión conjunta para correr las partes B y C?
+
+## 8. Lista de trabajo de Integración
+
+Lo que le falta al Gateway para dar el proyecto por integrado, en el orden
+en que conviene hacerlo. Las tareas 1 a 6 ya se pueden hacer: el CORE tiene
+todo lo que necesitan.
+
+| N.º | Tarea | Qué usa del CORE | Estado del CORE |
+| --- | --- | --- | --- |
+| 1 | **Login de empleados con JWT.** Recibir usuario y contraseña, llamar al CORE y emitir un JWT con el id de usuario, los roles y el vencimiento. Devolver tal cual el `401`. | `POST /api/auth/login` | Listo |
+| 2 | **Login de pacientes con JWT.** Igual, con el `pacienteId` dentro del token. Devolver tal cual el `401` y el `429`. | `POST /api/auth/paciente/login` | Listo |
+| 3 | **Validar el JWT en cada petición** y rechazar en el Gateway los vencidos o alterados, sin llamar al CORE. | — | No aplica |
+| 4 | **Reenviar al CORE** agregando `X-Api-Key` (guardada solo en el servidor), `X-Usuario-Id` y `X-Roles`, o `X-Paciente-Id`, sacados **del token**. Borrar esos encabezados si los manda el cliente. Reenviar la IP del cliente en `X-Forwarded-For`. | Todas las rutas | Listo |
+| 5 | **Portal Web.** Exponer bajo una sola URL base las rutas de médicos, horarios, citas, facturas, pago y resultados, sin cambiarlas. Francisco ya las alineó con el CORE. | Rutas de la sección 3 | Listo |
+| 6 | **Caja, lo que no es sincronización.** `POST /auth/login` (adaptar la respuesta a `exito`, `token`, `rol`, `nombreCompleto`, `mensaje`), `GET /health` y `GET /pacientes/{cedula}/subsidio` (llamar a `/api/caja/subsidio?cedula=` y traducir los nombres de los campos mientras Caja no cambie su DTO). | `POST /api/auth/login`, `GET /api/caja/subsidio` | Listo |
+| 7 | **Pasarela de pago simulada (RF-INT-03).** Un endpoint que reciba el pago con tarjeta del Portal Web y devuelva una referencia. La web manda esa referencia al CORE como `referenciaPasarela`; la tarjeta y el CVV nunca llegan al CORE. | `POST /api/pacientes/{id}/facturas/{facturaId}/pagar` | Listo |
+| 8 | **Sincronización de Caja.** Recibir `/sync/turnos`, `/sync/movimientos`, `/sync/transacciones`, `/sync/comprobantes` y `/sync/fondos`, reenviarlos al CORE y responder a Caja `exito` y `mensaje`. | Endpoints nuevos | **Pendiente en el CORE** |
+| 9 | **Pruebas conjuntas.** Correr las partes B y C de la sección 4 con los tres módulos levantados. | — | Depende de 1 a 8 |
+
+Reparto de lo que falta, para que no quede nada sin dueño:
+
+- **Ricardo (Integración):** las nueve tareas de la tabla.
+- **Emilia (CORE):** los endpoints que reciben la sincronización de Caja,
+  marcar la receta como descargada, mostrar "pendiente de descargo" en
+  Farmacia y calcular los subsidios del Dashboard con los datos de Caja.
+- **Beckham (Caja):** agregar `numeroReceta` a la transacción y a
+  `SyncTransaccionDto`, aceptar la lista de roles en el login, actualizar
+  `SubsidioResponseDto` a la forma acordada y usar el prefijo de terminal
+  en sus comprobantes.
+- **Francisco (Web):** cambiar su login simulado por el del Gateway y su
+  pasarela simulada por la de Ricardo, y probar contra el Gateway real.
