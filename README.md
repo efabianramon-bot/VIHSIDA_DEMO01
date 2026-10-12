@@ -57,9 +57,8 @@ Para usarla hay que tener corriendo **los dos proyectos**:
 3. El ajuste `CoreApi:ApiKey` de su `Web.config` debe ser igual al de la API.
 
 Los usuarios de prueba están en `Database/Datos/usuarios_prueba.sql`. Para el
-rol Médico usa `medico2.prueba` (`Database/Datos/medico_prueba.sql`), con la
-misma contraseña: el usuario `medico.prueba` original tiene un hash de relleno
-y no puede iniciar sesión.
+rol Médico hay dos, `medico.prueba` y `medico2.prueba`, con la misma
+contraseña; los deja listos `Database/Datos/medico_prueba.sql`.
 
 Portales disponibles:
 
