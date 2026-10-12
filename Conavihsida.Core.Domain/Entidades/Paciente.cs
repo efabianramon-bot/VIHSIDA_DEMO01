@@ -10,6 +10,8 @@ namespace Conavihsida.Core.Domain.Entidades
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
         public string NombreCompleto { get; set; }
+
+        /// <summary>Obligatoria y unica, siempre con el formato 000-0000000-0.</summary>
         public string Cedula { get; set; }
         public DateTime? FechaNacimiento { get; set; }
         public bool Activo { get; set; }

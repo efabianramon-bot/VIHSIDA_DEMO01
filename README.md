@@ -100,9 +100,25 @@ estructura y los datos originales, sin la migración ni los datos de prueba.
 Para crear la base desde cero, ejecuta en este orden:
 
 1. `Database/ConavihsidaCoreDb_schema.sql` (estructura).
-2. Los scripts de `Database/Migraciones/` (roles y restricciones).
-3. Los scripts de `Database/Datos/` (solo desarrollo y demo: usuarios, paciente,
-   medicamentos y facturas de prueba).
+2. Los scripts de `Database/Migraciones/`, por número: `001` (roles y
+   restricciones) y `002` (cédula del paciente obligatoria, única y con el
+   formato `000-0000000-0`).
+3. Los scripts de `Database/Datos/` (solo desarrollo y demo), en este orden:
+   `usuarios_prueba`, `medico_prueba`, `paciente_prueba`, `medicamentos_prueba`,
+   `facturas_subsidiadas_prueba` y `caja_prueba`.
+
+`caja_prueba.sql` crea los pacientes para las pruebas con Caja, que identifica
+al paciente por su cédula:
+
+| Cédula | Caso |
+| --- | --- |
+| `000-0000004-0` | Expediente activo y una receta activa. |
+| `000-0000005-0` | Expediente inactivo. |
+| `000-0000006-0` | Paciente sin expediente. |
+| `999-9999999-9` | No existe. |
+
+Las recetas vencen a los 30 días: vuelve a ejecutar `caja_prueba.sql` antes de
+una prueba para que el primer paciente tenga una receta activa.
 
 ## Logs
 

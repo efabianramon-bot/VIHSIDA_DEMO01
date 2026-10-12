@@ -32,7 +32,7 @@
         <h2>Paciente</h2>
         <dl class="datos">
             <div><dt>Nombre</dt><dd>@Model.Paciente.NombreCompleto</dd></div>
-            <div><dt>Cédula</dt><dd>@(string.IsNullOrEmpty(Model.Paciente.Cedula) ? "Sin registrar" : Model.Paciente.Cedula)</dd></div>
+            <div><dt>Cédula</dt><dd>@Model.Paciente.Cedula</dd></div>
             <div>
                 <dt>Nacimiento</dt>
                 <dd>@(Model.Paciente.FechaNacimiento == null ? "Sin registrar" : Model.Paciente.FechaNacimiento.Value.ToString("dd/MM/yyyy"))</dd>
