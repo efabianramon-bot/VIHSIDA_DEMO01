@@ -9,4 +9,11 @@ namespace Conavihsida.Core.Api.Dtos
         /// <summary>Desde donde entra el usuario: WEB, CAJA o CORE.</summary>
         public string Origen { get; set; }
     }
+
+    /// <summary>Cuerpo de POST /api/auth/paciente/login.</summary>
+    public class LoginPacienteRequest
+    {
+        public string Correo { get; set; }
+        public string Password { get; set; }
+    }
 }

@@ -52,6 +52,7 @@
     <Compile Include="Entidades\Medico.cs" />
     <Compile Include="Entidades\MovimientoInventario.cs" />
     <Compile Include="Entidades\Paciente.cs" />
+    <Compile Include="Entidades\PacienteAutenticado.cs" />
     <Compile Include="Entidades\Pago.cs" />
     <Compile Include="Entidades\Receta.cs" />
     <Compile Include="Entidades\RegistroAuditoria.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Repositorios\IFacturaRepository.cs" />
     <Compile Include="Repositorios\IHistorialRepository.cs" />
     <Compile Include="Repositorios\IInventarioRepository.cs" />
+    <Compile Include="Repositorios\IPacienteRepository.cs" />
     <Compile Include="Repositorios\IResultadoRepository.cs" />
     <Compile Include="Repositorios\IUsuarioRepository.cs" />
     <Compile Include="Vistas\DashboardVistas.cs" />
