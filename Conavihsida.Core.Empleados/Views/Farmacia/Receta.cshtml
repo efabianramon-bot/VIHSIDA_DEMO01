@@ -33,6 +33,24 @@
         <div><dt>Cantidad</dt><dd>@receta.CantidadPrescrita</dd></div>
         <div><dt>Esquema</dt><dd>@(string.IsNullOrEmpty(receta.EsquemaTarv) ? "—" : receta.EsquemaTarv)</dd></div>
         <div><dt>Expediente</dt><dd class="codigo">@receta.CodigoSerologico</dd></div>
+        <div>
+            <dt>Descargo en Caja</dt>
+            <dd>
+                @if (receta.DescargadaEnCaja)
+                {
+                    <span class="estado estado-activa">Descargada</span>
+                    <text> el @receta.FechaDescargo.Value.ToString("dd/MM/yyyy HH:mm")</text>
+                }
+                else if (Model.EstaActiva)
+                {
+                    <span class="estado estado-pendiente">Pendiente de descargo</span>
+                }
+                else
+                {
+                    <text>Sin descargo registrado</text>
+                }
+            </dd>
+        </div>
     </dl>
 </section>
 
@@ -77,10 +95,19 @@
         }
         else
         {
+            if (!receta.DescargadaEnCaja)
+            {
+                <div class="aviso aviso-alerta aviso-en-panel">
+                    Caja todavía no ha registrado el descargo de esta receta. Puede que su terminal esté sin conexión.
+                    Puedes despachar, pero quedará anotado en la bitácora como despacho sin descargo.
+                </div>
+            }
             using (Html.BeginForm("Despachar", "Farmacia", new { id = receta.Id }, FormMethod.Post, new { @class = "acciones acciones-en-panel" }))
             {
                 @Html.AntiForgeryToken()
-                <button type="submit" class="boton boton-primario">Despachar @receta.CantidadPrescrita unidades</button>
+                <button type="submit" class="boton boton-primario">
+                    @(receta.DescargadaEnCaja ? "Despachar" : "Despachar sin descargo:") @receta.CantidadPrescrita unidades
+                </button>
             }
         }
     </section>

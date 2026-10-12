@@ -16,6 +16,18 @@ namespace Conavihsida.Core.Domain.Entidades
         /// <summary>Ver Catalogos.EstadosReceta.</summary>
         public string Estado { get; set; }
 
+        /// <summary>
+        /// Cuando registro Caja la entrega de esta receta; null si todavia
+        /// no (por ejemplo, porque la terminal esta sin conexion). Solo
+        /// lectura: sale de las transacciones que sincroniza Caja.
+        /// </summary>
+        public DateTime? FechaDescargo { get; set; }
+
+        public bool DescargadaEnCaja
+        {
+            get { return FechaDescargo != null; }
+        }
+
         /// <summary>Hasta cuando se puede despachar (ver ReglasReceta.DiasVigencia).</summary>
         public DateTime FechaVencimiento
         {

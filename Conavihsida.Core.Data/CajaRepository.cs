@@ -59,7 +59,11 @@ namespace Conavihsida.Core.Data
         {
             const string sqlReferencias = @"
                 SELECT (SELECT PacienteID FROM Pacientes WHERE Cedula = @Cedula),
-                       (SELECT COUNT(*) FROM Recetas WHERE RecetaID = @RecetaID);";
+                       (SELECT COUNT(*)
+                        FROM Recetas r
+                        JOIN ExpedientesClinicos e ON e.CodigoSerologico = r.CodigoSerologico
+                        JOIN Pacientes p ON p.PacienteID = e.PacienteID
+                        WHERE r.RecetaID = @RecetaID AND p.Cedula = @Cedula);";
 
             int? pacienteId;
             using (var conn = new SqlConnection(_connectionString))
