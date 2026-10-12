@@ -105,6 +105,84 @@ else
     }
 }
 
+<h2 class="titulo-seccion" id="resultados">Resultados de laboratorio</h2>
+<p class="dato-suave">
+    El paciente ve en su portal la prueba, la fecha, el estado y la nota. El valor del resultado solo se ve aquí.
+</p>
+@if (Model.Resultados.Count == 0)
+{
+    <p class="dato-suave">Este expediente todavía no tiene pruebas solicitadas.</p>
+}
+else
+{
+    foreach (var resultado in Model.Resultados)
+    {
+        <article class="panel resultado">
+            <header class="consulta-encabezado">
+                <h3>@resultado.Prueba</h3>
+                <span class="estado estado-@resultado.Estado.ToLowerInvariant()">@resultado.Estado</span>
+            </header>
+            <p class="dato-suave">
+                Solicitada el @resultado.FechaSolicitud.ToString("dd/MM/yyyy")@(resultado.FechaResultado == null ? "" : " · Publicada el " + resultado.FechaResultado.Value.ToString("dd/MM/yyyy HH:mm"))
+            </p>
+
+            @if (resultado.EstaListo)
+            {
+                <p><strong>Valor.</strong> @resultado.ValorResultado</p>
+                <p><strong>Nota para el paciente.</strong> @(string.IsNullOrEmpty(resultado.NotaPaciente) ? "—" : resultado.NotaPaciente)</p>
+            }
+            else
+            {
+                using (Html.BeginForm("PublicarResultado", "Medico", FormMethod.Post, new { @class = "formulario-resultado" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="codigo" value="@expediente.CodigoSerologico" />
+                    <input type="hidden" name="resultadoId" value="@resultado.Id" />
+                    <div class="fila-campos">
+                        <div class="campo">
+                            <label for="resultado_@(resultado.Id)_valor">Valor del resultado</label>
+                            <input type="text" id="resultado_@(resultado.Id)_valor" name="valorResultado" required
+                                   placeholder="Ej.: 35 copias/mL" />
+                        </div>
+                        <div class="campo">
+                            <label for="resultado_@(resultado.Id)_nota">Nota para el paciente (sin valores clínicos)</label>
+                            <input type="text" id="resultado_@(resultado.Id)_nota" name="notaPaciente" maxlength="200"
+                                   value="@resultado.NotaPaciente" />
+                        </div>
+                    </div>
+                    <div class="acciones">
+                        <button type="submit" class="boton boton-secundario">Publicar resultado</button>
+                    </div>
+                }
+            }
+        </article>
+    }
+}
+
+@if (Model.AdmiteConsultas)
+{
+    using (Html.BeginForm("SolicitarPrueba", "Medico", FormMethod.Post, new { @class = "panel formulario-clinico" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="codigo" value="@expediente.CodigoSerologico" />
+        <h3>Solicitar una prueba</h3>
+        <div class="fila-campos">
+            <div class="campo">
+                <label for="prueba">Prueba</label>
+                <input type="text" id="prueba" name="prueba" maxlength="100" required placeholder="Ej.: Carga viral" />
+            </div>
+            <div class="campo">
+                <label for="notaPaciente">Nota para el paciente (opcional, sin valores clínicos)</label>
+                <input type="text" id="notaPaciente" name="notaPaciente" maxlength="200"
+                       placeholder="Ej.: Presentarse en ayunas" />
+            </div>
+        </div>
+        <div class="acciones">
+            <button type="submit" class="boton boton-primario">Solicitar prueba</button>
+        </div>
+    }
+}
+
 <h2 class="titulo-seccion">Registrar consulta</h2>
 @if (!Model.AdmiteConsultas)
 {

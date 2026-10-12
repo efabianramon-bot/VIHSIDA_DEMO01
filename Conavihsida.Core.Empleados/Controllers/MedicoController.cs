@@ -86,7 +86,44 @@ namespace Conavihsida.Core.Empleados.Controllers
 
             modelo.NuevaConsulta = NuevaConsultaForm.Vacio();
             modelo.Exito = TempData["Exito"] as string;
+            modelo.Error = TempData["Error"] as string ?? modelo.Error;
             return View(modelo);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<ActionResult> SolicitarPrueba(string codigo, string prueba, string notaPaciente)
+        {
+            var respuesta = await Api.PostAsync<ResultadoLabApi>(
+                "api/clinica/expediente/" + Uri.EscapeDataString(codigo ?? string.Empty) + "/resultados",
+                new { prueba, notaPaciente });
+
+            if (respuesta.Exitosa)
+            {
+                TempData["Exito"] = "Prueba solicitada. El paciente ya la ve como pendiente en su portal.";
+            }
+            else
+            {
+                TempData["Error"] = respuesta.Error;
+            }
+            return RedirectToAction("Expediente", new { codigo });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<ActionResult> PublicarResultado(string codigo, int resultadoId, string valorResultado, string notaPaciente)
+        {
+            var respuesta = await Api.PutAsync<ResultadoLabApi>(
+                "api/clinica/resultados/" + resultadoId,
+                new { valorResultado, notaPaciente });
+
+            if (respuesta.Exitosa)
+            {
+                TempData["Exito"] = "Resultado publicado. El paciente lo ve como listo, sin el valor.";
+            }
+            else
+            {
+                TempData["Error"] = respuesta.Error;
+            }
+            return RedirectToAction("Expediente", new { codigo });
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -170,19 +207,22 @@ namespace Conavihsida.Core.Empleados.Controllers
                 return null;
             }
 
-            // Las tres consultas restantes no dependen entre si.
+            // Las cuatro consultas restantes no dependen entre si.
             var tareaPaciente = Api.GetAsync<PacienteApi>("api/clinica/pacientes?pacienteId=" + expediente.Datos.PacienteId);
             var tareaHistorial = Api.GetAsync<List<ConsultaApi>>(ruta + "/historial");
+            var tareaResultados = Api.GetAsync<List<ResultadoLabApi>>(ruta + "/resultados");
             var tareaMedicamentos = Api.GetAsync<List<MedicamentoApi>>("api/farmacia/medicamentos");
-            await Task.WhenAll(tareaPaciente, tareaHistorial, tareaMedicamentos);
+            await Task.WhenAll(tareaPaciente, tareaHistorial, tareaResultados, tareaMedicamentos);
 
             return new ExpedienteViewModel
             {
                 Expediente = expediente.Datos,
                 Paciente = tareaPaciente.Result.Datos,
                 Consultas = tareaHistorial.Result.Datos ?? new List<ConsultaApi>(),
+                Resultados = tareaResultados.Result.Datos ?? new List<ResultadoLabApi>(),
                 Medicamentos = tareaMedicamentos.Result.Datos ?? new List<MedicamentoApi>(),
-                Error = tareaHistorial.Result.Exitosa ? null : tareaHistorial.Result.Error
+                Error = !tareaHistorial.Result.Exitosa ? tareaHistorial.Result.Error
+                    : tareaResultados.Result.Exitosa ? null : tareaResultados.Result.Error
             };
         }
     }

@@ -94,6 +94,10 @@
       "value": ""
     },
     {
+      "key": "resultadoId",
+      "value": ""
+    },
+    {
       "key": "citaId",
       "value": "0"
     },
@@ -335,6 +339,34 @@
               }
             ],
             "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/historial"
+          }
+        },
+        {
+          "name": "Cajero pide los resultados clinicos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/resultados"
           }
         },
         {
@@ -676,8 +708,8 @@
       ]
     },
     {
-      "name": "4. Consulta y receta TARV (RF-CORE-03)",
-      "description": "La consulta y sus recetas se guardan en una sola transaccion. La primera peticion guarda recetaId para la carpeta 5.",
+      "name": "4. Consulta, receta TARV y laboratorio (RF-CORE-03)",
+      "description": "La consulta y sus recetas se guardan en una sola transaccion. La primera peticion guarda recetaId para la carpeta 5. El medico solicita una prueba y publica su resultado; el paciente lo ve en la carpeta 8, sin el valor.",
       "item": [
         {
           "name": "Registrar consulta con receta",
@@ -815,6 +847,218 @@
               }
             ],
             "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/historial"
+          }
+        },
+        {
+          "name": "Solicitar una prueba de laboratorio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', function () { pm.expect(pm.response.code).to.be.oneOf([201]); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('resultadoId', pm.response.json().id); }",
+                  "pm.test('Nace Pendiente', function () { pm.expect(pm.response.json().estado).to.eql('Pendiente'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/resultados",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prueba\": \"Carga viral\",\n  \"notaPaciente\": \"Presentarse en ayunas\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Solicitar una prueba sin nombre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/resultados",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Publicar el resultado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Queda Listo', function () { pm.expect(pm.response.json().estado).to.eql('Listo'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/resultados/{{resultadoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"valorResultado\": \"35 copias/mL\",\n  \"notaPaciente\": \"Resultado disponible. Coméntalo con tu médico en la próxima cita.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Publicar el mismo resultado otra vez",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/resultados/{{resultadoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"valorResultado\": \"otro valor\" }"
+            }
+          }
+        },
+        {
+          "name": "Publicar un resultado que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', function () { pm.expect(pm.response.code).to.be.oneOf([404]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/resultados/999999",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"valorResultado\": \"x\" }"
+            }
+          }
+        },
+        {
+          "name": "Resultados clinicos del expediente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('El medico si ve el valor', function () { pm.expect(pm.response.json()[0]).to.have.property('valorResultado'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/expediente/{{codigo}}/resultados"
           }
         }
       ]
@@ -1702,7 +1946,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Trae al menos un resultado', function () { pm.expect(pm.response.json().length).to.be.above(0); });",
+                  "pm.test('RN-01: el paciente nunca recibe el valor', function () { pm.response.json().forEach(function (r) { pm.expect(r).to.not.have.property('valorResultado'); }); });"
                 ]
               }
             }

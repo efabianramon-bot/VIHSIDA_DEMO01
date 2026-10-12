@@ -409,7 +409,8 @@ a.tarjeta:hover {
 }
 
 .estado-activo,
-.estado-activa {
+.estado-activa,
+.estado-listo {
     background: var(--exito-fondo);
     border-color: #b5dfc4;
     color: var(--exito);
@@ -430,6 +431,7 @@ a.tarjeta:hover {
     color: var(--texto-suave);
 }
 
+.estado-pendiente,
 .estado-alerta {
     background: var(--alerta-fondo);
     border-color: #efd88f;
