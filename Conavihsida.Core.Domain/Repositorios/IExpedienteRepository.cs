@@ -22,6 +22,12 @@ namespace Conavihsida.Core.Domain.Repositorios
         PacienteClinicoVista BuscarPaciente(string cedulaSoloDigitos, int? pacienteId);
 
         /// <summary>
+        /// MedicoID del usuario, si tiene ficha activa en Medicos. null si
+        /// no la tiene (un usuario con rol Medico puede no tenerla).
+        /// </summary>
+        int? ObtenerMedicoIdPorUsuario(int usuarioId);
+
+        /// <summary>
         /// Inserta el expediente. Debe devolver false (sin lanzar excepcion)
         /// cuando la base lo rechaza: el paciente o el medico no existen, o
         /// el paciente o el codigo ya tienen expediente.

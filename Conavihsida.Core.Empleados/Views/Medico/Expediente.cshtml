@@ -10,7 +10,8 @@
     <div>
         <h1 class="titulo-pagina codigo">@expediente.CodigoSerologico</h1>
         <p class="dato-suave">
-            Abierto el @expediente.FechaApertura.ToString("dd/MM/yyyy")
+            Abierto el @expediente.FechaApertura.ToString("dd/MM/yyyy") ·
+            Médico responsable: @(Model.MedicoResponsable ?? "sin asignar")
         </p>
     </div>
     <span class="estado estado-@expediente.Estado.ToLowerInvariant()">@expediente.Estado</span>

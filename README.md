@@ -159,7 +159,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | GET | `/api/clinica/expedientes` | Lista de expedientes (código, estado y apertura). Solo rol Médico. |
 | GET | `/api/clinica/pacientes?cedula=` o `?pacienteId=` | Identifica a un paciente y dice si tiene expediente. Es el único cruce entre identidad y código serológico; solo rol Médico y siempre auditado. |
 | GET | `/api/clinica/expediente/{codigo}` | Expediente clínico por código serológico. Solo rol Médico (`403` para los demás). |
-| POST | `/api/clinica/expediente` | Abre el expediente de un paciente y genera su código serológico. Solo rol Médico. |
+| POST | `/api/clinica/expediente` | Abre el expediente de un paciente y genera su código serológico. Si no se indica `medicoResponsableId`, queda como responsable el médico que lo abre. Solo rol Médico. |
 | PUT | `/api/clinica/expediente/{codigo}` | Cambia el médico responsable y el estado. Solo rol Médico. |
 | GET | `/api/clinica/expediente/{codigo}/historial` | Consultas del expediente con carga viral, CD4 y recetas. Solo rol Médico. |
 | POST | `/api/clinica/expediente/{codigo}/consultas` | Registra una consulta y sus recetas TARV en una sola transacción. Solo rol Médico. |
