@@ -53,9 +53,20 @@ Usuarios de prueba (la contraseña está anotada en
 
 `medico.prueba` (id 1) también tiene rol Medico y la misma contraseña.
 
-Pacientes de prueba: n.º 1 (sin cédula, expediente `COD-TEST-0001`), n.º 2
-(cédula `000-0000002-0`) y n.º 3 (cédula `000-0000003-0`). Los dos últimos
-no tienen expediente: sirven para mostrar la apertura en la demo.
+Pacientes de prueba: n.º 1 (cédula `000-0000001-0`, expediente
+`COD-TEST-0001`), n.º 2 (cédula `000-0000002-0`) y n.º 3 (cédula
+`000-0000003-0`). Los dos últimos se crean sin expediente: sirven para mostrar
+la apertura en la demo. La cédula es obligatoria, única y siempre con el
+formato `000-0000000-0`.
+
+Para las pruebas con Caja, `Database/Datos/caja_prueba.sql` crea además:
+
+| Cédula | Caso |
+| --- | --- |
+| `000-0000004-0` | Expediente activo y una receta activa. |
+| `000-0000005-0` | Expediente inactivo. |
+| `000-0000006-0` | Paciente sin expediente. |
+| `999-9999999-9` | No existe. |
 
 ## 3. Contrato entre el Gateway y el CORE
 
