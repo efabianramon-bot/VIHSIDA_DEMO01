@@ -37,8 +37,27 @@ namespace Conavihsida.Core.Aplicacion.Servicios
             return _inventario.ObtenerLotes(medicamentoId);
         }
 
+        /// <summary>
+        /// Pasa a Vencida toda receta Activa con mas de
+        /// ReglasReceta.DiasVigencia dias sin despacho. No hay un proceso
+        /// nocturno: se llama justo antes de leer o despachar recetas, asi
+        /// nadie ve como Activa una receta que ya vencio.
+        /// </summary>
+        public int VencerRecetasAntiguas(string terminal)
+        {
+            int vencidas = _inventario.VencerRecetas(DateTime.Now.AddDays(-ReglasReceta.DiasVigencia));
+            if (vencidas > 0)
+            {
+                // Sin usuario: lo hace el sistema, no quien disparo la lectura.
+                _auditoria.Registrar(null, null, terminal, "VencerRecetas", "recetas", null,
+                    string.Format("cantidad={0};diasVigencia={1}", vencidas, ReglasReceta.DiasVigencia));
+            }
+            return vencidas;
+        }
+
         public Receta ObtenerReceta(int recetaId, int usuarioId, string terminal)
         {
+            VencerRecetasAntiguas(terminal);
             var receta = _inventario.ObtenerReceta(recetaId);
             if (receta != null)
             {
@@ -59,6 +78,7 @@ namespace Conavihsida.Core.Aplicacion.Servicios
                 return null;
             }
 
+            VencerRecetasAntiguas(terminal);
             var recetas = _inventario.ObtenerRecetasPorEstado(estado);
             _auditoria.Registrar(usuarioId, null, terminal, "ListarRecetas", "recetas", null, "estado=" + estado);
             return recetas;
@@ -129,6 +149,7 @@ namespace Conavihsida.Core.Aplicacion.Servicios
         public ResultadoOperacion<List<MovimientoInventario>> DespacharReceta(int recetaId, int usuarioId,
                                                                               string terminal)
         {
+            VencerRecetasAntiguas(terminal);
             var movimientos = new List<MovimientoInventario>();
             var resultado = _inventario.DespacharReceta(recetaId, usuarioId, DateTime.Now, movimientos);
 

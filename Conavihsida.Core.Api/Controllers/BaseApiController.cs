@@ -25,6 +25,17 @@ namespace Conavihsida.Core.Api.Controllers
             return new AuditoriaService(new AuditoriaRepository(ConnectionString));
         }
 
+        /// <summary>
+        /// Para los endpoints que muestran el estado de las recetas sin pasar
+        /// por InventarioService (historial y dashboard): aplica antes la
+        /// regla de vencimiento, para que no salgan Activas las ya vencidas.
+        /// </summary>
+        protected void VencerRecetasAntiguas()
+        {
+            new InventarioService(new InventarioRepository(ConnectionString), CrearAuditoriaService())
+                .VencerRecetasAntiguas(ObtenerTerminal());
+        }
+
         /// <summary>Empleado o paciente detras de la peticion, segun el Gateway.</summary>
         protected IdentidadLlamada Identidad
         {

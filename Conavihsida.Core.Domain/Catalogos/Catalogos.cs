@@ -75,6 +75,15 @@
         }
     }
 
+    public static class ReglasReceta
+    {
+        /// <summary>
+        /// Dias que una receta Activa espera despacho antes de pasar a
+        /// Vencida. El SRS no fija el plazo: 30 dias es decision del equipo.
+        /// </summary>
+        public const int DiasVigencia = 30;
+    }
+
     public static class EstadosResultado
     {
         public const string Pendiente = "Pendiente";

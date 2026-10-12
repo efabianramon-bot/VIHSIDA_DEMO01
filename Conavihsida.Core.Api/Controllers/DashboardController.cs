@@ -23,6 +23,7 @@ namespace Conavihsida.Core.Api.Controllers
         [HttpGet, Route("")]
         public IHttpActionResult Resumen([FromUri] int? dias = null, [FromUri] int? diasAviso = null)
         {
+            VencerRecetasAntiguas();
             return Ok(CrearServicio().ObtenerResumen(dias, diasAviso));
         }
 
@@ -35,6 +36,7 @@ namespace Conavihsida.Core.Api.Controllers
         [HttpGet, Route("adherencia")]
         public IHttpActionResult Adherencia([FromUri] int? dias = null)
         {
+            VencerRecetasAntiguas();
             return Ok(CrearServicio().ObtenerAdherencia(dias));
         }
 
