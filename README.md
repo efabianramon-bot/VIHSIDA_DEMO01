@@ -23,9 +23,6 @@ Incluye además una aplicación de consola para pruebas manuales.
 | `Conavihsida.Core.Empleados` | ASP.NET MVC 5 | Aplicación de empleados (RF-CORE-06, 07 y 08): login y portales por rol. No toca la base: todo lo pide a la API. |
 | `VIHSIDA_DEMO01` | Consola | Programa de demostración y menú de pruebas (`PruebasCoreMenu`). |
 
-La carpeta `UsuarioRepository` contiene un proyecto aparte que no forma parte
-de `VIHSIDA_DEMO01.sln`.
-
 ## Cómo compilar
 
 1. Abre `VIHSIDA_DEMO01.sln` en Visual Studio (con la carga de trabajo de
@@ -82,6 +79,24 @@ Los gráficos se dibujan con SVG y CSS propios: la aplicación no carga
 ninguna librería ni recurso externo.
 
 ## Base de datos
+
+La base es el catálogo `ConavihsidaCoreDb` de LocalDB. Sus archivos están en
+`Conavihsida.Core.Api/App_Data/` (`ConavihsidaCoreDb.mdf` y
+`ConavihsidaCoreDb_log.ldf`). No se versionan, y ninguna compilación ni
+limpieza de la solución los toca. La API, la consola y la aplicación de
+empleados (a través de la API) usan esa misma base, por nombre de catálogo.
+
+**Respaldos.** Antes de cambiar la estructura o mover archivos, ejecuta:
+
+```
+.\Database\respaldar_base.ps1
+```
+
+Deja un `.bak` con fecha en `Database/Respaldos/` (tampoco se versiona). El
+propio script explica cómo restaurarlo.
+
+`VIHSIDA_DEMO01/Database1.mdf` es una copia antigua, de referencia: tiene la
+estructura y los datos originales, sin la migración ni los datos de prueba.
 
 Para crear la base desde cero, ejecuta en este orden:
 
