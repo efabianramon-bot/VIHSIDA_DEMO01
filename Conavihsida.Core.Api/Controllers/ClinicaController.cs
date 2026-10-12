@@ -134,6 +134,70 @@ namespace Conavihsida.Core.Api.Controllers
             return Created(Request.RequestUri.ToString(), resultado.Valor);
         }
 
+        // Resultados de laboratorio, lado clinico: aqui si viaja el valor.
+        // El paciente los ve por /api/pacientes/{id}/resultados, sin valor.
+        [HttpGet, Route("expediente/{codigo}/resultados")]
+        public IHttpActionResult ObtenerResultados(string codigo)
+        {
+            var resultados = CrearServicioLaboratorio().ObtenerResultados(
+                codigo, Identidad.UsuarioId.Value, ObtenerTerminal());
+            return resultados == null ? (IHttpActionResult)NotFound() : Ok(resultados);
+        }
+
+        [HttpPost, Route("expediente/{codigo}/resultados")]
+        public IHttpActionResult SolicitarPrueba(string codigo, [FromBody] SolicitarPruebaRequest body)
+        {
+            if (body == null)
+            {
+                return BadRequest("El cuerpo de la peticion es obligatorio.");
+            }
+
+            var resultado = CrearServicioLaboratorio().SolicitarPrueba(
+                codigo, body.Prueba, body.NotaPaciente, Identidad.UsuarioId.Value, ObtenerTerminal());
+
+            if (!resultado.Exitoso)
+            {
+                if (resultado.MensajeError == LaboratorioService.MensajeExpedienteNoExiste)
+                {
+                    return NotFound();
+                }
+                return Content(HttpStatusCode.Conflict, new { error = resultado.MensajeError });
+            }
+
+            return Created(Request.RequestUri.ToString(), resultado.Valor);
+        }
+
+        [HttpPut, Route("resultados/{resultadoId:int}")]
+        public IHttpActionResult PublicarResultado(int resultadoId, [FromBody] PublicarResultadoRequest body)
+        {
+            if (body == null)
+            {
+                return BadRequest("El cuerpo de la peticion es obligatorio.");
+            }
+
+            var resultado = CrearServicioLaboratorio().PublicarResultado(
+                resultadoId, body.ValorResultado, body.NotaPaciente, Identidad.UsuarioId.Value, ObtenerTerminal());
+
+            if (!resultado.Exitoso)
+            {
+                if (resultado.MensajeError == LaboratorioService.MensajeResultadoNoExiste)
+                {
+                    return NotFound();
+                }
+                return Content(HttpStatusCode.Conflict, new { error = resultado.MensajeError });
+            }
+
+            return Ok(resultado.Valor);
+        }
+
+        private LaboratorioService CrearServicioLaboratorio()
+        {
+            return new LaboratorioService(
+                new ResultadoRepository(ConnectionString),
+                new ExpedienteRepository(ConnectionString),
+                CrearAuditoriaService());
+        }
+
         private HistorialService CrearServicioHistorial()
         {
             return new HistorialService(

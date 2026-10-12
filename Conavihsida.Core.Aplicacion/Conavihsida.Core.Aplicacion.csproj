@@ -53,6 +53,7 @@
     <Compile Include="Servicios\FacturacionService.cs" />
     <Compile Include="Servicios\HistorialService.cs" />
     <Compile Include="Servicios\InventarioService.cs" />
+    <Compile Include="Servicios\LaboratorioService.cs" />
     <Compile Include="Servicios\ResultadoService.cs" />
   </ItemGroup>
   <ItemGroup>

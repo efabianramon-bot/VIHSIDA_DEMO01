@@ -48,6 +48,22 @@ namespace Conavihsida.Core.Empleados.Models
         public string Estado { get; set; }
     }
 
+    public class ResultadoLabApi
+    {
+        public int Id { get; set; }
+        public string Prueba { get; set; }
+        public DateTime FechaSolicitud { get; set; }
+        public string Estado { get; set; }
+        public string ValorResultado { get; set; }
+        public DateTime? FechaResultado { get; set; }
+        public string NotaPaciente { get; set; }
+
+        public bool EstaListo
+        {
+            get { return Estado == "Listo"; }
+        }
+    }
+
     public class MedicamentoApi
     {
         public int Id { get; set; }
@@ -78,6 +94,7 @@ namespace Conavihsida.Core.Empleados.Models
         public ExpedienteApi Expediente { get; set; }
         public PacienteApi Paciente { get; set; }
         public List<ConsultaApi> Consultas { get; set; }
+        public List<ResultadoLabApi> Resultados { get; set; }
         public List<MedicamentoApi> Medicamentos { get; set; }
         public NuevaConsultaForm NuevaConsulta { get; set; }
         public string Error { get; set; }

@@ -127,7 +127,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 64 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 71 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -163,6 +163,9 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | PUT | `/api/clinica/expediente/{codigo}` | Cambia el médico responsable y el estado. Solo rol Médico. |
 | GET | `/api/clinica/expediente/{codigo}/historial` | Consultas del expediente con carga viral, CD4 y recetas. Solo rol Médico. |
 | POST | `/api/clinica/expediente/{codigo}/consultas` | Registra una consulta y sus recetas TARV en una sola transacción. Solo rol Médico. |
+| GET | `/api/clinica/expediente/{codigo}/resultados` | Resultados de laboratorio del expediente, con su valor. Solo rol Médico. |
+| POST | `/api/clinica/expediente/{codigo}/resultados` | Solicita una prueba; nace `Pendiente` y el paciente ya la ve. Solo rol Médico. |
+| PUT | `/api/clinica/resultados/{resultadoId}` | Publica el valor y deja el resultado `Listo` (`409` si ya estaba publicado). Solo rol Médico. |
 | GET | `/api/farmacia/medicamentos` | Catálogo de medicamentos. Roles Farmacéutico, Médico y Administrador. |
 | GET | `/api/farmacia/lotes?medicamentoId=` | Lotes con caducidad, existencias y avisos de vencido o bajo mínimo. Roles Farmacéutico y Administrador. |
 | POST | `/api/farmacia/lotes` | Registra un lote y su entrada de inventario. Solo rol Farmacéutico. |
@@ -183,4 +186,4 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | GET | `/api/pacientes/{pacienteId}/facturas` | Facturas del paciente. |
 | GET | `/api/pacientes/{pacienteId}/facturas/{facturaId}` | Detalle de una factura. |
 | POST | `/api/pacientes/{pacienteId}/facturas/{facturaId}/pagar` | Paga una factura (`409` si no se puede pagar). |
-| GET | `/api/pacientes/{pacienteId}/resultados` | Resultados de laboratorio del paciente. |
+| GET | `/api/pacientes/{pacienteId}/resultados` | Resultados de laboratorio del paciente: prueba, fecha, estado y nota, nunca el valor (RN-01). |
