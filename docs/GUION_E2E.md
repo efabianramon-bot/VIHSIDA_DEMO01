@@ -51,8 +51,7 @@ Usuarios de prueba (la contraseña está anotada en
 | `auditor.prueba` | 4 | Auditor |
 | `cajero.prueba` | 5 | Cajero |
 
-`medico.prueba` (id 1) existe pero no puede iniciar sesión: su hash es de
-relleno.
+`medico.prueba` (id 1) también tiene rol Medico y la misma contraseña.
 
 Pacientes de prueba: n.º 1 (sin cédula, expediente `COD-TEST-0001`), n.º 2
 (cédula `000-0000002-0`) y n.º 3 (cédula `000-0000003-0`). Los dos últimos
