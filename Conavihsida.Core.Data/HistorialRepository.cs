@@ -30,7 +30,7 @@ namespace Conavihsida.Core.Data
 
             const string sqlRecetas = @"
                 SELECT RecetaID, HistorialID, CodigoSerologico, MedicamentoID, EsquemaTARV,
-                       CantidadPrescrita, FechaEmision, Estado
+                       CantidadPrescrita, FechaEmision, Estado," + SqlRecetas.ColumnaFechaDescargo + @"
                 FROM Recetas
                 WHERE CodigoSerologico = @Codigo
                 ORDER BY RecetaID;";
@@ -82,7 +82,9 @@ namespace Conavihsida.Core.Data
                                 EsquemaTarv = LeerTexto(reader, "EsquemaTARV"),
                                 CantidadPrescrita = reader.GetInt32(reader.GetOrdinal("CantidadPrescrita")),
                                 FechaEmision = reader.GetDateTime(reader.GetOrdinal("FechaEmision")),
-                                Estado = reader.GetString(reader.GetOrdinal("Estado"))
+                                Estado = reader.GetString(reader.GetOrdinal("Estado")),
+                                FechaDescargo = reader.IsDBNull(reader.GetOrdinal("FechaDescargo"))
+                                    ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("FechaDescargo"))
                             };
 
                             HistorialClinico consulta;

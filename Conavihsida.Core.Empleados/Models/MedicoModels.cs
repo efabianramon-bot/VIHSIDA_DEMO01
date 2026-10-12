@@ -47,6 +47,10 @@ namespace Conavihsida.Core.Empleados.Models
         public DateTime FechaEmision { get; set; }
         public DateTime FechaVencimiento { get; set; }
         public string Estado { get; set; }
+
+        /// <summary>null mientras Caja no haya registrado la entrega.</summary>
+        public DateTime? FechaDescargo { get; set; }
+        public bool DescargadaEnCaja { get; set; }
     }
 
     /// <summary>Fila de api/medicos.</summary>

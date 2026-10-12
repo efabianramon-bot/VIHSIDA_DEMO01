@@ -1432,7 +1432,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
-                  "pm.test('La receta esta Activa', function () { pm.expect(pm.response.json().estado).to.eql('Activa'); });"
+                  "pm.test('La receta esta Activa', function () { pm.expect(pm.response.json().estado).to.eql('Activa'); });",
+                  "pm.test('Dice si Caja ya registro el descargo', function () { pm.expect(pm.response.json().descargadaEnCaja).to.eql(false); });"
                 ]
               }
             }
@@ -2872,6 +2873,42 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"idLocal\": 4,\n  \"numeroTransaccion\": \"TRX-DEMO-MALA\",\n  \"fecha\": \"2026-10-12T10:00:00\",\n  \"cedulaPaciente\": \"000-0000004-0\",\n  \"tipoServicio\": \"Entrega de medicamento\",\n  \"monto\": 0,\n  \"formaPago\": \"Subsidiado\",\n  \"esSubsidiado\": true,\n  \"estado\": \"Completada\",\n  \"comprobanteGenerado\": false,\n  \"usuarioCajero\": \"cajero.prueba\",\n  \"numeroReceta\": 999999\n}"
+            }
+          }
+        },
+        {
+          "name": "Transaccion con la receta de otro paciente (usa recetaId de la carpeta 4)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/transacciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 5,\n  \"numeroTransaccion\": \"TRX-DEMO-MALA\",\n  \"fecha\": \"2026-10-12T10:00:00\",\n  \"cedulaPaciente\": \"000-0000004-0\",\n  \"tipoServicio\": \"Entrega de medicamento\",\n  \"monto\": 0,\n  \"formaPago\": \"Subsidiado\",\n  \"esSubsidiado\": true,\n  \"estado\": \"Completada\",\n  \"comprobanteGenerado\": false,\n  \"usuarioCajero\": \"cajero.prueba\",\n  \"numeroReceta\": {{recetaId}}\n}"
             }
           }
         },

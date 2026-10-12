@@ -62,6 +62,7 @@ else
                     <th>Vence</th>
                     <th>Medicamento</th>
                     <th class="numero">Cantidad</th>
+                    <th>Descargo en Caja</th>
                     <th><span class="solo-lectores">Acción</span></th>
                 </tr>
             </thead>
@@ -74,6 +75,16 @@ else
                         <td>@receta.FechaVencimiento.ToString("dd/MM/yyyy")</td>
                         <td>@Model.NombreMedicamento(receta.MedicamentoId)</td>
                         <td class="numero">@receta.CantidadPrescrita</td>
+                        <td>
+                            @if (receta.DescargadaEnCaja)
+                            {
+                                <span class="estado estado-activa">Descargada</span>
+                            }
+                            else
+                            {
+                                <span class="estado estado-pendiente">Pendiente de descargo</span>
+                            }
+                        </td>
                         <td class="celda-accion"><a href="@Url.Action("Receta", new { id = receta.Id })">Ver y despachar</a></td>
                     </tr>
                 }

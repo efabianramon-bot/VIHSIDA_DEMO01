@@ -150,7 +150,7 @@ POST /api/auth/paciente/login
 | `/api/auth/yo` | Cualquier empleado; devuelve la identidad que recibió el CORE |
 
 La lista completa, con cada ruta y su descripción, está en el `README.md`.
-La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 93
+La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 94
 peticiones con el código esperado de cada una.
 
 ## 4. Guion paso a paso
@@ -237,10 +237,12 @@ Sobre los cinco endpoints de sincronización del CORE:
 
 Dos consecuencias para el flujo E2E:
 
-- **El descargo de Caja no bloquea el despacho.** El criterio 1 dice
-  receta → descargo en Caja → despacho en Farmacia, pero el CORE despacha
-  cualquier receta activa. El CORE ya guarda `numeroReceta` cuando viene
-  en la transacción, pero el código publicado de Caja todavía no lo envía.
+- **El descargo de Caja se ve en Farmacia, pero no bloquea el despacho.**
+  El criterio 1 dice receta → descargo en Caja → despacho en Farmacia. El
+  CORE marca la receta como descargada cuando llega la transacción con su
+  `numeroReceta`; el código publicado de Caja todavía no envía ese campo,
+  así que hasta que Beckham lo agregue todas las recetas saldrán como
+  "pendiente de descargo".
 - **El indicador de subsidios del Dashboard todavía no usa los datos de
   Caja.** Se calcula con las facturas subsidiadas del propio CORE.
 
@@ -253,11 +255,15 @@ Lo acordado con Beckham para cerrarlo (falta tu confirmación):
    paso, no el almacén.
 3. Integración recibe cada `/sync/*` de Caja y lo reenvía al endpoint
    equivalente del CORE (tabla de arriba).
-4. Al recibir una transacción con `numeroReceta`, el CORE la guarda
-   enlazada a la receta. **Pendiente en el CORE:** que Farmacia muestre
-   "pendiente de descargo" mientras no llegue y que el Dashboard calcule
-   los subsidios con estos datos.
-5. Los comprobantes de Caja llevan su propia serie con prefijo de terminal
+4. Al recibir una transacción `Completada` con `numeroReceta`, la receta
+   queda descargada. Farmacia la muestra como "pendiente de descargo"
+   mientras no llegue. El `numeroReceta` debe ser de una receta del mismo
+   paciente de la cédula; si no, el CORE responde `400`.
+5. La falta de descargo **no bloquea** el despacho (la terminal de Caja
+   puede estar sin conexión): Farmacia puede despachar y queda en la
+   bitácora como `DespachoSinDescargo`. **Pendiente en el CORE:** que el
+   Dashboard calcule los subsidios con estos datos.
+6. Los comprobantes de Caja llevan su propia serie con prefijo de terminal
    (`CJ01-000123`) y no chocan con los `REC-n` / `FAC-n` del CORE.
 
 ## 6. Otros pendientes que afectan la integración
@@ -312,8 +318,8 @@ necesita cada una.
 Reparto de lo que falta, para que no quede nada sin dueño:
 
 - **Ricardo (Integración):** las nueve tareas de la tabla.
-- **Emilia (CORE):** mostrar "pendiente de descargo" en Farmacia y calcular
-  los subsidios del Dashboard con los datos de Caja.
+- **Emilia (CORE):** calcular los subsidios del Dashboard con los datos de
+  Caja.
 - **Beckham (Caja):** agregar `numeroReceta` a la transacción y a
   `SyncTransaccionDto`, aceptar la lista de roles en el login, actualizar
   `SubsidioResponseDto` a la forma acordada y usar el prefijo de terminal

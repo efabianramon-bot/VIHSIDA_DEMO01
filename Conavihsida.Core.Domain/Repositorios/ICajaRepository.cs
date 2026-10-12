@@ -20,7 +20,8 @@ namespace Conavihsida.Core.Domain.Repositorios
         /// transaccion.CedulaPaciente debe venir con el formato
         /// 000-0000000-0; con ella se busca el PacienteID (queda NULL si
         /// no hay un paciente con esa cedula). Devuelve null, sin guardar
-        /// nada, si NumeroReceta no corresponde a ninguna receta.
+        /// nada, si NumeroReceta no es una receta de ese mismo paciente:
+        /// de ese enlace depende que Farmacia vea la receta como descargada.
         /// </summary>
         bool? GuardarTransaccion(TransaccionCaja transaccion, DateTime ahora);
 

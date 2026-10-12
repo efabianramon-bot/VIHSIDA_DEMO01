@@ -156,7 +156,7 @@ namespace Conavihsida.Core.Data
         {
             const string sql = @"
                 SELECT RecetaID, HistorialID, CodigoSerologico, MedicamentoID, EsquemaTARV,
-                       CantidadPrescrita, FechaEmision, Estado
+                       CantidadPrescrita, FechaEmision, Estado," + SqlRecetas.ColumnaFechaDescargo + @"
                 FROM Recetas WHERE RecetaID = @RecetaID;";
 
             using (var conn = new SqlConnection(_connectionString))
@@ -176,7 +176,7 @@ namespace Conavihsida.Core.Data
             // La mas antigua primero: es la que lleva mas tiempo esperando.
             const string sql = @"
                 SELECT RecetaID, HistorialID, CodigoSerologico, MedicamentoID, EsquemaTARV,
-                       CantidadPrescrita, FechaEmision, Estado
+                       CantidadPrescrita, FechaEmision, Estado," + SqlRecetas.ColumnaFechaDescargo + @"
                 FROM Recetas WHERE Estado = @Estado
                 ORDER BY FechaEmision, RecetaID;";
 
@@ -217,8 +217,11 @@ namespace Conavihsida.Core.Data
         private static Receta LeerReceta(SqlDataReader reader)
         {
             int ordinalEsquema = reader.GetOrdinal("EsquemaTARV");
+            int ordinalDescargo = reader.GetOrdinal("FechaDescargo");
             return new Receta
             {
+                FechaDescargo = reader.IsDBNull(ordinalDescargo)
+                    ? (DateTime?)null : reader.GetDateTime(ordinalDescargo),
                 Id = reader.GetInt32(reader.GetOrdinal("RecetaID")),
                 HistorialId = reader.GetInt32(reader.GetOrdinal("HistorialID")),
                 CodigoSerologico = reader.GetString(reader.GetOrdinal("CodigoSerologico")),

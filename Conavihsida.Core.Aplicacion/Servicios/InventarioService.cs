@@ -150,6 +150,13 @@ namespace Conavihsida.Core.Aplicacion.Servicios
                                                                               string terminal)
         {
             VencerRecetasAntiguas(terminal);
+
+            // Decision del equipo: la falta de descargo en Caja NO bloquea el
+            // despacho (la terminal puede estar sin conexion y el descargo
+            // llega al sincronizar), pero queda anotado en la bitacora.
+            var receta = _inventario.ObtenerReceta(recetaId);
+            bool descargada = receta != null && receta.DescargadaEnCaja;
+
             var movimientos = new List<MovimientoInventario>();
             var resultado = _inventario.DespacharReceta(recetaId, usuarioId, DateTime.Now, movimientos);
 
@@ -172,7 +179,14 @@ namespace Conavihsida.Core.Aplicacion.Servicios
             }
 
             _auditoria.Registrar(usuarioId, null, terminal, "DespacharReceta", "recetas", recetaId,
-                string.Format("cantidad={0};lotes={1}", total, movimientos.Count));
+                string.Format("cantidad={0};lotes={1};descargoCaja={2}", total, movimientos.Count,
+                    descargada ? "si" : "no"));
+
+            if (!descargada)
+            {
+                // Accion aparte para que el auditor pueda listarlos de una vez.
+                _auditoria.Registrar(usuarioId, null, terminal, "DespachoSinDescargo", "recetas", recetaId, null);
+            }
 
             return ResultadoOperacion<List<MovimientoInventario>>.Ok(movimientos);
         }

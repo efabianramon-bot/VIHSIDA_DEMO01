@@ -108,7 +108,7 @@ namespace Conavihsida.Core.Aplicacion.Servicios
             bool? nuevo = _caja.GuardarTransaccion(transaccion, DateTime.Now);
             if (nuevo == null)
             {
-                return Fallo("numeroReceta no corresponde a ninguna receta.");
+                return Fallo("numeroReceta no corresponde a una receta de ese paciente.");
             }
 
             return Recibido(nuevo.Value, usuarioId, terminal, "CajaTransacciones", transaccion.NumeroTransaccion);
