@@ -102,7 +102,8 @@ Para crear la base desde cero, ejecuta en este orden:
 1. `Database/ConavihsidaCoreDb_schema.sql` (estructura).
 2. Los scripts de `Database/Migraciones/`, por número: `001` (roles y
    restricciones) y `002` (cédula del paciente obligatoria, única y con el
-   formato `000-0000000-0`) y `003` (bloqueo temporal del login del paciente).
+   formato `000-0000000-0`) `003` (bloqueo temporal del login del paciente) y `004` (tablas para la
+   sincronización de Caja).
 3. Los scripts de `Database/Datos/` (solo desarrollo y demo), en este orden:
    `usuarios_prueba`, `medico_prueba`, `paciente_prueba`, `medicamentos_prueba`,
    `facturas_subsidiadas_prueba` y `caja_prueba`.
@@ -142,7 +143,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 83 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 93 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -195,6 +196,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | GET | `/api/dashboard/inventario-critico?diasAviso=` | Lotes vencidos con existencia, por vencer y bajo mínimo. |
 | GET | `/api/dashboard/subsidios?dias=` | Facturas subsidiadas, descargadas y entregas ARV. |
 | GET | `/api/caja/subsidio?cedula=` | Para Caja: dice si el paciente existe y si tiene subsidio (`existe`, `tieneSubsidio`, `porcentaje`, `vigenteHasta`). Expediente activo = 100 %. Roles Cajero y Administrador. |
+| POST | `/api/caja/sync/turnos`, `/movimientos`, `/transacciones`, `/comprobantes`, `/fondos` | Reciben lo que Caja sincroniza y lo guardan en las tablas `Caja*`. Cuerpo y respuesta (`exito`, `mensaje`) según el contrato de Caja. Reenviar un registro lo actualiza por su número de negocio, sin duplicarlo; un dato inválido responde `400`. Roles Cajero y Administrador. |
 | GET | `/api/medicos` | Lista los médicos. |
 | GET | `/api/medicos/{medicoId}/horarios?fecha=` | Horarios disponibles de un médico en una fecha. |
 | GET | `/api/pacientes/{pacienteId}/citas` | Citas del paciente. |
