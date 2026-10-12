@@ -1775,14 +1775,15 @@
           }
         },
         {
-          "name": "Ejecucion de subsidios",
+          "name": "Ejecucion de subsidios (con los datos de Caja)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Trae los totales de Caja y los fondos', function () { var r = pm.response.json(); pm.expect(r).to.have.property('entregasSubsidiadasCaja'); pm.expect(r).to.have.property('entregasArvConDescargo'); pm.expect(r.fondos).to.be.an('array'); });"
                 ]
               }
             }

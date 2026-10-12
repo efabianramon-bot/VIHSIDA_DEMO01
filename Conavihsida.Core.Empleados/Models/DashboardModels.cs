@@ -55,6 +55,39 @@ namespace Conavihsida.Core.Empleados.Models
         public decimal? PorcentajeEjecucion { get; set; }
         public int EntregasArv { get; set; }
         public int UnidadesArvEntregadas { get; set; }
+
+        // Lo que sincroniza Caja.
+        public int EntregasArvConDescargo { get; set; }
+        public int EntregasSubsidiadasCaja { get; set; }
+        public int CobrosCaja { get; set; }
+        public decimal MontoCobradoCaja { get; set; }
+        public int TransaccionesAnuladasCaja { get; set; }
+        public List<FondoApi> Fondos { get; set; }
+        public decimal MontoAsignadoFondos { get; set; }
+        public decimal MontoUtilizadoFondos { get; set; }
+        public decimal? PorcentajeEjecucionFondos { get; set; }
+
+        public bool HayFondos
+        {
+            get { return Fondos != null && Fondos.Count > 0; }
+        }
+    }
+
+    public class FondoApi
+    {
+        public string Codigo { get; set; }
+        public string Nombre { get; set; }
+        public string TipoFuente { get; set; }
+        public string Organismo { get; set; }
+        public decimal MontoAsignado { get; set; }
+        public decimal MontoUtilizado { get; set; }
+        public decimal? PorcentajeUtilizado { get; set; }
+        public DateTime? FechaFin { get; set; }
+
+        public string Fuente
+        {
+            get { return TipoFuente == "DonacionInternacional" ? "Donación internacional" : "Presupuesto estatal"; }
+        }
     }
 
     // ----- Pantalla del Dashboard -----
@@ -126,8 +159,11 @@ namespace Conavihsida.Core.Empleados.Models
         {
             "AbrirExpediente", "AccesoDenegado", "ActualizarExpediente", "AgendarCita", "CancelarCita",
             "ConsultarExpediente", "ConsultarHistorial", "ConsultarReceta", "ConsultarResultados",
-            "DespacharReceta", "EmitirReceta", "IdentificarPaciente", "IniciarSesion", "ListarExpedientes",
-            "ListarRecetas", "LoginFallido", "PagarFactura", "RegistrarConsulta", "RegistrarLote"
+            "ConsultarResultadosClinicos", "DespacharReceta", "DespachoSinDescargo", "EmitirReceta",
+            "IdentificarPaciente", "IniciarSesion", "IniciarSesionPaciente", "ListarExpedientes",
+            "ListarRecetas", "LoginFallido", "LoginPacienteFallido", "PagarFactura", "PublicarResultado",
+            "RegistrarConsulta", "RegistrarLote", "SincronizarCaja", "SolicitarPrueba", "ValidarSubsidio",
+            "VencerRecetas"
         };
 
         public static readonly int[] Limites = { 50, 100, 200, 500 };

@@ -84,6 +84,17 @@ namespace Conavihsida.Core.Aplicacion.Servicios
             var vista = _dashboard.ContarSubsidios(Desde(periodo));
             vista.Dias = periodo;
             vista.PorcentajeEjecucion = Porcentaje(vista.FacturasDescargadas, vista.FacturasSubsidiadas);
+
+            // Los fondos no dependen del periodo: Caja reporta de cada uno
+            // lo asignado y lo utilizado hasta hoy.
+            vista.Fondos = _dashboard.ObtenerFondosActivos();
+            foreach (var fondo in vista.Fondos)
+            {
+                fondo.PorcentajeUtilizado = Porcentaje(fondo.MontoUtilizado, fondo.MontoAsignado);
+            }
+            vista.MontoAsignadoFondos = vista.Fondos.Sum(f => f.MontoAsignado);
+            vista.MontoUtilizadoFondos = vista.Fondos.Sum(f => f.MontoUtilizado);
+            vista.PorcentajeEjecucionFondos = Porcentaje(vista.MontoUtilizadoFondos, vista.MontoAsignadoFondos);
             return vista;
         }
 
@@ -97,7 +108,7 @@ namespace Conavihsida.Core.Aplicacion.Servicios
             return DateTime.Today.AddDays(-dias);
         }
 
-        private static decimal? Porcentaje(int parte, int total)
+        private static decimal? Porcentaje(decimal parte, decimal total)
         {
             return total <= 0 ? (decimal?)null : Math.Round(parte * 100m / total, 1);
         }

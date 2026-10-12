@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using Conavihsida.Core.Domain.Catalogos;
 using Conavihsida.Core.Domain.Repositorios;
@@ -100,13 +101,27 @@ namespace Conavihsida.Core.Data
                     (SELECT COUNT(DISTINCT RecetaID) FROM MovimientosInventario
                       WHERE TipoMovimiento = @Salida AND FechaMovimiento >= @Desde)     AS Entregas,
                     (SELECT ISNULL(SUM(Cantidad), 0) FROM MovimientosInventario
-                      WHERE TipoMovimiento = @Salida AND FechaMovimiento >= @Desde)     AS Unidades;";
+                      WHERE TipoMovimiento = @Salida AND FechaMovimiento >= @Desde)     AS Unidades,
+                    (SELECT COUNT(DISTINCT m.RecetaID) FROM MovimientosInventario m
+                      WHERE m.TipoMovimiento = @Salida AND m.FechaMovimiento >= @Desde
+                        AND EXISTS (SELECT 1 FROM CajaTransacciones t
+                                    WHERE t.NumeroReceta = m.RecetaID AND t.Estado = @Completada)) AS ConDescargo,
+                    (SELECT COUNT(*) FROM CajaTransacciones
+                      WHERE EsSubsidiado = 1 AND Estado = @Completada AND Fecha >= @Desde) AS SubsidiadasCaja,
+                    (SELECT COUNT(*) FROM CajaTransacciones
+                      WHERE EsSubsidiado = 0 AND Estado = @Completada AND Fecha >= @Desde) AS CobrosCaja,
+                    (SELECT ISNULL(SUM(Monto), 0) FROM CajaTransacciones
+                      WHERE EsSubsidiado = 0 AND Estado = @Completada AND Fecha >= @Desde) AS MontoCobrado,
+                    (SELECT COUNT(*) FROM CajaTransacciones
+                      WHERE Estado = @Anulada AND Fecha >= @Desde)                      AS AnuladasCaja;";
 
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@Pagada", EstadosFactura.Pagada);
                 cmd.Parameters.AddWithValue("@Salida", TiposMovimiento.Salida);
+                cmd.Parameters.AddWithValue("@Completada", "Completada");
+                cmd.Parameters.AddWithValue("@Anulada", "Anulada");
                 cmd.Parameters.AddWithValue("@Desde", desde);
                 conn.AbrirConLog();
                 using (var reader = cmd.ExecuteReaderConLog())
@@ -116,6 +131,11 @@ namespace Conavihsida.Core.Data
                     int descargadas = reader.GetInt32(1);
                     return new SubsidiosVista
                     {
+                        EntregasArvConDescargo = reader.GetInt32(4),
+                        EntregasSubsidiadasCaja = reader.GetInt32(5),
+                        CobrosCaja = reader.GetInt32(6),
+                        MontoCobradoCaja = reader.GetDecimal(7),
+                        TransaccionesAnuladasCaja = reader.GetInt32(8),
                         FacturasSubsidiadas = subsidiadas,
                         FacturasDescargadas = descargadas,
                         FacturasPendientes = subsidiadas - descargadas,
@@ -124,6 +144,39 @@ namespace Conavihsida.Core.Data
                     };
                 }
             }
+        }
+
+        public List<FondoVista> ObtenerFondosActivos()
+        {
+            const string sql = @"
+                SELECT Codigo, Nombre, TipoFuente, Organismo, MontoAsignado, MontoUtilizado, FechaFin
+                FROM CajaFondos
+                WHERE Activo = 1
+                ORDER BY MontoAsignado DESC, Codigo;";
+
+            var lista = new List<FondoVista>();
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
+                {
+                    while (reader.Read())
+                    {
+                        lista.Add(new FondoVista
+                        {
+                            Codigo = reader.GetString(0),
+                            Nombre = reader.GetString(1),
+                            TipoFuente = reader.GetString(2),
+                            Organismo = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            MontoAsignado = reader.GetDecimal(4),
+                            MontoUtilizado = reader.GetDecimal(5),
+                            FechaFin = reader.IsDBNull(6) ? (DateTime?)null : reader.GetDateTime(6)
+                        });
+                    }
+                }
+            }
+            return lista;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Conavihsida.Core.Domain.Entidades;
 
@@ -69,6 +70,40 @@ namespace Conavihsida.Core.Domain.Vistas
         /// <summary>Recetas ARV entregadas en Farmacia (RN-02: 100% subsidiadas).</summary>
         public int EntregasArv { get; set; }
         public int UnidadesArvEntregadas { get; set; }
+
+        // ----- Lo que sincroniza el modulo de Caja -----
+
+        /// <summary>De las EntregasArv, cuantas tienen su descargo registrado en Caja.</summary>
+        public int EntregasArvConDescargo { get; set; }
+
+        /// <summary>Transacciones subsidiadas Completadas en Caja en el periodo.</summary>
+        public int EntregasSubsidiadasCaja { get; set; }
+
+        /// <summary>Transacciones cobradas (no subsidiadas) Completadas en Caja.</summary>
+        public int CobrosCaja { get; set; }
+        public decimal MontoCobradoCaja { get; set; }
+        public int TransaccionesAnuladasCaja { get; set; }
+
+        /// <summary>Fondos y convenios activos que financian el subsidio.</summary>
+        public List<FondoVista> Fondos { get; set; }
+        public decimal MontoAsignadoFondos { get; set; }
+        public decimal MontoUtilizadoFondos { get; set; }
+
+        /// <summary>Utilizado / Asignado * 100 de los fondos activos. null si no hay fondos.</summary>
+        public decimal? PorcentajeEjecucionFondos { get; set; }
+    }
+
+    /// <summary>Un fondo o convenio tal como lo reporta Caja. No lleva datos de pacientes.</summary>
+    public class FondoVista
+    {
+        public string Codigo { get; set; }
+        public string Nombre { get; set; }
+        public string TipoFuente { get; set; }
+        public string Organismo { get; set; }
+        public decimal MontoAsignado { get; set; }
+        public decimal MontoUtilizado { get; set; }
+        public decimal? PorcentajeUtilizado { get; set; }
+        public DateTime? FechaFin { get; set; }
     }
 
     public class DashboardVista

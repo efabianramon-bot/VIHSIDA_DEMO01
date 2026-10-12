@@ -194,7 +194,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | GET | `/api/dashboard/pacientes-activos?dias=` | Expedientes activos, inactivos, transferidos y nuevos en el periodo. |
 | GET | `/api/dashboard/adherencia?dias=` | Recetas emitidas, retiradas y pendientes, con el porcentaje de adherencia. |
 | GET | `/api/dashboard/inventario-critico?diasAviso=` | Lotes vencidos con existencia, por vencer y bajo mínimo. |
-| GET | `/api/dashboard/subsidios?dias=` | Facturas subsidiadas, descargadas y entregas ARV. |
+| GET | `/api/dashboard/subsidios?dias=` | Entregas ARV de Farmacia y cuántas tienen descargo en Caja; entregas subsidiadas, cobros y anulaciones de Caja; fondos y convenios activos con su porcentaje utilizado; y facturas subsidiadas del Portal Web. |
 | GET | `/api/caja/subsidio?cedula=` | Para Caja: dice si el paciente existe y si tiene subsidio (`existe`, `tieneSubsidio`, `porcentaje`, `vigenteHasta`). Expediente activo = 100 %. Roles Cajero y Administrador. |
 | POST | `/api/caja/sync/turnos`, `/movimientos`, `/transacciones`, `/comprobantes`, `/fondos` | Reciben lo que Caja sincroniza y lo guardan en las tablas `Caja*`. Cuerpo y respuesta (`exito`, `mensaje`) según el contrato de Caja. Reenviar un registro lo actualiza por su número de negocio, sin duplicarlo; un dato inválido responde `400`. Roles Cajero y Administrador. |
 | GET | `/api/medicos` | Lista los médicos. |
