@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Conavihsida.Core.Domain.Vistas;
 
 namespace Conavihsida.Core.Domain.Repositorios
@@ -14,5 +15,8 @@ namespace Conavihsida.Core.Domain.Repositorios
         AdherenciaVista ContarRecetas(DateTime desde);
 
         SubsidiosVista ContarSubsidios(DateTime desde);
+
+        /// <summary>Fondos y convenios activos sincronizados por Caja, el de mayor monto primero.</summary>
+        List<FondoVista> ObtenerFondosActivos();
     }
 }

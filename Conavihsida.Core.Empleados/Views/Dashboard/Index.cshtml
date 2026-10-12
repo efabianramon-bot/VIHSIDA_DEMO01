@@ -147,24 +147,82 @@
 
         <section class="panel indicador-panel">
             <h2>Ejecución de subsidios</h2>
+            @* El anillo muestra cuanto de los fondos se ha usado; si Caja
+               aun no ha sincronizado fondos, las facturas subsidiadas. *@
             <div class="con-anillo">
-                @Html.Partial("_Anillo", new AnilloViewModel { Porcentaje = subsidios.PorcentajeEjecucion, Rotulo = "Facturas descargadas" })
+                @if (subsidios.HayFondos)
+                {
+                    @Html.Partial("_Anillo", new AnilloViewModel { Porcentaje = subsidios.PorcentajeEjecucionFondos, Rotulo = "Fondos utilizados" })
+                }
+                else
+                {
+                    @Html.Partial("_Anillo", new AnilloViewModel { Porcentaje = subsidios.PorcentajeEjecucion, Rotulo = "Facturas descargadas" })
+                }
                 <div class="barras">
                     <div class="barra-fila">
-                        <span class="barra-nombre">Descargadas</span>
-                        <span class="barra-pista"><span class="tramo tramo-exito" style="width: @DashboardViewModel.Css(DashboardViewModel.Porcentaje(subsidios.FacturasDescargadas, subsidios.FacturasSubsidiadas))%"></span></span>
-                        <span class="barra-valor">@subsidios.FacturasDescargadas</span>
+                        <span class="barra-nombre">Entregas ARV</span>
+                        <span class="barra-pista"><span class="tramo tramo-info" style="width: @(subsidios.EntregasArv > 0 ? "100" : "0")%"></span></span>
+                        <span class="barra-valor">@subsidios.EntregasArv</span>
                     </div>
                     <div class="barra-fila">
-                        <span class="barra-nombre">Pendientes</span>
-                        <span class="barra-pista"><span class="tramo tramo-alerta" style="width: @DashboardViewModel.Css(DashboardViewModel.Porcentaje(subsidios.FacturasPendientes, subsidios.FacturasSubsidiadas))%"></span></span>
-                        <span class="barra-valor">@subsidios.FacturasPendientes</span>
+                        <span class="barra-nombre">Con descargo</span>
+                        <span class="barra-pista"><span class="tramo tramo-exito" style="width: @DashboardViewModel.Css(DashboardViewModel.Porcentaje(subsidios.EntregasArvConDescargo, subsidios.EntregasArv))%"></span></span>
+                        <span class="barra-valor">@subsidios.EntregasArvConDescargo</span>
+                    </div>
+                    <div class="barra-fila">
+                        <span class="barra-nombre">Sin descargo</span>
+                        <span class="barra-pista"><span class="tramo tramo-alerta" style="width: @DashboardViewModel.Css(DashboardViewModel.Porcentaje(subsidios.EntregasArv - subsidios.EntregasArvConDescargo, subsidios.EntregasArv))%"></span></span>
+                        <span class="barra-valor">@(subsidios.EntregasArv - subsidios.EntregasArvConDescargo)</span>
                     </div>
                 </div>
             </div>
+
+            <div class="cifras-fila">
+                <div class="cifra-chica">
+                    <span class="cifra">@subsidios.EntregasSubsidiadasCaja</span>
+                    <span class="cifra-nombre">entregas subsidiadas en Caja</span>
+                </div>
+                <div class="cifra-chica">
+                    <span class="cifra">@subsidios.CobrosCaja</span>
+                    <span class="cifra-nombre">cobros en Caja (RD$ @subsidios.MontoCobradoCaja.ToString("#,0.00"))</span>
+                </div>
+                <div class="cifra-chica @(subsidios.TransaccionesAnuladasCaja > 0 ? "cifra-alerta" : "")">
+                    <span class="cifra">@subsidios.TransaccionesAnuladasCaja</span>
+                    <span class="cifra-nombre">transacciones anuladas</span>
+                </div>
+            </div>
+
+            @if (subsidios.HayFondos)
+            {
+                <div class="tabla-contenedor">
+                    <table class="tabla tabla-compacta">
+                        <thead>
+                            <tr><th>Fondo o convenio</th><th>Fuente</th><th class="numero">Asignado (RD$)</th><th class="numero">Utilizado (RD$)</th><th class="numero">%</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var fondo in subsidios.Fondos)
+                            {
+                                <tr>
+                                    <td>@fondo.Nombre</td>
+                                    <td>@fondo.Fuente</td>
+                                    <td class="numero">@fondo.MontoAsignado.ToString("#,0.00")</td>
+                                    <td class="numero">@fondo.MontoUtilizado.ToString("#,0.00")</td>
+                                    <td class="numero">@(fondo.PorcentajeUtilizado == null ? "—" : fondo.PorcentajeUtilizado.Value.ToString("0.#"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="nota-indicador">Caja todavía no ha sincronizado fondos ni convenios.</p>
+            }
+
             <p class="nota-indicador">
-                @subsidios.FacturasSubsidiadas facturas subsidiadas.
-                @subsidios.EntregasArv entregas de antirretrovirales, @subsidios.UnidadesArvEntregadas.ToString("#,0") unidades, todas al 100 % de subsidio.
+                @subsidios.UnidadesArvEntregadas.ToString("#,0") unidades de antirretrovirales entregadas en Farmacia, todas al 100 % de subsidio.
+                @subsidios.FacturasDescargadas de @subsidios.FacturasSubsidiadas facturas subsidiadas del Portal Web descargadas.
+                Los fondos muestran el acumulado que reporta Caja, no solo el periodo.
             </p>
         </section>
 

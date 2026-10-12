@@ -243,8 +243,10 @@ Dos consecuencias para el flujo E2E:
   `numeroReceta`; el código publicado de Caja todavía no envía ese campo,
   así que hasta que Beckham lo agregue todas las recetas saldrán como
   "pendiente de descargo".
-- **El indicador de subsidios del Dashboard todavía no usa los datos de
-  Caja.** Se calcula con las facturas subsidiadas del propio CORE.
+- **El indicador de subsidios del Dashboard ya usa los datos de Caja:**
+  entregas subsidiadas, cobros, anulaciones, fondos y convenios, y cuántas
+  entregas de Farmacia tienen su descargo. Estará vacío hasta que Caja
+  sincronice a través de tu Gateway.
 
 Lo acordado con Beckham para cerrarlo (falta tu confirmación):
 
@@ -261,8 +263,8 @@ Lo acordado con Beckham para cerrarlo (falta tu confirmación):
    paciente de la cédula; si no, el CORE responde `400`.
 5. La falta de descargo **no bloquea** el despacho (la terminal de Caja
    puede estar sin conexión): Farmacia puede despachar y queda en la
-   bitácora como `DespachoSinDescargo`. **Pendiente en el CORE:** que el
-   Dashboard calcule los subsidios con estos datos.
+   bitácora como `DespachoSinDescargo`. El Dashboard muestra cuántas
+   entregas se hicieron con descargo y cuántas sin él.
 6. Los comprobantes de Caja llevan su propia serie con prefijo de terminal
    (`CJ01-000123`) y no chocan con los `REC-n` / `FAC-n` del CORE.
 
@@ -318,8 +320,8 @@ necesita cada una.
 Reparto de lo que falta, para que no quede nada sin dueño:
 
 - **Ricardo (Integración):** las nueve tareas de la tabla.
-- **Emilia (CORE):** calcular los subsidios del Dashboard con los datos de
-  Caja.
+- **Emilia (CORE):** nada pendiente de construir. Queda acompañar las
+  pruebas conjuntas y corregir lo que salga en ellas.
 - **Beckham (Caja):** agregar `numeroReceta` a la transacción y a
   `SyncTransaccionDto`, aceptar la lista de roles en el login, actualizar
   `SubsidioResponseDto` a la forma acordada y usar el prefijo de terminal
