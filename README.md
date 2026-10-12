@@ -142,7 +142,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 72 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 80 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -193,6 +193,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | GET | `/api/dashboard/adherencia?dias=` | Recetas emitidas, retiradas y pendientes, con el porcentaje de adherencia. |
 | GET | `/api/dashboard/inventario-critico?diasAviso=` | Lotes vencidos con existencia, por vencer y bajo mínimo. |
 | GET | `/api/dashboard/subsidios?dias=` | Facturas subsidiadas, descargadas y entregas ARV. |
+| GET | `/api/caja/subsidio?cedula=` | Para Caja: dice si el paciente existe y si tiene subsidio (`existe`, `tieneSubsidio`, `porcentaje`, `vigenteHasta`). Expediente activo = 100 %. Roles Cajero y Administrador. |
 | GET | `/api/medicos` | Lista los médicos. |
 | GET | `/api/medicos/{medicoId}/horarios?fecha=` | Horarios disponibles de un médico en una fecha. |
 | GET | `/api/pacientes/{pacienteId}/citas` | Citas del paciente. |

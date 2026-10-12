@@ -55,6 +55,7 @@
     <Compile Include="Servicios\InventarioService.cs" />
     <Compile Include="Servicios\LaboratorioService.cs" />
     <Compile Include="Servicios\ResultadoService.cs" />
+    <Compile Include="Servicios\SubsidioService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="obj\Debug\Conavihsida.Core.Aplicacion.csproj.AssemblyReference.cache" />

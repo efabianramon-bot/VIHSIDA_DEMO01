@@ -2230,6 +2230,233 @@
           }
         }
       ]
+    },
+    {
+      "name": "10. Caja: subsidio por cedula",
+      "description": "Lo que Caja consulta antes de cobrar. Expediente Activo = subsidio del 100 %. Requiere los pacientes de Database/Datos/caja_prueba.sql. La respuesta no lleva nombre, codigo serologico ni datos clinicos.",
+      "item": [
+        {
+          "name": "Paciente con expediente activo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Subsidio del 100 %', function () { var r = pm.response.json(); pm.expect(r.existe).to.eql(true); pm.expect(r.tieneSubsidio).to.eql(true); pm.expect(r.porcentaje).to.eql(100); pm.expect(r.vigenteHasta).to.eql(null); });",
+                  "pm.test('Solo los cuatro campos acordados', function () { pm.expect(Object.keys(pm.response.json()).sort()).to.eql(['existe', 'porcentaje', 'tieneSubsidio', 'vigenteHasta']); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/subsidio?cedula=000-0000004-0"
+          }
+        },
+        {
+          "name": "La misma cedula sin guiones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Tiene subsidio', function () { pm.expect(pm.response.json().tieneSubsidio).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/subsidio?cedula=00000000040"
+          }
+        },
+        {
+          "name": "Paciente con expediente inactivo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Existe pero sin subsidio', function () { var r = pm.response.json(); pm.expect(r.existe).to.eql(true); pm.expect(r.tieneSubsidio).to.eql(false); pm.expect(r.porcentaje).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/subsidio?cedula=000-0000005-0"
+          }
+        },
+        {
+          "name": "Paciente sin expediente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Existe pero sin subsidio', function () { var r = pm.response.json(); pm.expect(r.existe).to.eql(true); pm.expect(r.tieneSubsidio).to.eql(false); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/subsidio?cedula=000-0000006-0"
+          }
+        },
+        {
+          "name": "Cedula que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('No existe', function () { var r = pm.response.json(); pm.expect(r.existe).to.eql(false); pm.expect(r.tieneSubsidio).to.eql(false); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/subsidio?cedula=999-9999999-9"
+          }
+        },
+        {
+          "name": "Cedula mal escrita",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/subsidio?cedula=123"
+          }
+        },
+        {
+          "name": "Medico intenta consultar el subsidio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/subsidio?cedula=000-0000004-0"
+          }
+        },
+        {
+          "name": "Subsidio sin identificar al empleado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', function () { pm.expect(pm.response.code).to.be.oneOf([401]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/caja/subsidio?cedula=000-0000004-0"
+          }
+        }
+      ]
     }
   ]
 }
