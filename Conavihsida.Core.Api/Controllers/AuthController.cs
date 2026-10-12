@@ -42,6 +42,37 @@ namespace Conavihsida.Core.Api.Controllers
             return Ok(resultado.Valor);
         }
 
+        // Login de pacientes del Portal Web. Tampoco devuelve un token: el
+        // Gateway lo arma con el pacienteId y despues lo manda en
+        // X-Paciente-Id. 401 si las credenciales no sirven y 429 si la
+        // cuenta esta bloqueada por intentos fallidos.
+        [HttpPost, Route("paciente/login")]
+        public IHttpActionResult LoginPaciente([FromBody] LoginPacienteRequest body)
+        {
+            if (body == null)
+            {
+                return BadRequest("El cuerpo de la peticion es obligatorio.");
+            }
+
+            if (string.IsNullOrWhiteSpace(body.Correo) || string.IsNullOrEmpty(body.Password))
+            {
+                return BadRequest("Correo y contraseña son obligatorios.");
+            }
+
+            var servicio = new AuthPacienteService(new PacienteRepository(ConnectionString), CrearAuditoriaService());
+            var resultado = servicio.Login(body.Correo, body.Password, ObtenerTerminal());
+
+            if (!resultado.Exitoso)
+            {
+                var codigo = resultado.MensajeError == AuthPacienteService.MensajeBloqueado
+                    ? (HttpStatusCode)429
+                    : HttpStatusCode.Unauthorized;
+                return Content(codigo, new { error = resultado.MensajeError });
+            }
+
+            return Ok(resultado.Valor);
+        }
+
         // Devuelve la identidad tal como la recibio el CORE. Sirve para
         // comprobar que el Gateway esta mandando bien los encabezados.
         [HttpGet, Route("yo"), RequiereRol]

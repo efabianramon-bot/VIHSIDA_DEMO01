@@ -102,7 +102,7 @@ Para crear la base desde cero, ejecuta en este orden:
 1. `Database/ConavihsidaCoreDb_schema.sql` (estructura).
 2. Los scripts de `Database/Migraciones/`, por número: `001` (roles y
    restricciones) y `002` (cédula del paciente obligatoria, única y con el
-   formato `000-0000000-0`).
+   formato `000-0000000-0`) y `003` (bloqueo temporal del login del paciente).
 3. Los scripts de `Database/Datos/` (solo desarrollo y demo), en este orden:
    `usuarios_prueba`, `medico_prueba`, `paciente_prueba`, `medicamentos_prueba`,
    `facturas_subsidiadas_prueba` y `caja_prueba`.
@@ -142,7 +142,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 80 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 83 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -170,6 +170,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | Método | Ruta | Descripción |
 | --- | --- | --- |
 | POST | `/api/auth/login` | Valida usuario y contraseña; devuelve el usuario y sus roles, sin token (`401` si no son válidos). |
+| POST | `/api/auth/paciente/login` | Login del paciente del Portal Web con `correo` y `password`; devuelve `pacienteId`, `nombreCompleto` y `correo`, sin token (`401` si no son válidos, `429` si la cuenta está bloqueada 15 minutos tras 5 intentos fallidos). |
 | GET | `/api/auth/yo` | Devuelve la identidad de empleado recibida en los encabezados (`401` si falta). |
 | GET | `/api/clinica/expedientes` | Lista de expedientes (código, estado y apertura). Solo rol Médico. |
 | GET | `/api/clinica/pacientes?cedula=` o `?pacienteId=` | Identifica a un paciente y dice si tiene expediente. Es el único cruce entre identidad y código serológico; solo rol Médico y siempre auditado. |

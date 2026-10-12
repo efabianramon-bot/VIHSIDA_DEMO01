@@ -110,8 +110,26 @@ Content-Type: application/json
 - `200`: `{"id":5,"username":"cajero.prueba","nombres":"Cajero","apellidos":"De Prueba","roles":["Cajero"]}`
 - `401`: `{"error":"Credenciales incorrectas."}`. También si la cuenta está
   inactiva o bloqueada (se bloquea a los 5 intentos fallidos).
-- Este endpoint es solo para **empleados**. El CORE no tiene todavía un
-  login de pacientes (ver sección 6).
+- Este endpoint es solo para **empleados**.
+
+### Login de pacientes
+
+```
+POST /api/auth/paciente/login
+{ "correo": "paciente.prueba@conavihsida.test", "password": "..." }
+```
+
+- `200`: `{"pacienteId":1,"nombreCompleto":"Paciente De Prueba","correo":"paciente.prueba@conavihsida.test"}`.
+  Tampoco devuelve token: el Gateway lo genera con el `pacienteId` y, en
+  cada petición del paciente, manda `X-Paciente-Id` sacándolo **del token**,
+  nunca de lo que envíe el cliente.
+- `401`: `{"error":"Credenciales incorrectas."}`. Es el mismo mensaje si el
+  correo no existe, si la contraseña está mal o si la cuenta está inactiva.
+- `429`: la cuenta quedó bloqueada 15 minutos tras 5 intentos fallidos
+  seguidos.
+- Pacientes de prueba que pueden entrar: `paciente.prueba@conavihsida.test`
+  (n.º 1) y `paciente2.prueba@conavihsida.test` (n.º 2), con la misma
+  contraseña de los usuarios de prueba.
 
 ### Rutas y quién puede usarlas
 
@@ -129,7 +147,7 @@ Content-Type: application/json
 | `/api/auth/yo` | Cualquier empleado; devuelve la identidad que recibió el CORE |
 
 La lista completa, con cada ruta y su descripción, está en el `README.md`.
-La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 80
+La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 83
 peticiones con el código esperado de cada una.
 
 ## 4. Guion paso a paso
@@ -216,8 +234,9 @@ Mi propuesta para cerrarlo, a confirmar entre los tres:
 
 ## 6. Otros pendientes que afectan la integración
 
-- **Login de pacientes.** El Portal Web necesita autenticar pacientes, y el
-  CORE solo tiene login de empleados. Hay que decidir quién lo hace.
+- **Login de pacientes.** El CORE ya valida al paciente
+  (`POST /api/auth/paciente/login`, sección 3). Falta que el Gateway emita
+  el token y que el Portal Web deje de usar su login simulado.
 - **CORS.** El ajuste `CoreApi:CorsOrigenes` tiene puertos locales de
   relleno. Si el navegador solo habla con el Gateway, el CORE no necesita
   CORS para la web.
