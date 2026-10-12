@@ -49,6 +49,14 @@ namespace Conavihsida.Core.Empleados.Models
         public string Estado { get; set; }
     }
 
+    /// <summary>Fila de api/medicos.</summary>
+    public class MedicoApi
+    {
+        public int Id { get; set; }
+        public string NombreCompleto { get; set; }
+        public string Especialidad { get; set; }
+    }
+
     public class ResultadoLabApi
     {
         public int Id { get; set; }
@@ -100,6 +108,9 @@ namespace Conavihsida.Core.Empleados.Models
         public NuevaConsultaForm NuevaConsulta { get; set; }
         public string Error { get; set; }
         public string Exito { get; set; }
+
+        /// <summary>null si el expediente no tiene medico responsable.</summary>
+        public string MedicoResponsable { get; set; }
 
         public bool AdmiteConsultas
         {

@@ -207,15 +207,20 @@ namespace Conavihsida.Core.Empleados.Controllers
                 return null;
             }
 
-            // Las cuatro consultas restantes no dependen entre si.
+            // Las cinco consultas restantes no dependen entre si.
+            var tareaMedicos = Api.GetAsync<List<MedicoApi>>("api/medicos");
             var tareaPaciente = Api.GetAsync<PacienteApi>("api/clinica/pacientes?pacienteId=" + expediente.Datos.PacienteId);
             var tareaHistorial = Api.GetAsync<List<ConsultaApi>>(ruta + "/historial");
             var tareaResultados = Api.GetAsync<List<ResultadoLabApi>>(ruta + "/resultados");
             var tareaMedicamentos = Api.GetAsync<List<MedicamentoApi>>("api/farmacia/medicamentos");
-            await Task.WhenAll(tareaPaciente, tareaHistorial, tareaResultados, tareaMedicamentos);
+            await Task.WhenAll(tareaPaciente, tareaHistorial, tareaResultados, tareaMedicamentos, tareaMedicos);
+
+            var responsable = (tareaMedicos.Result.Datos ?? new List<MedicoApi>())
+                .Find(m => m.Id == expediente.Datos.MedicoResponsableId);
 
             return new ExpedienteViewModel
             {
+                MedicoResponsable = responsable == null ? null : responsable.NombreCompleto,
                 Expediente = expediente.Datos,
                 Paciente = tareaPaciente.Result.Datos,
                 Consultas = tareaHistorial.Result.Datos ?? new List<ConsultaApi>(),

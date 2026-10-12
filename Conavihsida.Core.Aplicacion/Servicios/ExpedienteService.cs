@@ -84,10 +84,12 @@ namespace Conavihsida.Core.Aplicacion.Servicios
                 return ResultadoOperacion<ExpedienteClinico>.Fallo("El paciente ya tiene un expediente clínico.");
             }
 
+            // Si no se indica otro, el responsable es el medico que lo abre.
+            // Queda sin responsable solo si quien abre no tiene ficha de medico.
             var expediente = new ExpedienteClinico
             {
                 PacienteId = pacienteId,
-                MedicoResponsableId = medicoResponsableId,
+                MedicoResponsableId = medicoResponsableId ?? _expedientes.ObtenerMedicoIdPorUsuario(usuarioId),
                 FechaApertura = DateTime.Now,
                 Estado = EstadosExpediente.Activo
             };

@@ -4,6 +4,8 @@ namespace Conavihsida.Core.Api.Dtos
     public class AbrirExpedienteRequest
     {
         public int PacienteId { get; set; }
+
+        /// <summary>Opcional. Si no viene, queda como responsable el medico que abre el expediente.</summary>
         public int? MedicoResponsableId { get; set; }
     }
 

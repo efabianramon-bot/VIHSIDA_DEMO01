@@ -52,6 +52,20 @@ namespace Conavihsida.Core.Data
             }
         }
 
+        public int? ObtenerMedicoIdPorUsuario(int usuarioId)
+        {
+            const string sql = "SELECT MedicoID FROM Medicos WHERE UsuarioID = @UsuarioID AND Activo = 1;";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@UsuarioID", usuarioId);
+                conn.AbrirConLog();
+                object valor = cmd.ExecuteScalarConLog();
+                return valor == null || valor == DBNull.Value ? (int?)null : Convert.ToInt32(valor);
+            }
+        }
+
         public bool Insertar(ExpedienteClinico expediente)
         {
             const string sql = @"
