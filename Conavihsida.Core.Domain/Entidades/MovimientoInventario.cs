@@ -15,5 +15,10 @@ namespace Conavihsida.Core.Domain.Entidades
         public int Cantidad { get; set; }
         public int UsuarioId { get; set; }
         public DateTime FechaMovimiento { get; set; }
+
+        // Solo lectura: los llena el repositorio con un JOIN cuando se
+        // consulta el despacho de una receta (para el comprobante).
+        public string NumeroLote { get; set; }
+        public string UsuarioNombre { get; set; }
     }
 }

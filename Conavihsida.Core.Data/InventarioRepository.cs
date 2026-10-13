@@ -197,6 +197,46 @@ namespace Conavihsida.Core.Data
             return lista;
         }
 
+        public List<MovimientoInventario> ObtenerSalidasDeReceta(int recetaId)
+        {
+            const string sql = @"
+                SELECT m.MovimientoID, m.LoteID, m.TipoMovimiento, m.RecetaID, m.Cantidad, m.UsuarioID,
+                       m.FechaMovimiento, l.NumeroLote, u.Nombres + ' ' + u.Apellidos AS UsuarioNombre
+                FROM MovimientosInventario m
+                JOIN LotesMedicamento l ON l.LoteID = m.LoteID
+                JOIN Usuarios u ON u.UsuarioID = m.UsuarioID
+                WHERE m.RecetaID = @RecetaID AND m.TipoMovimiento = @Salida
+                ORDER BY m.MovimientoID;";
+
+            var lista = new List<MovimientoInventario>();
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@RecetaID", recetaId);
+                cmd.Parameters.AddWithValue("@Salida", TiposMovimiento.Salida);
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
+                {
+                    while (reader.Read())
+                    {
+                        lista.Add(new MovimientoInventario
+                        {
+                            Id = reader.GetInt32(0),
+                            LoteId = reader.GetInt32(1),
+                            TipoMovimiento = reader.GetString(2),
+                            RecetaId = reader.GetInt32(3),
+                            Cantidad = reader.GetInt32(4),
+                            UsuarioId = reader.GetInt32(5),
+                            FechaMovimiento = reader.GetDateTime(6),
+                            NumeroLote = reader.GetString(7),
+                            UsuarioNombre = reader.GetString(8)
+                        });
+                    }
+                }
+            }
+            return lista;
+        }
+
         public int VencerRecetas(DateTime emitidasAntesDe)
         {
             const string sql = @"

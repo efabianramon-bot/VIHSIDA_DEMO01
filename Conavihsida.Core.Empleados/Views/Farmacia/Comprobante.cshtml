@@ -1,0 +1,79 @@
+@model ComprobanteDespachoViewModel
+@{
+    ViewBag.Title = "Comprobante de despacho n.º " + Model.Receta.Id;
+    var receta = Model.Receta;
+}
+
+<p class="migas no-imprimir">
+    <a href="@Url.Action("Index")">Farmacia</a> /
+    <a href="@Url.Action("Receta", new { id = receta.Id })">Receta n.º @receta.Id</a> / Comprobante
+</p>
+
+<div class="acciones no-imprimir">
+    <button type="button" class="boton boton-primario" onclick="window.print()">Imprimir o guardar como PDF</button>
+    <a class="boton boton-neutro" href="@Url.Action("Receta", new { id = receta.Id })">Volver a la receta</a>
+</div>
+
+<article class="documento">
+    <header class="documento-encabezado">
+        <div>
+            <p class="documento-institucion">CONAVIHSIDA</p>
+            <h1>Comprobante de despacho</h1>
+        </div>
+        <div class="documento-numero">
+            <span>Receta n.º</span>
+            <strong>@receta.Id</strong>
+        </div>
+    </header>
+
+    <dl class="datos">
+        <div><dt>Fecha de despacho</dt><dd>@Model.FechaDespacho.ToString("dd/MM/yyyy HH:mm")</dd></div>
+        <div><dt>Expediente</dt><dd class="codigo">@receta.CodigoSerologico</dd></div>
+        <div><dt>Despachado por</dt><dd>@Model.Farmaceutico</dd></div>
+        <div><dt>Receta emitida el</dt><dd>@receta.FechaEmision.ToString("dd/MM/yyyy")</dd></div>
+    </dl>
+
+    <h2>Medicamento entregado</h2>
+    <dl class="datos">
+        <div><dt>Medicamento</dt><dd>@Model.MedicamentoNombre</dd></div>
+        <div><dt>Esquema</dt><dd>@(string.IsNullOrEmpty(receta.EsquemaTarv) ? "—" : receta.EsquemaTarv)</dd></div>
+        <div><dt>Cantidad prescrita</dt><dd>@receta.CantidadPrescrita</dd></div>
+        <div><dt>Cantidad entregada</dt><dd>@Model.TotalEntregado</dd></div>
+    </dl>
+
+    <table class="tabla tabla-compacta">
+        <thead>
+            <tr><th>Lote</th><th class="numero">Unidades</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var salida in Model.Salidas)
+            {
+                <tr>
+                    <td class="codigo">@salida.NumeroLote</td>
+                    <td class="numero">@salida.Cantidad</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <dl class="datos">
+        <div><dt>Costo para el paciente</dt><dd>RD$ 0.00 (subsidio del 100 %)</dd></div>
+        <div>
+            <dt>Descargo en Caja</dt>
+            <dd>
+                @(receta.DescargadaEnCaja
+                    ? "Registrado el " + receta.FechaDescargo.Value.ToString("dd/MM/yyyy HH:mm")
+                    : "Sin descargo registrado al despachar")
+            </dd>
+        </div>
+    </dl>
+
+    <div class="documento-firmas">
+        <div><span>Entregado por</span></div>
+        <div><span>Recibido por</span></div>
+    </div>
+
+    <p class="documento-pie">
+        Documento generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm"). No contiene información clínica.
+    </p>
+</article>

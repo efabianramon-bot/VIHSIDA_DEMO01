@@ -1040,3 +1040,108 @@ body.sin-sesion .contenido {
 .acciones-fila form {
     margin: 0;
 }
+
+/* ---------- Documentos imprimibles (receta, comprobante de despacho) ---------- */
+
+.documento {
+    max-width: 760px;
+    margin-top: 16px;
+    padding: 28px 32px;
+    background: #fff;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+}
+
+.documento-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+    border-bottom: 2px solid var(--primario);
+}
+
+.documento-encabezado h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.documento-institucion {
+    margin: 0 0 2px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--primario);
+}
+
+.documento-numero {
+    text-align: right;
+    font-size: 14px;
+    color: var(--texto-suave);
+}
+
+.documento-numero strong {
+    display: block;
+    font-size: 26px;
+    color: var(--texto);
+    font-variant-numeric: tabular-nums;
+}
+
+.documento h2 {
+    margin: 22px 0 10px;
+    font-size: 16px;
+}
+
+.documento-nota {
+    margin: 18px 0 0;
+    padding: 10px 14px;
+    background: var(--fondo);
+    border-radius: var(--radio);
+    font-size: 14px;
+}
+
+.documento-firmas {
+    display: flex;
+    gap: 48px;
+    margin-top: 64px;
+}
+
+.documento-firmas div {
+    flex: 1;
+    max-width: 280px;
+    padding-top: 8px;
+    border-top: 1px solid var(--texto);
+    text-align: center;
+    font-size: 14px;
+}
+
+.documento-pie {
+    margin: 28px 0 0;
+    font-size: 12px;
+    color: var(--texto-suave);
+}
+
+/* Al imprimir solo sale el documento: sin menu, sin botones y sin fondo. */
+@media print {
+    .barra,
+    .no-imprimir {
+        display: none !important;
+    }
+
+    body {
+        background: #fff;
+    }
+
+    .contenido {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .documento {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+}

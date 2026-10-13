@@ -64,10 +64,12 @@ Portales disponibles:
 
 - **Portal Médico** (rol Médico): busca por cédula o por código serológico,
   abre el expediente de un paciente que no lo tiene, muestra el historial con
-  carga viral, CD4 y recetas, y registra consultas con sus recetas TARV.
+  carga viral, CD4 y recetas, registra consultas con sus recetas TARV e
+  imprime cada receta para entregarla al paciente.
 - **Farmacia** (rol Farmacéutico): cola de recetas por despachar, lotes con
   alertas (vencido, por vencer, agotado, bajo mínimo), registro de lotes y
-  despacho de recetas indicando de qué lote sale cada unidad.
+  despacho de recetas indicando de qué lote sale cada unidad, y comprobante
+  de despacho imprimible.
 - **Dashboard Ejecutivo** (rol Administrador): pacientes activos, adherencia
   al tratamiento, inventario crítico y ejecución de subsidios, con gráficos
   y para periodos de 30, 90, 180 o 365 días. Solo muestra totales.
@@ -148,7 +150,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 112 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 113 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -200,6 +202,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | POST | `/api/farmacia/lotes` | Registra un lote y su entrada de inventario. Solo rol Farmacéutico. |
 | GET | `/api/farmacia/recetas?estado=` | Recetas en un estado; sin `estado`, las Activas (la cola por despachar). Una receta Activa pasa a `Vencida` a los 30 días de emitida si no se despachó. Solo rol Farmacéutico. |
 | GET | `/api/farmacia/recetas/{recetaId}` | Consulta una receta antes de despacharla. `descargadaEnCaja` y `fechaDescargo` dicen si Caja ya registró la entrega (una transacción `Completada` con ese `numeroReceta`). Solo rol Farmacéutico. |
+| GET | `/api/farmacia/recetas/{recetaId}/despacho` | Con qué lotes se despachó la receta y quién lo hizo (para el comprobante de despacho). Lista vacía si aún no se despacha. Solo rol Farmacéutico. |
 | POST | `/api/farmacia/recetas/{recetaId}/despachar` | Despacha una receta activa y descuenta el stock (`409` si no está activa o no hay existencia). La falta de descargo en Caja no lo impide, pero queda en la bitácora como `DespachoSinDescargo`. Solo rol Farmacéutico. |
 | GET | `/api/auditoria?desde=&hasta=&usuarioId=&accion=&maximo=` | Bitácora de operaciones, lo más reciente primero (100 por defecto, máximo 500). Roles Auditor y Administrador. |
 | GET | `/api/dashboard?dias=&diasAviso=` | Los cuatro indicadores del Dashboard Ejecutivo en una llamada. Solo rol Administrador. |

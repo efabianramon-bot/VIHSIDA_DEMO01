@@ -67,6 +67,22 @@ namespace Conavihsida.Core.Aplicacion.Servicios
         }
 
         /// <summary>
+        /// Con que lotes y quien despacho la receta, para el comprobante de
+        /// despacho. null si la receta no existe; vacia si no se ha despachado.
+        /// </summary>
+        public List<MovimientoInventario> ObtenerDespacho(int recetaId, int usuarioId, string terminal)
+        {
+            if (_inventario.ObtenerReceta(recetaId) == null)
+            {
+                return null;
+            }
+
+            var salidas = _inventario.ObtenerSalidasDeReceta(recetaId);
+            _auditoria.Registrar(usuarioId, null, terminal, "ConsultarDespacho", "recetas", recetaId, null);
+            return salidas;
+        }
+
+        /// <summary>
         /// Recetas en un estado; sin estado, las Activas (las que esperan
         /// despacho). null si el estado no existe.
         /// </summary>

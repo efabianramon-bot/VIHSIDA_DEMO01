@@ -75,6 +75,16 @@ namespace Conavihsida.Core.Api.Controllers
             return receta == null ? (IHttpActionResult)NotFound() : Ok(receta);
         }
 
+        // Con que lotes se despacho y quien lo hizo: es lo que lleva el
+        // comprobante de despacho. Lista vacia si aun no se ha despachado.
+        [HttpGet, Route("recetas/{recetaId:int}/despacho")]
+        [RequiereRol(NombresRol.Farmaceutico)]
+        public IHttpActionResult ObtenerDespacho(int recetaId)
+        {
+            var salidas = CrearServicio().ObtenerDespacho(recetaId, Identidad.UsuarioId.Value, ObtenerTerminal());
+            return salidas == null ? (IHttpActionResult)NotFound() : Ok(salidas);
+        }
+
         [HttpPost, Route("recetas/{recetaId:int}/despachar")]
         [RequiereRol(NombresRol.Farmaceutico)]
         public IHttpActionResult DespacharReceta(int recetaId)

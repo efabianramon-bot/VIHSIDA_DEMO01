@@ -89,11 +89,13 @@
     <Content Include="Views\Inicio\Index.cshtml" />
     <Content Include="Views\Auditoria\Index.cshtml" />
     <Content Include="Views\Dashboard\Index.cshtml" />
+    <Content Include="Views\Farmacia\Comprobante.cshtml" />
     <Content Include="Views\Farmacia\Index.cshtml" />
     <Content Include="Views\Farmacia\NuevoLote.cshtml" />
     <Content Include="Views\Farmacia\Receta.cshtml" />
     <Content Include="Views\Medico\Expediente.cshtml" />
     <Content Include="Views\Medico\Index.cshtml" />
+    <Content Include="Views\Medico\Receta.cshtml" />
     <Content Include="Views\Shared\_Anillo.cshtml" />
     <Content Include="Views\Usuarios\Formulario.cshtml" />
     <Content Include="Views\Usuarios\Index.cshtml" />

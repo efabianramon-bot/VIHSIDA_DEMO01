@@ -33,6 +33,13 @@ namespace Conavihsida.Core.Domain.Repositorios
         List<Receta> ObtenerRecetasPorEstado(string estado);
 
         /// <summary>
+        /// Movimientos de Salida con los que se despacho esa receta, con el
+        /// numero de lote y el nombre de quien despacho. Vacia si la receta
+        /// no se ha despachado.
+        /// </summary>
+        List<MovimientoInventario> ObtenerSalidasDeReceta(int recetaId);
+
+        /// <summary>
         /// Pasa a Vencida las recetas Activas emitidas antes de esa fecha.
         /// Devuelve cuantas cambio.
         /// </summary>

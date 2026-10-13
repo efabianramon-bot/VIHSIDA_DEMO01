@@ -1571,6 +1571,35 @@
           }
         },
         {
+          "name": "Con que lotes se despacho (comprobante de despacho)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Dice el lote y quien despacho', function () { var m = pm.response.json(); pm.expect(m.length).to.be.above(0); pm.expect(m[0]).to.have.property('numeroLote'); pm.expect(m[0]).to.have.property('usuarioNombre'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioFarmacia}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Farmaceutico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/farmacia/recetas/{{recetaId}}/despacho"
+          }
+        },
+        {
           "name": "Despachar la misma receta otra vez",
           "event": [
             {

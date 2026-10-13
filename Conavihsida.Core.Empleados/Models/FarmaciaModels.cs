@@ -41,6 +41,31 @@ namespace Conavihsida.Core.Empleados.Models
         public int? RecetaId { get; set; }
         public int Cantidad { get; set; }
         public DateTime FechaMovimiento { get; set; }
+        public string NumeroLote { get; set; }
+        public string UsuarioNombre { get; set; }
+    }
+
+    /// <summary>Comprobante de despacho imprimible de una receta ya dispensada.</summary>
+    public class ComprobanteDespachoViewModel
+    {
+        public RecetaApi Receta { get; set; }
+        public string MedicamentoNombre { get; set; }
+        public List<MovimientoApi> Salidas { get; set; }
+
+        public int TotalEntregado
+        {
+            get { return Salidas.Sum(m => m.Cantidad); }
+        }
+
+        public DateTime FechaDespacho
+        {
+            get { return Salidas.Max(m => m.FechaMovimiento); }
+        }
+
+        public string Farmaceutico
+        {
+            get { return Salidas[0].UsuarioNombre; }
+        }
     }
 
     // ----- Pantallas del Portal Farmacia -----

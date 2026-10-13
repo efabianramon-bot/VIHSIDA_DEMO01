@@ -180,6 +180,38 @@ namespace Conavihsida.Core.Empleados.Controllers
             return View("Expediente", modelo);
         }
 
+        // Receta imprimible para entregar al paciente. Lleva su nombre y
+        // su cedula (el medico puede verlos), el medicamento y el esquema,
+        // pero ningun valor clinico ni el diagnostico.
+        [HttpGet]
+        public async Task<ActionResult> Receta(string codigo, int id)
+        {
+            var modelo = await ArmarExpedienteAsync(codigo);
+            if (modelo == null)
+            {
+                TempData["Error"] = "No existe un expediente con el código " + codigo + ".";
+                return RedirectToAction("Index");
+            }
+
+            var consulta = modelo.Consultas.Find(c => c.Recetas != null && c.Recetas.Any(r => r.Id == id));
+            if (consulta == null)
+            {
+                TempData["Error"] = "La receta n.º " + id + " no pertenece a este expediente.";
+                return RedirectToAction("Expediente", new { codigo });
+            }
+
+            var receta = consulta.Recetas.First(r => r.Id == id);
+            var medicos = await Api.GetAsync<List<MedicoApi>>("api/medicos");
+
+            return View(new RecetaImprimibleViewModel
+            {
+                Receta = receta,
+                Paciente = modelo.Paciente,
+                MedicamentoNombre = modelo.NombreMedicamento(receta.MedicamentoId),
+                Medico = (medicos.Datos ?? new List<MedicoApi>()).Find(m => m.UsuarioId == consulta.UsuarioMedicoId)
+            });
+        }
+
         private async Task<MedicoInicioViewModel> ArmarInicioAsync(string busqueda, string error, PacienteApi sinExpediente)
         {
             var expedientes = await Api.GetAsync<List<ExpedienteApi>>("api/clinica/expedientes");
