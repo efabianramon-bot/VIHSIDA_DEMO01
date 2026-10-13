@@ -98,6 +98,10 @@
       "value": ""
     },
     {
+      "key": "usuarioNuevoId",
+      "value": ""
+    },
+    {
       "key": "citaId",
       "value": "0"
     },
@@ -2946,6 +2950,501 @@
             "body": {
               "mode": "raw",
               "raw": "{}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Administracion de usuarios",
+      "description": "Solo rol Administrador: registrar empleados, asignar rol y filial, modificar, activar o desactivar y desbloquear. Ninguna respuesta lleva la contraseña. Requiere la migracion 005 y Database/Datos/filiales_prueba.sql. La peticion de alta guarda usuarioNuevoId para las siguientes.",
+      "item": [
+        {
+          "name": "Listar usuarios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Ningun usuario trae contraseña', function () { pm.response.json().forEach(function (u) { pm.expect(u).to.not.have.property('passwordHash'); pm.expect(u).to.not.have.property('password'); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios"
+          }
+        },
+        {
+          "name": "Roles disponibles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/roles"
+          }
+        },
+        {
+          "name": "Filiales disponibles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/filiales"
+          }
+        },
+        {
+          "name": "Registrar usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', function () { pm.expect(pm.response.code).to.be.oneOf([201]); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('usuarioNuevoId', pm.response.json().id); }",
+                  "pm.test('Nace activo y con su rol', function () { var u = pm.response.json(); pm.expect(u.activo).to.eql(true); pm.expect(u.rol).to.eql('Cajero'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo.{{$timestamp}}\",\n  \"email\": \"demo.{{$timestamp}}@conavihsida.test\",\n  \"nombres\": \"Usuario\",\n  \"apellidos\": \"De Demostracion\",\n  \"rol\": \"Cajero\",\n  \"filialId\": 1,\n  \"password\": \"{{clavePrueba}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar con un correo que ya existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"otro.{{$timestamp}}\",\n  \"email\": \"admin.prueba@conavihsida.test\",\n  \"nombres\": \"Otro\",\n  \"apellidos\": \"Usuario\",\n  \"rol\": \"Cajero\",\n  \"password\": \"{{clavePrueba}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar con contraseña corta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"corta.{{$timestamp}}\",\n  \"email\": \"corta.{{$timestamp}}@conavihsida.test\",\n  \"nombres\": \"Clave\",\n  \"apellidos\": \"Corta\",\n  \"rol\": \"Cajero\",\n  \"password\": \"1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Consultar el usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioNuevoId}}"
+          }
+        },
+        {
+          "name": "Modificar nombre, rol y filial",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Cambio el rol y quedo sin filial', function () { var u = pm.response.json(); pm.expect(u.rol).to.eql('Farmaceutico'); pm.expect(u.filialId).to.eql(null); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioNuevoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo.{{usuarioNuevoId}}@conavihsida.test\",\n  \"nombres\": \"Usuario Modificado\",\n  \"apellidos\": \"De Demostracion\",\n  \"rol\": \"Farmaceutico\",\n  \"filialId\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Desactivar la cuenta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Queda inactiva', function () { pm.expect(pm.response.json().activo).to.eql(false); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioNuevoId}}/estado",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"activo\": false }"
+            }
+          }
+        },
+        {
+          "name": "Activar la cuenta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioNuevoId}}/estado",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"activo\": true }"
+            }
+          }
+        },
+        {
+          "name": "Desbloquear la cuenta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioNuevoId}}/desbloquear"
+          }
+        },
+        {
+          "name": "El administrador intenta desactivarse a si mismo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioAdmin}}/estado",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"activo\": false }"
+            }
+          }
+        },
+        {
+          "name": "Usuario que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', function () { pm.expect(pm.response.code).to.be.oneOf([404]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/999999"
+          }
+        },
+        {
+          "name": "Medico intenta ver los usuarios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios"
+          }
+        },
+        {
+          "name": "Dejar desactivada la cuenta de demostracion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioNuevoId}}/estado",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"activo\": false }"
             }
           }
         }

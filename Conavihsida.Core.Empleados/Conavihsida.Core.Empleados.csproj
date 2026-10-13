@@ -65,11 +65,13 @@
     <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\FarmaciaController.cs" />
     <Compile Include="Controllers\MedicoController.cs" />
+    <Compile Include="Controllers\UsuariosController.cs" />
     <Compile Include="Models\DashboardModels.cs" />
     <Compile Include="Models\FarmaciaModels.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
     <Compile Include="Models\MedicoModels.cs" />
     <Compile Include="Models\OpcionMenu.cs" />
+    <Compile Include="Models\UsuariosModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Seguridad\AutorizarRolAttribute.cs" />
     <Compile Include="Seguridad\EmpleadoPrincipal.cs" />
@@ -93,6 +95,8 @@
     <Content Include="Views\Medico\Expediente.cshtml" />
     <Content Include="Views\Medico\Index.cshtml" />
     <Content Include="Views\Shared\_Anillo.cshtml" />
+    <Content Include="Views\Usuarios\Formulario.cshtml" />
+    <Content Include="Views\Usuarios\Index.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
     <Content Include="Web.config" />

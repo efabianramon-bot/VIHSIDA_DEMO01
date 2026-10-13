@@ -9,6 +9,8 @@
         public const string Farmaceutico = "Farmaceutico";
         public const string Auditor = "Auditor";
         public const string Cajero = "Cajero";
+
+        public static readonly string[] Todos = { Administrador, Medico, Farmaceutico, Auditor, Cajero };
     }
 
     public static class OrigenesAcceso

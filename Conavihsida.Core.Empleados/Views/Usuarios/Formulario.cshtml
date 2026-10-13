@@ -1,0 +1,91 @@
+@model UsuarioFormViewModel
+@{
+    var usuario = Model.Usuario;
+    string titulo = Model.EsNuevo ? "Registrar usuario" : "Modificar usuario";
+    ViewBag.Title = titulo;
+}
+
+<p class="migas"><a href="@Url.Action("Index")">Usuarios</a> / @titulo</p>
+<h1 class="titulo-pagina">@titulo</h1>
+<p class="subtitulo">
+    @(Model.EsNuevo
+        ? "El usuario podrá iniciar sesión con su nombre de usuario y la contraseña que indiques."
+        : "Los cambios de rol se aplican la próxima vez que el usuario inicie sesión.")
+</p>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="aviso aviso-error" role="alert">@Model.Error</div>
+}
+
+@using (Html.BeginForm(Model.EsNuevo ? "Nuevo" : "Editar", "Usuarios",
+    Model.EsNuevo ? null : new { id = usuario.Id }, FormMethod.Post,
+    new { @class = "panel formulario-estrecho", autocomplete = "off" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="fila-campos">
+        <div class="campo">
+            <label for="usuario_Nombres">Nombres</label>
+            <input type="text" id="usuario_Nombres" name="usuario.Nombres" maxlength="100" required value="@usuario.Nombres" />
+        </div>
+        <div class="campo">
+            <label for="usuario_Apellidos">Apellidos</label>
+            <input type="text" id="usuario_Apellidos" name="usuario.Apellidos" maxlength="100" required value="@usuario.Apellidos" />
+        </div>
+    </div>
+
+    <div class="fila-campos">
+        <div class="campo">
+            <label for="usuario_Username">Nombre de usuario</label>
+            @if (Model.EsNuevo)
+            {
+                <input type="text" id="usuario_Username" name="usuario.Username" maxlength="50" required
+                       value="@usuario.Username" placeholder="Ej.: ana.perez" autocomplete="off" />
+            }
+            else
+            {
+                <input type="text" id="usuario_Username" name="usuario.Username" value="@usuario.Username" readonly />
+            }
+        </div>
+        <div class="campo">
+            <label for="usuario_Email">Correo electrónico</label>
+            <input type="email" id="usuario_Email" name="usuario.Email" maxlength="100" required value="@usuario.Email" />
+        </div>
+    </div>
+
+    <div class="fila-campos">
+        <div class="campo">
+            <label for="usuario_Rol">Rol</label>
+            <select id="usuario_Rol" name="usuario.Rol" required>
+                <option value="">— Elige un rol —</option>
+                @foreach (var rol in Model.Roles)
+                {
+                    <option value="@rol" @(rol == usuario.Rol ? "selected" : "")>@rol</option>
+                }
+            </select>
+        </div>
+        <div class="campo">
+            <label for="usuario_FilialId">Filial</label>
+            <select id="usuario_FilialId" name="usuario.FilialId">
+                <option value="">Sin filial asignada</option>
+                @foreach (var filial in Model.Filiales)
+                {
+                    <option value="@filial.Id" @(filial.Id == usuario.FilialId ? "selected" : "")>@filial.Nombre</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="campo">
+        <label for="usuario_Password">@(Model.EsNuevo ? "Contraseña" : "Contraseña nueva (déjala vacía para no cambiarla)")</label>
+        <input type="password" id="usuario_Password" name="usuario.Password" minlength="8" maxlength="72"
+               autocomplete="new-password" @(Model.EsNuevo ? "required" : "") />
+        <p class="dato-suave">Entre 8 y 72 caracteres.@(Model.EsNuevo ? "" : " Cambiarla también desbloquea la cuenta.")</p>
+    </div>
+
+    <div class="acciones">
+        <button type="submit" class="boton boton-primario">@(Model.EsNuevo ? "Registrar usuario" : "Guardar cambios")</button>
+        <a class="boton boton-neutro" href="@Url.Action("Index")">Cancelar</a>
+    </div>
+}
