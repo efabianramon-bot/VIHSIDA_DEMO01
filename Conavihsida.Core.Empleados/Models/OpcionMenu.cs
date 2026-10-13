@@ -53,6 +53,14 @@ namespace Conavihsida.Core.Empleados.Models
             },
             new OpcionMenu
             {
+                Titulo = "Usuarios",
+                Descripcion = "Registrar empleados, asignar rol y filial, activar o desactivar cuentas.",
+                Controlador = "Usuarios",
+                RolesPermitidos = new[] { NombresRol.Administrador },
+                Disponible = true
+            },
+            new OpcionMenu
+            {
                 Titulo = "Bitácora de auditoría",
                 Descripcion = "Quién hizo qué, desde dónde y cuándo.",
                 Controlador = "Auditoria",

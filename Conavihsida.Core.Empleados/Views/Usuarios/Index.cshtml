@@ -1,0 +1,116 @@
+@model UsuariosInicioViewModel
+@{
+    ViewBag.Title = "Usuarios";
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <h1 class="titulo-pagina">Usuarios</h1>
+        <p class="subtitulo">Empleados con acceso al sistema, su rol, su filial y el estado de su cuenta.</p>
+    </div>
+    <div class="acciones">
+        <a class="boton boton-neutro" href="@Url.Action("Index")">Recargar lista</a>
+        <a class="boton boton-primario" href="@Url.Action("Nuevo")">Registrar usuario</a>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Exito))
+{
+    <div class="aviso aviso-exito" role="status">@Model.Exito</div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="aviso aviso-error" role="alert">@Model.Error</div>
+}
+
+<div class="resumen">
+    <div class="resumen-dato">
+        <span class="resumen-numero">@Model.Usuarios.Count</span>
+        <span class="resumen-nombre">Usuarios registrados</span>
+    </div>
+    <div class="resumen-dato">
+        <span class="resumen-numero">@Model.Activos</span>
+        <span class="resumen-nombre">Cuentas activas</span>
+    </div>
+    <div class="resumen-dato @(Model.Inactivos > 0 ? "resumen-alerta" : "")">
+        <span class="resumen-numero">@Model.Inactivos</span>
+        <span class="resumen-nombre">Cuentas desactivadas</span>
+    </div>
+    <div class="resumen-dato @(Model.Bloqueados > 0 ? "resumen-error" : "")">
+        <span class="resumen-numero">@Model.Bloqueados</span>
+        <span class="resumen-nombre">Bloqueadas por intentos fallidos</span>
+    </div>
+</div>
+
+@if (Model.Usuarios.Count == 0)
+{
+    <p class="dato-suave">No hay usuarios que mostrar.</p>
+}
+else
+{
+    <div class="tabla-contenedor">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Filial</th>
+                    <th>Estado</th>
+                    <th>Último acceso</th>
+                    <th><span class="solo-lectores">Acciones</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var usuario in Model.Usuarios)
+                {
+                    <tr>
+                        <td>@usuario.NombreCompleto</td>
+                        <td class="codigo">@usuario.Username</td>
+                        <td>@usuario.Email</td>
+                        <td>@(string.IsNullOrEmpty(usuario.Rol) ? "Sin rol" : usuario.Rol)</td>
+                        <td>@(string.IsNullOrEmpty(usuario.FilialNombre) ? "Sin filial" : usuario.FilialNombre)</td>
+                        <td>
+                            @if (usuario.Activo)
+                            {
+                                <span class="estado estado-activo">Activa</span>
+                            }
+                            else
+                            {
+                                <span class="estado estado-inactivo">Desactivada</span>
+                            }
+                            @if (usuario.Bloqueado)
+                            {
+                                <span class="estado estado-alerta-error">Bloqueada</span>
+                            }
+                        </td>
+                        <td class="sin-corte">@(usuario.FechaUltimoAcceso == null ? "Nunca" : usuario.FechaUltimoAcceso.Value.ToString("dd/MM/yyyy HH:mm"))</td>
+                        <td class="celda-accion">
+                            <div class="acciones acciones-fila">
+                                <a class="boton boton-secundario boton-chico" href="@Url.Action("Editar", new { id = usuario.Id })">Modificar</a>
+                                @if (usuario.Bloqueado)
+                                {
+                                    using (Html.BeginForm("Desbloquear", "Usuarios", new { id = usuario.Id }, FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="boton boton-secundario boton-chico">Desbloquear</button>
+                                    }
+                                }
+                                @if (usuario.Id != Model.UsuarioActualId)
+                                {
+                                    using (Html.BeginForm("CambiarEstado", "Usuarios", new { id = usuario.Id }, FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="activo" value="@(usuario.Activo ? "false" : "true")" />
+                                        <button type="submit" class="boton boton-neutro boton-chico">@(usuario.Activo ? "Desactivar" : "Activar")</button>
+                                    }
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

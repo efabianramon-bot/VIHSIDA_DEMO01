@@ -157,9 +157,10 @@ namespace Conavihsida.Core.Empleados.Models
         // Acciones que registra la API; alimentan la lista del filtro.
         public static readonly string[] AccionesConocidas =
         {
-            "AbrirExpediente", "AccesoDenegado", "ActualizarExpediente", "AgendarCita", "CancelarCita",
-            "ConsultarExpediente", "ConsultarHistorial", "ConsultarReceta", "ConsultarResultados",
-            "ConsultarResultadosClinicos", "DespacharReceta", "DespachoSinDescargo", "EmitirReceta",
+            "AbrirExpediente", "AccesoDenegado", "ActivarUsuario", "ActualizarExpediente", "ActualizarUsuario",
+            "AgendarCita", "CambiarClaveUsuario", "CancelarCita", "ConsultarExpediente", "ConsultarHistorial",
+            "ConsultarReceta", "ConsultarResultados", "ConsultarResultadosClinicos", "CrearUsuario",
+            "DesactivarUsuario", "DesbloquearUsuario", "DespacharReceta", "DespachoSinDescargo", "EmitirReceta",
             "IdentificarPaciente", "IniciarSesion", "IniciarSesionPaciente", "ListarExpedientes",
             "ListarRecetas", "LoginFallido", "LoginPacienteFallido", "PagarFactura", "PublicarResultado",
             "RegistrarConsulta", "RegistrarLote", "SincronizarCaja", "SolicitarPrueba", "ValidarSubsidio",

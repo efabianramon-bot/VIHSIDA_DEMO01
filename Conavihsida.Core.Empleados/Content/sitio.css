@@ -1023,3 +1023,20 @@ body.sin-sesion .contenido {
         padding: 24px 16px 40px;
     }
 }
+
+/* ---------- Administracion de usuarios ---------- */
+
+.boton-chico {
+    padding: 5px 12px;
+    font-size: 13px;
+}
+
+.acciones-fila {
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 6px;
+}
+
+.acciones-fila form {
+    margin: 0;
+}

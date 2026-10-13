@@ -71,6 +71,9 @@ Portales disponibles:
 - **Dashboard Ejecutivo** (rol Administrador): pacientes activos, adherencia
   al tratamiento, inventario crítico y ejecución de subsidios, con gráficos
   y para periodos de 30, 90, 180 o 365 días. Solo muestra totales.
+- **Usuarios** (rol Administrador): registrar empleados, asignarles rol y
+  filial, modificarlos, cambiarles la contraseña, activar o desactivar su
+  cuenta y desbloquearla.
 - **Bitácora de auditoría** (roles Auditor y Administrador): consulta de la
   bitácora con filtros por fecha, acción y usuario. Es de solo lectura.
 
@@ -102,11 +105,11 @@ Para crear la base desde cero, ejecuta en este orden:
 1. `Database/ConavihsidaCoreDb_schema.sql` (estructura).
 2. Los scripts de `Database/Migraciones/`, por número: `001` (roles y
    restricciones) y `002` (cédula del paciente obligatoria, única y con el
-   formato `000-0000000-0`) `003` (bloqueo temporal del login del paciente) y `004` (tablas para la
-   sincronización de Caja).
+   formato `000-0000000-0`) `003` (bloqueo temporal del login del paciente) `004` (tablas para la sincronización de Caja) y `005` (filiales y filial
+   de cada usuario).
 3. Los scripts de `Database/Datos/` (solo desarrollo y demo), en este orden:
    `usuarios_prueba`, `medico_prueba`, `paciente_prueba`, `medicamentos_prueba`,
-   `facturas_subsidiadas_prueba` y `caja_prueba`.
+   `facturas_subsidiadas_prueba`, `caja_prueba` y `filiales_prueba`.
 
 `caja_prueba.sql` crea los pacientes para las pruebas con Caja, que identifica
 al paciente por su cédula:
@@ -143,7 +146,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 94 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 109 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -173,6 +176,12 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | POST | `/api/auth/login` | Valida usuario y contraseña; devuelve el usuario y sus roles, sin token (`401` si no son válidos). |
 | POST | `/api/auth/paciente/login` | Login del paciente del Portal Web con `correo` y `password`; devuelve `pacienteId`, `nombreCompleto` y `correo`, sin token (`401` si no son válidos, `429` si la cuenta está bloqueada 15 minutos tras 5 intentos fallidos). |
 | GET | `/api/auth/yo` | Devuelve la identidad de empleado recibida en los encabezados (`401` si falta). |
+| GET | `/api/usuarios` y `/api/usuarios/{usuarioId}` | Empleados registrados con su rol, filial y estado de la cuenta. Nunca devuelve la contraseña. Solo rol Administrador, igual que el resto de `/api/usuarios`. |
+| GET | `/api/usuarios/roles` y `/api/usuarios/filiales` | Catálogos para el formulario de usuarios. |
+| POST | `/api/usuarios` | Registra un empleado con `username`, `email`, `nombres`, `apellidos`, `rol`, `filialId` (opcional) y `password` (8 a 72 caracteres). `409` si el usuario o el correo ya existen. |
+| PUT | `/api/usuarios/{usuarioId}` | Modifica nombre, correo, rol y filial; con `password`, también la contraseña (y desbloquea la cuenta). |
+| PUT | `/api/usuarios/{usuarioId}/estado` | Activa o desactiva la cuenta (`{ "activo": false }`). Un administrador no puede desactivarse a sí mismo. |
+| POST | `/api/usuarios/{usuarioId}/desbloquear` | Quita el bloqueo por intentos fallidos de inicio de sesión. |
 | GET | `/api/clinica/expedientes` | Lista de expedientes (código, estado y apertura). Solo rol Médico. |
 | GET | `/api/clinica/pacientes?cedula=` o `?pacienteId=` | Identifica a un paciente y dice si tiene expediente. Es el único cruce entre identidad y código serológico; solo rol Médico y siempre auditado. |
 | GET | `/api/clinica/expediente/{codigo}` | Expediente clínico por código serológico. Solo rol Médico (`403` para los demás). |

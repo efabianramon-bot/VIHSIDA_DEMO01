@@ -142,7 +142,7 @@ POST /api/auth/paciente/login
 | `/api/farmacia/medicamentos` | Farmaceutico, Medico, Administrador |
 | `/api/farmacia/lotes` (GET) | Farmaceutico, Administrador |
 | `/api/farmacia/lotes` (POST), `/api/farmacia/recetas*` | Farmaceutico |
-| `/api/dashboard*` | Administrador |
+| `/api/dashboard*`, `/api/usuarios*` (administración de empleados) | Administrador |
 | `/api/auditoria` | Auditor, Administrador |
 | `/api/caja/subsidio?cedula=`, `/api/caja/sync/*` | Cajero, Administrador |
 | `/api/pacientes/{id}/citas`, `/facturas`, `/resultados`, `/api/citas*` | El propio paciente (`X-Paciente-Id` igual al id) |
@@ -150,7 +150,7 @@ POST /api/auth/paciente/login
 | `/api/auth/yo` | Cualquier empleado; devuelve la identidad que recibió el CORE |
 
 La lista completa, con cada ruta y su descripción, está en el `README.md`.
-La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 94
+La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 109
 peticiones con el código esperado de cada una.
 
 ## 4. Guion paso a paso
