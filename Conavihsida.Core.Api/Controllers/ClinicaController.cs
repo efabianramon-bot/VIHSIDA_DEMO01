@@ -44,6 +44,29 @@ namespace Conavihsida.Core.Api.Controllers
             return paciente == null ? (IHttpActionResult)NotFound() : Ok(paciente);
         }
 
+        // Para el paciente que llega a consulta sin cuenta en el Portal Web:
+        // sin esto no habria a quien abrirle expediente. No le da acceso a
+        // la web ni le crea expediente.
+        [HttpPost, Route("pacientes")]
+        public IHttpActionResult RegistrarPaciente([FromBody] RegistrarPacienteClinicaRequest body)
+        {
+            if (body == null)
+            {
+                return BadRequest("El cuerpo de la peticion es obligatorio.");
+            }
+
+            var resultado = CrearServicio().RegistrarPaciente(
+                body.NombreCompleto, body.Cedula, body.FechaNacimiento, body.Correo,
+                Identidad.UsuarioId.Value, ObtenerTerminal());
+
+            if (!resultado.Exitoso)
+            {
+                return Content(HttpStatusCode.Conflict, new { error = resultado.MensajeError });
+            }
+
+            return Created(Request.RequestUri.ToString(), resultado.Valor);
+        }
+
         [HttpGet, Route("expediente/{codigo}")]
         public IHttpActionResult ObtenerExpediente(string codigo)
         {

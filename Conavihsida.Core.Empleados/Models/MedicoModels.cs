@@ -101,6 +101,22 @@ namespace Conavihsida.Core.Empleados.Models
 
         /// <summary>Paciente encontrado por cedula que aun no tiene expediente.</summary>
         public PacienteApi PacienteSinExpediente { get; set; }
+
+        /// <summary>
+        /// No null cuando se busco una cedula que no esta registrada: se
+        /// ofrece registrar al paciente ahi mismo.
+        /// </summary>
+        public NuevoPacienteForm NuevoPaciente { get; set; }
+        public string Exito { get; set; }
+    }
+
+    /// <summary>Formulario "Registrar paciente" del Portal Medico.</summary>
+    public class NuevoPacienteForm
+    {
+        public string Cedula { get; set; }
+        public string NombreCompleto { get; set; }
+        public DateTime? FechaNacimiento { get; set; }
+        public string Correo { get; set; }
     }
 
     public class ExpedienteViewModel

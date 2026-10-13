@@ -24,6 +24,9 @@ namespace Conavihsida.Core.Aplicacion.Servicios
         // La cedula dominicana tiene 11 digitos (000-0000000-0).
         private const int LargoCedula = 11;
 
+        private static readonly System.Text.RegularExpressions.Regex FormatoCorreo =
+            new System.Text.RegularExpressions.Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+
         private readonly IExpedienteRepository _expedientes;
         private readonly AuditoriaService _auditoria;
 
@@ -74,6 +77,55 @@ namespace Conavihsida.Core.Aplicacion.Servicios
                     "pacientes", paciente.PacienteId, null);
             }
             return paciente;
+        }
+
+        /// <summary>
+        /// Registra a un paciente que llega a consulta sin cuenta en el
+        /// Portal Web, para poder abrirle expediente. Queda sin acceso a la
+        /// web: lo obtiene cuando el mismo se registra con esta cedula y,
+        /// si aqui se anoto un correo, con ese mismo correo.
+        /// </summary>
+        public ResultadoOperacion<PacienteClinicoVista> RegistrarPaciente(
+            string nombreCompleto, string cedula, DateTime? fechaNacimiento, string correo,
+            int usuarioId, string terminal)
+        {
+            nombreCompleto = (nombreCompleto ?? string.Empty).Trim();
+            correo = string.IsNullOrWhiteSpace(correo) ? null : correo.Trim().ToLowerInvariant();
+            string digitos = SoloDigitos(cedula);
+
+            if (nombreCompleto.Length == 0 || nombreCompleto.Length > 150)
+            {
+                return ResultadoOperacion<PacienteClinicoVista>.Fallo(
+                    "El nombre completo es obligatorio y admite máximo 150 caracteres.");
+            }
+
+            if (digitos.Length != LargoCedula)
+            {
+                return ResultadoOperacion<PacienteClinicoVista>.Fallo("La cédula debe tener 11 dígitos.");
+            }
+
+            if (correo != null && (correo.Length > 150 || !FormatoCorreo.IsMatch(correo)))
+            {
+                return ResultadoOperacion<PacienteClinicoVista>.Fallo("El correo electrónico no es válido.");
+            }
+
+            if (fechaNacimiento != null
+                && (fechaNacimiento.Value.Date > DateTime.Today || fechaNacimiento.Value.Year < 1900))
+            {
+                return ResultadoOperacion<PacienteClinicoVista>.Fallo("La fecha de nacimiento no es válida.");
+            }
+
+            string cedulaConGuiones = digitos.Insert(10, "-").Insert(3, "-");
+            int? id = _expedientes.RegistrarPaciente(nombreCompleto, cedulaConGuiones,
+                fechaNacimiento == null ? (DateTime?)null : fechaNacimiento.Value.Date, correo, DateTime.Now);
+            if (id == null)
+            {
+                return ResultadoOperacion<PacienteClinicoVista>.Fallo(
+                    "Ya hay un paciente registrado con esa cédula o con ese correo.");
+            }
+
+            _auditoria.Registrar(usuarioId, id, terminal, "RegistrarPacientePorEmpleado", "pacientes", id, null);
+            return ResultadoOperacion<PacienteClinicoVista>.Ok(_expedientes.BuscarPaciente(null, id));
         }
 
         public ResultadoOperacion<ExpedienteClinico> AbrirExpediente(int pacienteId, int? medicoResponsableId,

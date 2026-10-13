@@ -123,8 +123,48 @@ namespace Conavihsida.Core.Data
                 catch (SqlException ex) when (ex.Number == SqlErrorViolacionUnique
                                             || ex.Number == SqlErrorViolacionUniqueConstraint)
                 {
-                    // Correo o cedula repetidos (los dos son UNIQUE).
-                    return null;
+                    // Correo o cedula repetidos (los dos son unicos). Puede
+                    // ser un paciente que un empleado registro en consulta
+                    // y que ahora crea su cuenta.
+                    return ActivarCuenta(conn, nombreCompleto, cedula, correo, password);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Da acceso a la web a un paciente que un empleado registro sin
+        /// cuenta. Solo si coinciden la cedula Y el correo que se anoto en
+        /// la consulta: con la cedula sola, cualquiera que la conociera
+        /// podria quedarse con la cuenta. null si no aplica.
+        /// </summary>
+        private static PacienteAutenticado ActivarCuenta(SqlConnection conn, string nombreCompleto, string cedula,
+                                                         string correo, string password)
+        {
+            const string sql = @"
+                UPDATE Pacientes SET PasswordHash = @PasswordHash, IntentosFallidos = 0, BloqueadoHasta = NULL
+                OUTPUT INSERTED.PacienteID, INSERTED.NombreCompleto
+                WHERE Cedula = @Cedula AND Correo = @Correo AND Activo = 1 AND PasswordHash NOT LIKE '$2%';";
+
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@PasswordHash", UsuarioRepository.GenerarHashPassword(password));
+                cmd.Parameters.AddWithValue("@Cedula", cedula);
+                cmd.Parameters.AddWithValue("@Correo", correo);
+                using (var reader = cmd.ExecuteReaderConLog())
+                {
+                    if (!reader.Read())
+                    {
+                        return null;
+                    }
+
+                    // Se conserva el nombre que registro el empleado, que
+                    // lo tomo de la cedula del paciente.
+                    return new PacienteAutenticado
+                    {
+                        PacienteId = reader.GetInt32(0),
+                        NombreCompleto = reader.GetString(1),
+                        Correo = correo
+                    };
                 }
             }
         }
