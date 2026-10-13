@@ -8,6 +8,10 @@ namespace Conavihsida.Core.Data
 {
     public class PacienteRepository : IPacienteRepository
     {
+        // Numeros de error de SQL Server para violacion de UNIQUE.
+        private const int SqlErrorViolacionUnique = 2601;
+        private const int SqlErrorViolacionUniqueConstraint = 2627;
+
         private readonly string _connectionString;
 
         public PacienteRepository(string connectionString)
@@ -87,6 +91,42 @@ namespace Conavihsida.Core.Data
 
             paciente = new PacienteAutenticado { PacienteId = id, NombreCompleto = nombre, Correo = correoGuardado };
             return ResultadoLoginPaciente.Correcto;
+        }
+
+        public PacienteAutenticado Registrar(string nombreCompleto, string cedula, string correo, string password,
+                                             DateTime? fechaNacimiento, DateTime ahora)
+        {
+            // PasswordSalt es NOT NULL en la tabla, pero BCrypt guarda la
+            // sal dentro del propio hash: queda vacia.
+            const string sql = @"
+                INSERT INTO Pacientes (Correo, PasswordHash, PasswordSalt, NombreCompleto, Cedula,
+                                       FechaNacimiento, Activo, FechaRegistro)
+                OUTPUT INSERTED.PacienteID
+                VALUES (@Correo, @PasswordHash, '', @NombreCompleto, @Cedula, @FechaNacimiento, 1, @Ahora);";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Correo", correo);
+                cmd.Parameters.AddWithValue("@PasswordHash", UsuarioRepository.GenerarHashPassword(password));
+                cmd.Parameters.AddWithValue("@NombreCompleto", nombreCompleto);
+                cmd.Parameters.AddWithValue("@Cedula", cedula);
+                cmd.Parameters.Add("@FechaNacimiento", SqlDbType.Date).Value = (object)fechaNacimiento ?? DBNull.Value;
+                cmd.Parameters.AddWithValue("@Ahora", ahora);
+
+                conn.AbrirConLog();
+                try
+                {
+                    int id = Convert.ToInt32(cmd.ExecuteScalarConLog());
+                    return new PacienteAutenticado { PacienteId = id, NombreCompleto = nombreCompleto, Correo = correo };
+                }
+                catch (SqlException ex) when (ex.Number == SqlErrorViolacionUnique
+                                            || ex.Number == SqlErrorViolacionUniqueConstraint)
+                {
+                    // Correo o cedula repetidos (los dos son UNIQUE).
+                    return null;
+                }
+            }
         }
 
         // Un hash que no es de BCrypt (por ejemplo el "SIN-ACCESO" de los

@@ -42,6 +42,29 @@ namespace Conavihsida.Core.Api.Controllers
             return Ok(resultado.Valor);
         }
 
+        // Registro de un paciente desde el Portal Web. Crea solo la cuenta;
+        // el expediente clinico lo abre despues un medico. 409 si los datos
+        // no son validos o el correo o la cedula ya estan registrados.
+        [HttpPost, Route("paciente/registro")]
+        public IHttpActionResult RegistrarPaciente([FromBody] RegistrarPacienteRequest body)
+        {
+            if (body == null)
+            {
+                return BadRequest("El cuerpo de la peticion es obligatorio.");
+            }
+
+            var servicio = new AuthPacienteService(new PacienteRepository(ConnectionString), CrearAuditoriaService());
+            var resultado = servicio.Registrar(body.NombreCompleto, body.Cedula, body.Correo, body.Password,
+                body.FechaNacimiento, ObtenerTerminal());
+
+            if (!resultado.Exitoso)
+            {
+                return Content(HttpStatusCode.Conflict, new { error = resultado.MensajeError });
+            }
+
+            return Created(Request.RequestUri.ToString(), resultado.Valor);
+        }
+
         // Login de pacientes del Portal Web. Tampoco devuelve un token: el
         // Gateway lo arma con el pacienteId y despues lo manda en
         // X-Paciente-Id. 401 si las credenciales no sirven y 429 si la

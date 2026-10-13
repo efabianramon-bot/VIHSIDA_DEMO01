@@ -24,5 +24,14 @@ namespace Conavihsida.Core.Domain.Repositorios
         ResultadoLoginPaciente ValidarCredenciales(string correo, string password, DateTime ahora,
                                                    int maximoIntentos, int minutosBloqueo,
                                                    out PacienteAutenticado paciente);
+
+        /// <summary>
+        /// Crea la cuenta del paciente guardando solo el hash (BCrypt) de la
+        /// contraseña. cedula debe venir con el formato 000-0000000-0.
+        /// Devuelve null, sin crear nada, si el correo o la cedula ya
+        /// estan registrados.
+        /// </summary>
+        PacienteAutenticado Registrar(string nombreCompleto, string cedula, string correo, string password,
+                                      DateTime? fechaNacimiento, DateTime ahora);
     }
 }

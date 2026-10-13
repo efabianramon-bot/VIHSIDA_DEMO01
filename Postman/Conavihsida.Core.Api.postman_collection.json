@@ -248,6 +248,91 @@
           }
         },
         {
+          "name": "Registro de un paciente nuevo (cuenta del Portal Web)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', function () { pm.expect(pm.response.code).to.be.oneOf([201]); });",
+                  "pm.test('Devuelve el pacienteId, sin contraseña', function () { var r = pm.response.json(); pm.expect(r.pacienteId).to.be.above(0); pm.expect(Object.keys(r).sort()).to.eql(['correo', 'nombreCompleto', 'pacienteId']); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/paciente/registro",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCompleto\": \"Paciente De Demostracion\",\n  \"cedula\": \"9{{$timestamp}}\",\n  \"correo\": \"registro.{{$timestamp}}@conavihsida.test\",\n  \"password\": \"{{clavePrueba}}\",\n  \"fechaNacimiento\": \"1992-04-18\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registro con un correo ya registrado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/paciente/registro",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCompleto\": \"Otra Persona\",\n  \"cedula\": \"8{{$timestamp}}\",\n  \"correo\": \"paciente.prueba@conavihsida.test\",\n  \"password\": \"{{clavePrueba}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registro con una cedula mal escrita",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/paciente/registro",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCompleto\": \"Otra Persona\",\n  \"cedula\": \"123\",\n  \"correo\": \"mala.{{$timestamp}}@conavihsida.test\",\n  \"password\": \"{{clavePrueba}}\"\n}"
+            }
+          }
+        },
+        {
           "name": "Login del paciente con clave incorrecta",
           "event": [
             {
