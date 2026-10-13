@@ -1,6 +1,6 @@
 # Guion de pruebas E2E — CORE, Integración, Caja y Web
 
-Preparado por Emilia (CORE) para Ricardo (Integración). Actualizado el 12 de
+Preparado por Emilia (CORE) para Ricardo (Integración). Actualizado el 13 de
 octubre de 2026.
 
 Sirve para dos cosas: que Integración sepa exactamente qué expone el CORE y
@@ -23,8 +23,8 @@ Lo que te toca para que el flujo completo funcione:
    qué responder desde el CORE: login, subsidio y los cinco de
    sincronización (sección 5).
 
-Lo que necesito que me confirmes está en la sección 7, y la lista completa
-de lo que le falta a Integración, en la sección 8.
+Lo que ya acordamos y lo que falta confirmar está en la sección 7, y la
+lista completa de tareas de Integración, en la sección 8.
 
 ## 2. Cómo levantar el CORE
 
@@ -287,7 +287,7 @@ Dos consecuencias para el flujo E2E:
   entregas de Farmacia tienen su descargo. Estará vacío hasta que Caja
   sincronice a través de tu Gateway.
 
-Lo acordado con Beckham para cerrarlo (falta tu confirmación):
+Lo acordado con Beckham y contigo para cerrarlo:
 
 1. Caja agrega un campo opcional `numeroReceta` a la transacción subsidiada
    y a `SyncTransaccionDto`. Todavía no está en su código publicado.
@@ -310,8 +310,8 @@ Lo acordado con Beckham para cerrarlo (falta tu confirmación):
 ## 6. Otros pendientes que afectan la integración
 
 - **Login de pacientes.** El CORE ya valida al paciente
-  (`POST /api/auth/paciente/login`, sección 3). Falta que el Gateway emita
-  el token y que el Portal Web deje de usar su login simulado.
+  (`POST /api/auth/paciente/login`, sección 3) y el Gateway emite el token
+  con esa respuesta. Falta que el Portal Web deje de usar su login simulado.
 - **CORS.** El ajuste `CoreApi:CorsOrigenes` tiene puertos locales de
   relleno. Si el navegador solo habla con el Gateway, el CORE no necesita
   CORS para la web.
@@ -321,22 +321,35 @@ Lo acordado con Beckham para cerrarlo (falta tu confirmación):
   días de emitida si no se despachó (el SRS no define el plazo; es decisión
   del equipo).
 
-## 7. Lo que necesito que Ricardo confirme
+## 7. Lo acordado con Ricardo y lo que falta confirmar
 
-1. ¿En qué dirección y puerto corre tu Gateway, y cuándo puedo apuntar
-   pruebas hacia él?
-2. ¿Qué claims lleva tu JWT (id de usuario, roles, vencimiento) y cuánto
-   dura? Beckham también lo necesita para Caja.
-3. ¿Ya envías `X-Usuario-Id`, `X-Roles` y `X-Paciente-Id` con esos nombres
-   exactos? ¿Reenvías `X-Forwarded-For`?
-4. ¿Aceptas emitir el token del paciente a partir de
-   `POST /api/auth/paciente/login` del CORE (sección 3)? Es la propuesta de
-   Francisco.
-5. ¿Aceptas simular la pasarela de pago (RF-INT-03)? Francisco necesita tu
-   ruta y el formato de la respuesta.
-6. ¿Estás de acuerdo con lo acordado en la sección 5: reenviar al CORE los
-   datos que Caja sincroniza, incluido `numeroReceta`?
-7. ¿Cuándo hacemos la sesión conjunta para correr las partes B y C?
+Respuestas de Ricardo del 13 de octubre de 2026. Es lo que él informó de
+su Gateway; todavía no se ha probado junto con el CORE.
+
+| Tema | Acordado |
+| --- | --- |
+| Dirección del Gateway | `https://localhost:7107` (también `http://localhost:5223`), con Swagger en `/swagger`. Apunta al CORE con su ajuste `CoreApi:BaseUrl`, que en cada máquina debe ser el puerto donde corra la API del CORE (58942 con Visual Studio). |
+| JWT | HS256, emisor `ConavihsidaIntegracionApi`, audiencia `ConavihsidaClientes`, 8 horas. Empleados: `nameidentifier` (UsuarioID), `name` y un `role` por rol. Pacientes: `pacienteId`, `name` y el rol `Paciente`, sin `nameidentifier`, para que un paciente nunca viaje como empleado. |
+| Encabezados hacia el CORE | `X-Usuario-Id`, `X-Roles` (separados por coma), `X-Paciente-Id` y `X-Forwarded-For`, armados siempre a partir del JWT validado; los que mande el cliente se descartan. |
+| Login y registro de pacientes | El Gateway no guarda pacientes: usa `/api/auth/paciente/login` y `/api/auth/paciente/registro` del CORE y con la respuesta arma el JWT. |
+| Sincronización de Caja | El Gateway no guarda nada: reenvía cada `/sync/*` a `/api/caja/sync/*` del CORE y devuelve a Caja el `{ exito, mensaje }`. |
+| Enlace receta–descargo | No habrá un endpoint de descargos aparte: lo cubre `numeroReceta` en la transacción sincronizada. `numeroReceta` es el id numérico de la receta, el mismo que muestra la aplicación de empleados ("Receta n.º 33"). |
+| Aplicación de empleados | Sigue llamando directo a la API del CORE. El Gateway también expone `/api/clinica`, `/api/farmacia`, `/api/dashboard`, `/api/auditoria` y `/api/usuarios` con JWT, por si se decide que todo pase por él. |
+
+Falta confirmar:
+
+1. Ricardo: ¿el Gateway ya expone las rutas más recientes del CORE?
+   Constancias del paciente (`/api/pacientes/{id}/constancias`), subsidio
+   de Caja (`/api/caja/subsidio`), registro de pacientes en consulta
+   (`POST /api/clinica/pacientes`) y cuadres de caja
+   (`/api/dashboard/cuadres-caja`).
+2. Ricardo: ¿ya existe la pasarela de pago simulada (RF-INT-03)? Francisco
+   necesita su ruta y el formato de la respuesta.
+3. Ricardo y Francisco: el portal llama a `auth/login` y `auth/registro`.
+   ¿Lo redirige el Gateway a las rutas de paciente del CORE, o lo cambia
+   el portal?
+4. Beckham: que `numeroReceta` viaje como el id numérico de la receta.
+5. Todos: fecha de la sesión conjunta para correr las partes B y C.
 
 ## 8. Lista de trabajo de Integración
 
