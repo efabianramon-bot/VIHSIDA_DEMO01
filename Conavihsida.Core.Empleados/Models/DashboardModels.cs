@@ -90,6 +90,43 @@ namespace Conavihsida.Core.Empleados.Models
         }
     }
 
+    // ----- Lo que devuelve GET api/dashboard/cuadres-caja -----
+
+    public class CuadresCajaApi
+    {
+        public int Dias { get; set; }
+        public int TurnosCerrados { get; set; }
+        public int TurnosAbiertos { get; set; }
+        public int Cuadrados { get; set; }
+        public int ConFaltante { get; set; }
+        public int ConSobrante { get; set; }
+        public decimal TotalFaltante { get; set; }
+        public decimal TotalSobrante { get; set; }
+        public List<TurnoCajaApi> Turnos { get; set; }
+    }
+
+    public class TurnoCajaApi
+    {
+        public string NumeroTurno { get; set; }
+        public string Caja { get; set; }
+        public string Cajero { get; set; }
+        public DateTime FechaApertura { get; set; }
+        public DateTime? FechaCierre { get; set; }
+        public decimal BalanceInicial { get; set; }
+        public decimal SaldoEsperado { get; set; }
+        public decimal? EfectivoDeclarado { get; set; }
+        public decimal? Diferencia { get; set; }
+        public string Estado { get; set; }
+        public string Observacion { get; set; }
+    }
+
+    public class CuadresCajaViewModel
+    {
+        public CuadresCajaApi Datos { get; set; }
+        public int Dias { get; set; }
+        public string Error { get; set; }
+    }
+
     // ----- Pantalla del Dashboard -----
 
     public class DashboardViewModel

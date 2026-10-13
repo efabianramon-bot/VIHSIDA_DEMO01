@@ -2092,6 +2092,35 @@
           }
         },
         {
+          "name": "Cuadres de caja (turnos que sincronizo Caja)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Trae el resumen y los turnos', function () { var r = pm.response.json(); pm.expect(r).to.have.property('conFaltante'); pm.expect(r).to.have.property('totalFaltante'); pm.expect(r.turnos).to.be.an('array'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioAdmin}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Administrador"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/cuadres-caja?dias=90"
+          }
+        },
+        {
           "name": "Medico intenta ver el dashboard",
           "event": [
             {
@@ -3048,6 +3077,42 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"idLocal\": 1,\n  \"numeroTurno\": \"TUR-DEMO-0001\",\n  \"usuarioCajero\": \"cajero.prueba\",\n  \"nombreCajero\": \"Cajero De Prueba\",\n  \"caja\": \"CJ01\",\n  \"fechaApertura\": \"2026-10-12T08:00:00\",\n  \"fechaCierre\": \"2026-10-12T16:00:00\",\n  \"balanceInicial\": 1000.00,\n  \"saldoEsperado\": 1500.00,\n  \"efectivoDeclarado\": 1500.00,\n  \"diferencia\": 0.00,\n  \"estado\": \"Cerrado\",\n  \"observacion\": \"Cuadre correcto\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Turno cerrado con un faltante de RD$ 10 (para el reporte de cuadre)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/turnos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 2,\n  \"numeroTurno\": \"TUR-DEMO-0002\",\n  \"usuarioCajero\": \"cajero.prueba\",\n  \"nombreCajero\": \"Cajero De Prueba\",\n  \"caja\": \"CJ01\",\n  \"fechaApertura\": \"2026-10-13T08:00:00\",\n  \"fechaCierre\": \"2026-10-13T16:00:00\",\n  \"balanceInicial\": 0.00,\n  \"saldoEsperado\": 500.00,\n  \"efectivoDeclarado\": 490.00,\n  \"diferencia\": -10.00,\n  \"estado\": \"Cerrado\",\n  \"observacion\": \"Faltan 10 pesos en el conteo\"\n}"
             }
           }
         },

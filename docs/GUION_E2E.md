@@ -189,7 +189,7 @@ POST /api/auth/paciente/login
 | `/api/auth/yo` | Cualquier empleado; devuelve la identidad que recibió el CORE |
 
 La lista completa, con cada ruta y su descripción, está en el `README.md`.
-La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 123
+La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 125
 peticiones con el código esperado de cada una.
 
 ## 4. Guion paso a paso

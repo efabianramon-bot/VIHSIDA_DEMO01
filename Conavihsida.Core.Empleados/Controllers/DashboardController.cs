@@ -31,5 +31,23 @@ namespace Conavihsida.Core.Empleados.Controllers
                 Error = respuesta.Exitosa ? null : respuesta.Error
             });
         }
+
+        // Reporte de cuadre de caja, imprimible. Los turnos los registra el
+        // modulo de Caja; aqui solo se consultan.
+        public async Task<ActionResult> CuadresCaja(int? dias)
+        {
+            int periodo = dias != null && DashboardViewModel.Periodos.Contains(dias.Value)
+                ? dias.Value : DiasPorDefecto;
+
+            var api = new CoreApiClient(EmpleadoPrincipal.SesionActual(HttpContext), Request.UserHostAddress);
+            var respuesta = await api.GetAsync<CuadresCajaApi>("api/dashboard/cuadres-caja?dias=" + periodo);
+
+            return View(new CuadresCajaViewModel
+            {
+                Datos = respuesta.Datos,
+                Dias = periodo,
+                Error = respuesta.Exitosa ? null : respuesta.Error
+            });
+        }
     }
 }

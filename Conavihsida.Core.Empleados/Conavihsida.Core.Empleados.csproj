@@ -88,6 +88,7 @@
     <Content Include="Views\Cuenta\SinAcceso.cshtml" />
     <Content Include="Views\Inicio\Index.cshtml" />
     <Content Include="Views\Auditoria\Index.cshtml" />
+    <Content Include="Views\Dashboard\CuadresCaja.cshtml" />
     <Content Include="Views\Dashboard\Index.cshtml" />
     <Content Include="Views\Farmacia\Comprobante.cshtml" />
     <Content Include="Views\Farmacia\Index.cshtml" />

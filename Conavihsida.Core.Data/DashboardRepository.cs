@@ -146,6 +146,45 @@ namespace Conavihsida.Core.Data
             }
         }
 
+        public List<TurnoCajaVista> ObtenerTurnosCaja(DateTime desde)
+        {
+            const string sql = @"
+                SELECT NumeroTurno, Caja, ISNULL(NULLIF(NombreCajero, ''), UsuarioCajero) AS Cajero,
+                       FechaApertura, FechaCierre, BalanceInicial, SaldoEsperado, EfectivoDeclarado,
+                       Estado, Observacion
+                FROM CajaTurnos
+                WHERE FechaApertura >= @Desde
+                ORDER BY FechaApertura DESC, TurnoID DESC;";
+
+            var lista = new List<TurnoCajaVista>();
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Desde", desde);
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
+                {
+                    while (reader.Read())
+                    {
+                        lista.Add(new TurnoCajaVista
+                        {
+                            NumeroTurno = reader.GetString(0),
+                            Caja = reader.IsDBNull(1) ? null : reader.GetString(1),
+                            Cajero = reader.GetString(2),
+                            FechaApertura = reader.GetDateTime(3),
+                            FechaCierre = reader.IsDBNull(4) ? (DateTime?)null : reader.GetDateTime(4),
+                            BalanceInicial = reader.GetDecimal(5),
+                            SaldoEsperado = reader.GetDecimal(6),
+                            EfectivoDeclarado = reader.IsDBNull(7) ? (decimal?)null : reader.GetDecimal(7),
+                            Estado = reader.GetString(8),
+                            Observacion = reader.IsDBNull(9) ? null : reader.GetString(9)
+                        });
+                    }
+                }
+            }
+            return lista;
+        }
+
         public List<FondoVista> ObtenerFondosActivos()
         {
             const string sql = @"

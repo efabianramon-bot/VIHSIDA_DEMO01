@@ -73,7 +73,8 @@ Portales disponibles:
   de despacho imprimible.
 - **Dashboard Ejecutivo** (rol Administrador): pacientes activos, adherencia
   al tratamiento, inventario crítico y ejecución de subsidios, con gráficos
-  y para periodos de 30, 90, 180 o 365 días. Solo muestra totales.
+  y para periodos de 30, 90, 180 o 365 días. Solo muestra totales. Incluye
+  el reporte imprimible de cuadres de caja.
 - **Usuarios** (rol Administrador): registrar empleados, asignarles rol y
   filial, modificarlos, cambiarles la contraseña, activar o desactivar su
   cuenta y desbloquearla.
@@ -152,7 +153,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 123 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 125 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -215,6 +216,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | GET | `/api/dashboard/subsidios?dias=` | Entregas ARV de Farmacia y cuántas tienen descargo en Caja; entregas subsidiadas, cobros y anulaciones de Caja; fondos y convenios activos con su porcentaje utilizado; y facturas subsidiadas del Portal Web. |
 | GET | `/api/caja/subsidio?cedula=` | Para Caja: dice si el paciente existe y si tiene subsidio (`existe`, `tieneSubsidio`, `porcentaje`, `vigenteHasta`). Expediente activo = 100 %. Roles Cajero y Administrador. |
 | POST | `/api/caja/sync/turnos`, `/movimientos`, `/transacciones`, `/comprobantes`, `/fondos` | Reciben lo que Caja sincroniza y lo guardan en las tablas `Caja*`. Cuerpo y respuesta (`exito`, `mensaje`) según el contrato de Caja. Reenviar un registro lo actualiza por su número de negocio, sin duplicarlo; un dato inválido responde `400`. Roles Cajero y Administrador. |
+| GET | `/api/dashboard/cuadres-caja?dias=` | Reporte de cuadre de caja: cada turno sincronizado por Caja con su efectivo esperado, el declarado al cerrar y la diferencia (negativa = faltante), más el resumen de turnos cuadrados, con faltante y con sobrante. Solo rol Administrador. |
 | GET | `/api/medicos` | Lista los médicos. |
 | GET | `/api/medicos/{medicoId}/horarios?fecha=` | Horarios disponibles de un médico en una fecha. |
 | GET | `/api/pacientes/{pacienteId}/citas` | Citas del paciente. |
