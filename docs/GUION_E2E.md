@@ -115,6 +115,21 @@ Content-Type: application/json
   inactiva o bloqueada (se bloquea a los 5 intentos fallidos).
 - Este endpoint es solo para **empleados**.
 
+### Registro de pacientes
+
+```
+POST /api/auth/paciente/registro
+{ "nombreCompleto": "...", "cedula": "001-1234567-8", "correo": "...", "password": "...", "fechaNacimiento": "1992-04-18" }
+```
+
+- `201`: `{"pacienteId":7,"nombreCompleto":"...","correo":"..."}`. Crea solo
+  la cuenta del Portal Web; el expediente clínico lo abre después un médico.
+- `409`: `{"error":"..."}` si un dato no es válido (cédula de 11 dígitos,
+  contraseña de 8 a 72 caracteres) o si el correo o la cédula ya están
+  registrados. En ese último caso el mensaje no dice cuál de los dos.
+- No pide llave de paciente ni token: el Gateway debe exponerla sin
+  autenticación y conviene que limite los intentos por IP.
+
 ### Login de pacientes
 
 ```
@@ -150,7 +165,7 @@ POST /api/auth/paciente/login
 | `/api/auth/yo` | Cualquier empleado; devuelve la identidad que recibió el CORE |
 
 La lista completa, con cada ruta y su descripción, está en el `README.md`.
-La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 109
+La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 112
 peticiones con el código esperado de cada una.
 
 ## 4. Guion paso a paso
@@ -308,7 +323,7 @@ necesita cada una.
 | N.º | Tarea | Qué usa del CORE | Estado del CORE |
 | --- | --- | --- | --- |
 | 1 | **Login de empleados con JWT.** Recibir usuario y contraseña, llamar al CORE y emitir un JWT con el id de usuario, los roles y el vencimiento. Devolver tal cual el `401`. | `POST /api/auth/login` | Listo |
-| 2 | **Login de pacientes con JWT.** Igual, con el `pacienteId` dentro del token. Devolver tal cual el `401` y el `429`. | `POST /api/auth/paciente/login` | Listo |
+| 2 | **Registro y login de pacientes con JWT.** Exponer el registro sin autenticación y devolver tal cual su `201` o `409`. En el login, igual que con empleados, con el `pacienteId` dentro del token; devolver tal cual el `401` y el `429`. | `POST /api/auth/paciente/registro`, `POST /api/auth/paciente/login` | Listo |
 | 3 | **Validar el JWT en cada petición** y rechazar en el Gateway los vencidos o alterados, sin llamar al CORE. | — | No aplica |
 | 4 | **Reenviar al CORE** agregando `X-Api-Key` (guardada solo en el servidor), `X-Usuario-Id` y `X-Roles`, o `X-Paciente-Id`, sacados **del token**. Borrar esos encabezados si los manda el cliente. Reenviar la IP del cliente en `X-Forwarded-For`. | Todas las rutas | Listo |
 | 5 | **Portal Web.** Exponer bajo una sola URL base las rutas de médicos, horarios, citas, facturas, pago y resultados, sin cambiarlas. Francisco ya las alineó con el CORE. | Rutas de la sección 3 | Listo |
@@ -326,5 +341,7 @@ Reparto de lo que falta, para que no quede nada sin dueño:
   `SyncTransaccionDto`, aceptar la lista de roles en el login, actualizar
   `SubsidioResponseDto` a la forma acordada y usar el prefijo de terminal
   en sus comprobantes.
-- **Francisco (Web):** cambiar su login simulado por el del Gateway y su
-  pasarela simulada por la de Ricardo, y probar contra el Gateway real.
+- **Francisco (Web):** agregar el registro de usuario; cambiar su login
+  simulado por el del Gateway y su pasarela simulada por la de Ricardo;
+  dejar descargar el recibo al pagar y una constancia al agendar una cita
+  (el CORE ya devuelve los datos); y probar contra el Gateway real.

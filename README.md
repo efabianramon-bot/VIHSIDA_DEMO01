@@ -109,7 +109,9 @@ Para crear la base desde cero, ejecuta en este orden:
    de cada usuario).
 3. Los scripts de `Database/Datos/` (solo desarrollo y demo), en este orden:
    `usuarios_prueba`, `medico_prueba`, `paciente_prueba`, `medicamentos_prueba`,
-   `facturas_subsidiadas_prueba`, `caja_prueba` y `filiales_prueba`.
+   `facturas_subsidiadas_prueba` y `caja_prueba`. Además `filiales`, que no es
+   de prueba: carga la sede principal y los hospitales donde opera la
+   institución.
 
 `caja_prueba.sql` crea los pacientes para las pruebas con Caja, que identifica
 al paciente por su cédula:
@@ -146,7 +148,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 109 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 112 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -174,6 +176,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | Método | Ruta | Descripción |
 | --- | --- | --- |
 | POST | `/api/auth/login` | Valida usuario y contraseña; devuelve el usuario y sus roles, sin token (`401` si no son válidos). |
+| POST | `/api/auth/paciente/registro` | Crea la cuenta de un paciente del Portal Web con `nombreCompleto`, `cedula`, `correo`, `password` (8 a 72 caracteres) y `fechaNacimiento` (opcional). Devuelve `pacienteId`, `nombreCompleto` y `correo` (`409` si un dato no es válido o el correo o la cédula ya están registrados). No crea expediente clínico. |
 | POST | `/api/auth/paciente/login` | Login del paciente del Portal Web con `correo` y `password`; devuelve `pacienteId`, `nombreCompleto` y `correo`, sin token (`401` si no son válidos, `429` si la cuenta está bloqueada 15 minutos tras 5 intentos fallidos). |
 | GET | `/api/auth/yo` | Devuelve la identidad de empleado recibida en los encabezados (`401` si falta). |
 | GET | `/api/usuarios` y `/api/usuarios/{usuarioId}` | Empleados registrados con su rol, filial y estado de la cuenta. Nunca devuelve la contraseña. Solo rol Administrador, igual que el resto de `/api/usuarios`. |
