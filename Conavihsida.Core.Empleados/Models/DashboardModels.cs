@@ -160,7 +160,7 @@ namespace Conavihsida.Core.Empleados.Models
             "AbrirExpediente", "AccesoDenegado", "ActivarUsuario", "ActualizarExpediente", "ActualizarUsuario",
             "AgendarCita", "CambiarClaveUsuario", "CancelarCita", "ConsultarExpediente", "ConsultarHistorial",
             "ConsultarReceta", "ConsultarResultados", "ConsultarResultadosClinicos", "ConsultarDespacho", "CrearUsuario",
-            "RegistrarPaciente", "RegistrarPacientePorEmpleado",
+            "RegistrarConstancia", "RegistrarPaciente", "RegistrarPacientePorEmpleado",
             "DesactivarUsuario", "DesbloquearUsuario", "DespacharReceta", "DespachoSinDescargo", "EmitirReceta",
             "IdentificarPaciente", "IniciarSesion", "IniciarSesionPaciente", "ListarExpedientes",
             "ListarRecetas", "LoginFallido", "LoginPacienteFallido", "PagarFactura", "PublicarResultado",

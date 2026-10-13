@@ -102,6 +102,10 @@
       "value": ""
     },
     {
+      "key": "constanciaId",
+      "value": ""
+    },
+    {
       "key": "citaId",
       "value": "0"
     },
@@ -256,7 +260,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Responde 201', function () { pm.expect(pm.response.code).to.be.oneOf([201]); });",
-                  "pm.test('Devuelve el pacienteId, sin contraseña', function () { var r = pm.response.json(); pm.expect(r.pacienteId).to.be.above(0); pm.expect(Object.keys(r).sort()).to.eql(['correo', 'nombreCompleto', 'pacienteId']); });"
+                  "pm.test('Devuelve el pacienteId, sin contraseña', function () { var r = pm.response.json(); pm.expect(r.pacienteId).to.be.above(0); pm.expect(Object.keys(r).sort()).to.eql(['correo', 'nombreCompleto', 'nombrePaciente', 'pacienteId']); });"
                 ]
               }
             }
@@ -370,7 +374,7 @@
                 "exec": [
                   "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
                   "pm.test('Devuelve el pacienteId', function () { pm.expect(pm.response.json().pacienteId).to.be.above(0); });",
-                  "pm.test('Solo identidad civil', function () { pm.expect(Object.keys(pm.response.json()).sort()).to.eql(['correo', 'nombreCompleto', 'pacienteId']); });"
+                  "pm.test('Solo identidad civil', function () { pm.expect(Object.keys(pm.response.json()).sort()).to.eql(['correo', 'nombreCompleto', 'nombrePaciente', 'pacienteId']); });"
                 ]
               }
             }
@@ -387,6 +391,63 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"correo\": \"paciente.prueba@conavihsida.test\",\n  \"password\": \"{{clavePrueba}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registro con los nombres de campo del Portal Web (nombres, apellidos, telefono, clave)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', function () { pm.expect(pm.response.code).to.be.oneOf([201]); });",
+                  "pm.test('Une nombres y apellidos y devuelve nombrePaciente', function () { var r = pm.response.json(); pm.expect(r.nombrePaciente).to.eql('Portal Web De Demostracion'); pm.expect(r.nombreCompleto).to.eql(r.nombrePaciente); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/paciente/registro",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Portal\",\n  \"apellidos\": \"Web De Demostracion\",\n  \"cedula\": \"7{{$timestamp}}\",\n  \"fechaNacimiento\": \"1995-09-09\",\n  \"telefono\": \"(809) 555-0100\",\n  \"correo\": \"portal.{{$timestamp}}@conavihsida.test\",\n  \"clave\": \"{{clavePrueba}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login del paciente mandando clave en vez de password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/paciente/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"paciente.prueba@conavihsida.test\",\n  \"clave\": \"{{clavePrueba}}\"\n}"
             }
           }
         },
@@ -2306,6 +2367,145 @@
               }
             ],
             "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/resultados"
+          }
+        },
+        {
+          "name": "Guardar una constancia (la arma el Portal Web)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', function () { pm.expect(pm.response.code).to.be.oneOf([201]); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('constanciaId', pm.response.json().id); }",
+                  "pm.test('El CORE pone el numero y el nombre', function () { var c = pm.response.json(); pm.expect(c.numero).to.match(/^CON-\\\\d{8}-\\\\d{4,}$/); pm.expect(c.nombrePaciente).to.not.eql('Lo que mande el portal se ignora'); pm.expect(c.detalles.length).to.eql(3); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/constancias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pacienteId\": \"{{pacienteId}}\",\n  \"nombrePaciente\": \"Lo que mande el portal se ignora\",\n  \"numero\": \"SE-IGNORA\",\n  \"tipo\": \"CitaAgendada\",\n  \"titulo\": \"Constancia de cita agendada\",\n  \"descripcion\": \"Dr. De Prueba, martes 20 de octubre a las 09:00\",\n  \"referenciaId\": 1,\n  \"detalles\": [\n    { \"etiqueta\": \"Médico\", \"valor\": \"Dr. De Prueba\" },\n    { \"etiqueta\": \"Fecha\", \"valor\": \"20/10/2026\" },\n    { \"etiqueta\": \"Hora\", \"valor\": \"09:00\" }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Mis constancias",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test('Trae al menos una', function () { pm.expect(pm.response.json().length).to.be.above(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/constancias"
+          }
+        },
+        {
+          "name": "Ver una constancia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/constancias/{{constanciaId}}"
+          }
+        },
+        {
+          "name": "Constancia sin tipo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/constancias",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"titulo\": \"Sin tipo\" }"
+            }
+          }
+        },
+        {
+          "name": "Otro paciente pide estas constancias",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{otroPacienteId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteId}}/constancias"
           }
         },
         {

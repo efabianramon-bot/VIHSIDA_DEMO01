@@ -45,6 +45,7 @@
     <Compile Include="Entidades\Caja.cs" />
     <Compile Include="Entidades\Cita.cs" />
     <Compile Include="Entidades\Comprobante.cs" />
+    <Compile Include="Entidades\ConstanciaPaciente.cs" />
     <Compile Include="Entidades\ExpedienteClinico.cs" />
     <Compile Include="Entidades\Factura.cs" />
     <Compile Include="Entidades\HistorialClinico.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Repositorios\IAuditoriaRepository.cs" />
     <Compile Include="Repositorios\ICajaRepository.cs" />
     <Compile Include="Repositorios\ICitaRepository.cs" />
+    <Compile Include="Repositorios\IConstanciaRepository.cs" />
     <Compile Include="Repositorios\IDashboardRepository.cs" />
     <Compile Include="Repositorios\IExpedienteRepository.cs" />
     <Compile Include="Repositorios\IFacturaRepository.cs" />
