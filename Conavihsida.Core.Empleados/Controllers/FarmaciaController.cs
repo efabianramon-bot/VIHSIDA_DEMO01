@@ -124,6 +124,42 @@ namespace Conavihsida.Core.Empleados.Controllers
             return RedirectToAction("Receta", new { id });
         }
 
+        // Constancia imprimible de lo que se entrego. Igual que el resto de
+        // Farmacia, no lleva la identidad del paciente: solo el codigo.
+        [HttpGet]
+        public async Task<ActionResult> Comprobante(int id)
+        {
+            var api = Api;
+            var receta = await api.GetAsync<RecetaApi>("api/farmacia/recetas/" + id);
+            if (!receta.Exitosa || receta.Datos == null)
+            {
+                TempData["Error"] = "No existe la receta n.º " + id + ".";
+                return RedirectToAction("Index");
+            }
+
+            var tareaSalidas = api.GetAsync<List<MovimientoApi>>("api/farmacia/recetas/" + id + "/despacho");
+            var tareaMedicamentos = api.GetAsync<List<MedicamentoApi>>("api/farmacia/medicamentos");
+            await Task.WhenAll(tareaSalidas, tareaMedicamentos);
+
+            var salidas = tareaSalidas.Result.Datos ?? new List<MovimientoApi>();
+            if (salidas.Count == 0)
+            {
+                TempData["Error"] = "La receta n.º " + id + " todavía no se ha despachado: no hay comprobante.";
+                return RedirectToAction("Receta", new { id });
+            }
+
+            var medicamento = (tareaMedicamentos.Result.Datos ?? new List<MedicamentoApi>())
+                .Find(m => m.Id == receta.Datos.MedicamentoId);
+
+            return View(new ComprobanteDespachoViewModel
+            {
+                Receta = receta.Datos,
+                MedicamentoNombre = medicamento == null
+                    ? "Medicamento n.º " + receta.Datos.MedicamentoId : medicamento.NombreCompleto,
+                Salidas = salidas
+            });
+        }
+
         private async Task<RegistrarLoteViewModel> ArmarNuevoLoteAsync(RegistrarLoteForm lote, string error)
         {
             var medicamentos = await Api.GetAsync<List<MedicamentoApi>>("api/farmacia/medicamentos");

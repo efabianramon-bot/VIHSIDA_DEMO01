@@ -1,0 +1,64 @@
+@model RecetaImprimibleViewModel
+@{
+    ViewBag.Title = "Receta n.º " + Model.Receta.Id;
+    var receta = Model.Receta;
+    var volver = Url.Action("Expediente", new { codigo = receta.CodigoSerologico });
+}
+
+<p class="migas no-imprimir">
+    <a href="@Url.Action("Index")">Portal Médico</a> / <a href="@volver">Expediente</a> / Receta
+</p>
+
+<div class="acciones no-imprimir">
+    <button type="button" class="boton boton-primario" onclick="window.print()">Imprimir o guardar como PDF</button>
+    <a class="boton boton-neutro" href="@volver">Volver al expediente</a>
+</div>
+
+<article class="documento">
+    <header class="documento-encabezado">
+        <div>
+            <p class="documento-institucion">CONAVIHSIDA</p>
+            <h1>Receta médica</h1>
+        </div>
+        <div class="documento-numero">
+            <span>Receta n.º</span>
+            <strong>@receta.Id</strong>
+        </div>
+    </header>
+
+    <dl class="datos">
+        <div><dt>Paciente</dt><dd>@(Model.Paciente == null ? "—" : Model.Paciente.NombreCompleto)</dd></div>
+        <div><dt>Cédula</dt><dd>@(Model.Paciente == null ? "—" : Model.Paciente.Cedula)</dd></div>
+        <div><dt>Emitida el</dt><dd>@receta.FechaEmision.ToString("dd/MM/yyyy")</dd></div>
+        <div><dt>Válida hasta</dt><dd>@receta.FechaVencimiento.ToString("dd/MM/yyyy")</dd></div>
+    </dl>
+
+    <h2>Prescripción</h2>
+    <dl class="datos">
+        <div><dt>Medicamento</dt><dd>@Model.MedicamentoNombre</dd></div>
+        <div><dt>Indicaciones</dt><dd>@(string.IsNullOrEmpty(receta.EsquemaTarv) ? "—" : receta.EsquemaTarv)</dd></div>
+        <div><dt>Cantidad</dt><dd>@receta.CantidadPrescrita</dd></div>
+        <div><dt>Estado</dt><dd>@receta.Estado</dd></div>
+    </dl>
+
+    <p class="documento-nota">
+        Presenta esta receta en Caja para registrar la entrega y luego en Farmacia para retirar el medicamento.
+        Costo para el paciente: RD$ 0.00 (subsidio del 100 %).
+    </p>
+
+    <div class="documento-firmas">
+        <div>
+            <span>
+                @(Model.Medico == null ? "Médico tratante" : Model.Medico.NombreCompleto)
+                @if (Model.Medico != null && !string.IsNullOrEmpty(Model.Medico.Especialidad))
+                {
+                    <br />@Model.Medico.Especialidad
+                }
+            </span>
+        </div>
+    </div>
+
+    <p class="documento-pie">
+        Documento generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm"). Contiene datos personales: entrégalo solo al paciente.
+    </p>
+</article>

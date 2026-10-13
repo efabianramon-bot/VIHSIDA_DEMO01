@@ -115,4 +115,10 @@
 else
 {
     <div class="aviso aviso-info">Esta receta está @receta.Estado.ToLowerInvariant(): ya no se puede despachar.</div>
+    if (receta.Estado == "Dispensada")
+    {
+        <div class="acciones">
+            <a class="boton boton-primario" href="@Url.Action("Comprobante", new { id = receta.Id })">Comprobante de despacho</a>
+        </div>
+    }
 }

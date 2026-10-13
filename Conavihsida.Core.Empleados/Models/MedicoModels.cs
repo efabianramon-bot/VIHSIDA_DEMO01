@@ -57,6 +57,7 @@ namespace Conavihsida.Core.Empleados.Models
     public class MedicoApi
     {
         public int Id { get; set; }
+        public int UsuarioId { get; set; }
         public string NombreCompleto { get; set; }
         public string Especialidad { get; set; }
     }
@@ -126,6 +127,17 @@ namespace Conavihsida.Core.Empleados.Models
             var medicamento = Medicamentos == null ? null : Medicamentos.Find(m => m.Id == medicamentoId);
             return medicamento == null ? "Medicamento n.º " + medicamentoId : medicamento.NombreCompleto;
         }
+    }
+
+    /// <summary>Receta imprimible, para entregar al paciente.</summary>
+    public class RecetaImprimibleViewModel
+    {
+        public RecetaApi Receta { get; set; }
+        public PacienteApi Paciente { get; set; }
+        public string MedicamentoNombre { get; set; }
+
+        /// <summary>Quien la emitio; null si ya no tiene ficha de medico.</summary>
+        public MedicoApi Medico { get; set; }
     }
 
     /// <summary>Formulario "Registrar consulta". Las recetas son opcionales.</summary>
