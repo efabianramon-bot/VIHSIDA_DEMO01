@@ -94,15 +94,15 @@ namespace Conavihsida.Core.Data
         }
 
         public PacienteAutenticado Registrar(string nombreCompleto, string cedula, string correo, string password,
-                                             DateTime? fechaNacimiento, DateTime ahora)
+                                             DateTime? fechaNacimiento, string telefono, DateTime ahora)
         {
             // PasswordSalt es NOT NULL en la tabla, pero BCrypt guarda la
             // sal dentro del propio hash: queda vacia.
             const string sql = @"
                 INSERT INTO Pacientes (Correo, PasswordHash, PasswordSalt, NombreCompleto, Cedula,
-                                       FechaNacimiento, Activo, FechaRegistro)
+                                       FechaNacimiento, Telefono, Activo, FechaRegistro)
                 OUTPUT INSERTED.PacienteID
-                VALUES (@Correo, @PasswordHash, '', @NombreCompleto, @Cedula, @FechaNacimiento, 1, @Ahora);";
+                VALUES (@Correo, @PasswordHash, '', @NombreCompleto, @Cedula, @FechaNacimiento, @Telefono, 1, @Ahora);";
 
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
@@ -112,6 +112,7 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@NombreCompleto", nombreCompleto);
                 cmd.Parameters.AddWithValue("@Cedula", cedula);
                 cmd.Parameters.Add("@FechaNacimiento", SqlDbType.Date).Value = (object)fechaNacimiento ?? DBNull.Value;
+                cmd.Parameters.Add("@Telefono", SqlDbType.VarChar, 20).Value = (object)telefono ?? DBNull.Value;
                 cmd.Parameters.AddWithValue("@Ahora", ahora);
 
                 conn.AbrirConLog();
@@ -126,7 +127,7 @@ namespace Conavihsida.Core.Data
                     // Correo o cedula repetidos (los dos son unicos). Puede
                     // ser un paciente que un empleado registro en consulta
                     // y que ahora crea su cuenta.
-                    return ActivarCuenta(conn, nombreCompleto, cedula, correo, password);
+                    return ActivarCuenta(conn, cedula, correo, password, telefono);
                 }
             }
         }
@@ -137,11 +138,12 @@ namespace Conavihsida.Core.Data
         /// la consulta: con la cedula sola, cualquiera que la conociera
         /// podria quedarse con la cuenta. null si no aplica.
         /// </summary>
-        private static PacienteAutenticado ActivarCuenta(SqlConnection conn, string nombreCompleto, string cedula,
-                                                         string correo, string password)
+        private static PacienteAutenticado ActivarCuenta(SqlConnection conn, string cedula, string correo,
+                                                         string password, string telefono)
         {
             const string sql = @"
-                UPDATE Pacientes SET PasswordHash = @PasswordHash, IntentosFallidos = 0, BloqueadoHasta = NULL
+                UPDATE Pacientes SET PasswordHash = @PasswordHash, IntentosFallidos = 0, BloqueadoHasta = NULL,
+                                     Telefono = COALESCE(@Telefono, Telefono)
                 OUTPUT INSERTED.PacienteID, INSERTED.NombreCompleto
                 WHERE Cedula = @Cedula AND Correo = @Correo AND Activo = 1 AND PasswordHash NOT LIKE '$2%';";
 
@@ -150,6 +152,7 @@ namespace Conavihsida.Core.Data
                 cmd.Parameters.AddWithValue("@PasswordHash", UsuarioRepository.GenerarHashPassword(password));
                 cmd.Parameters.AddWithValue("@Cedula", cedula);
                 cmd.Parameters.AddWithValue("@Correo", correo);
+                cmd.Parameters.Add("@Telefono", SqlDbType.VarChar, 20).Value = (object)telefono ?? DBNull.Value;
                 using (var reader = cmd.ExecuteReaderConLog())
                 {
                     if (!reader.Read())

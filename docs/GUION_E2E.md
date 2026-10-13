@@ -134,6 +134,26 @@ POST /api/auth/paciente/registro
   mismo correo que se anotó, esta ruta le activa el acceso y responde
   `201`; con la cédula sola, no.
 
+- Acepta también los nombres de campo que usa el Portal Web: `nombres` y
+  `apellidos` en vez de `nombreCompleto`, `clave` en vez de `password`, y
+  `telefono` (opcional). La respuesta repite el nombre como
+  `nombrePaciente`. Así el Gateway no tiene que traducir el cuerpo: solo
+  la ruta, porque el portal llama a `auth/registro` y `auth/login`.
+
+### Constancias del paciente
+
+El Portal Web no tiene base de datos, así que guarda en el CORE la
+constancia de cada cosa que hace el paciente (crear la cuenta, agendar o
+cancelar una cita, pagar):
+
+- `POST /api/pacientes/{pacienteId}/constancias` → `201` con la constancia
+  guardada. El CORE pone `numero` (`CON-AAAAMMDD-NNNN`), `fechaEmision` y
+  `nombrePaciente`; lo que mande el portal en esos campos se ignora.
+- `GET /api/pacientes/{pacienteId}/constancias` y
+  `GET .../constancias/{constanciaId}`.
+- Las tres exigen `X-Paciente-Id` igual al de la ruta, como el resto de
+  las rutas del paciente.
+
 ### Login de pacientes
 
 ```
@@ -164,12 +184,12 @@ POST /api/auth/paciente/login
 | `/api/dashboard*`, `/api/usuarios*` (administración de empleados) | Administrador |
 | `/api/auditoria` | Auditor, Administrador |
 | `/api/caja/subsidio?cedula=`, `/api/caja/sync/*` | Cajero, Administrador |
-| `/api/pacientes/{id}/citas`, `/facturas`, `/resultados`, `/api/citas*` | El propio paciente (`X-Paciente-Id` igual al id) |
+| `/api/pacientes/{id}/citas`, `/facturas`, `/resultados`, `/constancias`, `/api/citas*` | El propio paciente (`X-Paciente-Id` igual al id) |
 | `/api/medicos`, `/api/medicos/{id}/horarios?fecha=` | Cualquiera con la llave |
 | `/api/auth/yo` | Cualquier empleado; devuelve la identidad que recibió el CORE |
 
 La lista completa, con cada ruta y su descripción, está en el `README.md`.
-La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 116
+La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 123
 peticiones con el código esperado de cada una.
 
 ## 4. Guion paso a paso
@@ -345,7 +365,10 @@ Reparto de lo que falta, para que no quede nada sin dueño:
   `SyncTransaccionDto`, aceptar la lista de roles en el login, actualizar
   `SubsidioResponseDto` a la forma acordada y usar el prefijo de terminal
   en sus comprobantes.
-- **Francisco (Web):** agregar el registro de usuario; cambiar su login
-  simulado por el del Gateway y su pasarela simulada por la de Ricardo;
-  dejar descargar el recibo al pagar y una constancia al agendar una cita
-  (el CORE ya devuelve los datos); y probar contra el Gateway real.
+- **Francisco (Web):** su portal ya tiene registro, recibo y constancias
+  en PDF, todo en modo simulado. Le falta: apagar los `UsarMock...`;
+  cambiar el tipo de `PacienteId` de texto a número en sus modelos (el
+  CORE lo devuelve como número y su lectura de JSON fallaría); apuntar el
+  login y el registro a `auth/paciente/login` y `auth/paciente/registro`,
+  o acordar con Ricardo que el Gateway los redirija; usar la pasarela
+  simulada de Ricardo; y probar contra el Gateway real.

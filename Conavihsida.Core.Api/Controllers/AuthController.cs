@@ -54,8 +54,8 @@ namespace Conavihsida.Core.Api.Controllers
             }
 
             var servicio = new AuthPacienteService(new PacienteRepository(ConnectionString), CrearAuditoriaService());
-            var resultado = servicio.Registrar(body.NombreCompleto, body.Cedula, body.Correo, body.Password,
-                body.FechaNacimiento, ObtenerTerminal());
+            var resultado = servicio.Registrar(body.NombreParaGuardar, body.Cedula, body.Correo,
+                body.Password ?? body.Clave, body.FechaNacimiento, body.Telefono, ObtenerTerminal());
 
             if (!resultado.Exitoso)
             {
@@ -77,13 +77,15 @@ namespace Conavihsida.Core.Api.Controllers
                 return BadRequest("El cuerpo de la peticion es obligatorio.");
             }
 
-            if (string.IsNullOrWhiteSpace(body.Correo) || string.IsNullOrEmpty(body.Password))
+            // Se acepta "password" o "clave", que es como lo manda el Portal Web.
+            string password = body.Password ?? body.Clave;
+            if (string.IsNullOrWhiteSpace(body.Correo) || string.IsNullOrEmpty(password))
             {
                 return BadRequest("Correo y contraseña son obligatorios.");
             }
 
             var servicio = new AuthPacienteService(new PacienteRepository(ConnectionString), CrearAuditoriaService());
-            var resultado = servicio.Login(body.Correo, body.Password, ObtenerTerminal());
+            var resultado = servicio.Login(body.Correo, password, ObtenerTerminal());
 
             if (!resultado.Exitoso)
             {

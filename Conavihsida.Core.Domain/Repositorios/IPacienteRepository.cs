@@ -34,6 +34,6 @@ namespace Conavihsida.Core.Domain.Repositorios
         /// mismo correo, le activa el acceso y lo devuelve.
         /// </summary>
         PacienteAutenticado Registrar(string nombreCompleto, string cedula, string correo, string password,
-                                      DateTime? fechaNacimiento, DateTime ahora);
+                                      DateTime? fechaNacimiento, string telefono, DateTime ahora);
     }
 }

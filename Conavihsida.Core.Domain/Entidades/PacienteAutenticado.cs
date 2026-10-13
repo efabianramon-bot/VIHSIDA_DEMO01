@@ -9,6 +9,13 @@ namespace Conavihsida.Core.Domain.Entidades
     {
         public int PacienteId { get; set; }
         public string NombreCompleto { get; set; }
+
+        /// <summary>El mismo nombre, con el nombre de campo que espera el Portal Web.</summary>
+        public string NombrePaciente
+        {
+            get { return NombreCompleto; }
+        }
+
         public string Correo { get; set; }
     }
 }

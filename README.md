@@ -109,7 +109,8 @@ Para crear la base desde cero, ejecuta en este orden:
 2. Los scripts de `Database/Migraciones/`, por número: `001` (roles y
    restricciones) y `002` (cédula del paciente obligatoria, única y con el
    formato `000-0000000-0`) `003` (bloqueo temporal del login del paciente) `004` (tablas para la sincronización de Caja), `005` (filiales y filial
-   de cada usuario) y `006` (correo del paciente opcional).
+   de cada usuario), `006` (correo del paciente opcional) y `007`
+   (constancias del paciente y teléfono).
 3. Los scripts de `Database/Datos/` (solo desarrollo y demo), en este orden:
    `usuarios_prueba`, `medico_prueba`, `paciente_prueba`, `medicamentos_prueba`,
    `facturas_subsidiadas_prueba` y `caja_prueba`. Además `filiales`, que no es
@@ -151,7 +152,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 116 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 123 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -179,8 +180,8 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | Método | Ruta | Descripción |
 | --- | --- | --- |
 | POST | `/api/auth/login` | Valida usuario y contraseña; devuelve el usuario y sus roles, sin token (`401` si no son válidos). |
-| POST | `/api/auth/paciente/registro` | Crea la cuenta de un paciente del Portal Web con `nombreCompleto`, `cedula`, `correo`, `password` (8 a 72 caracteres) y `fechaNacimiento` (opcional). Devuelve `pacienteId`, `nombreCompleto` y `correo` (`409` si un dato no es válido o el correo o la cédula ya están registrados). No crea expediente clínico. Si un médico ya había registrado a ese paciente en consulta con esa misma cédula y ese mismo correo, en vez de rechazarlo le activa el acceso. |
-| POST | `/api/auth/paciente/login` | Login del paciente del Portal Web con `correo` y `password`; devuelve `pacienteId`, `nombreCompleto` y `correo`, sin token (`401` si no son válidos, `429` si la cuenta está bloqueada 15 minutos tras 5 intentos fallidos). |
+| POST | `/api/auth/paciente/registro` | Crea la cuenta de un paciente del Portal Web con `nombreCompleto`, `cedula`, `correo`, `password` (8 a 72 caracteres) y, opcionales, `fechaNacimiento` y `telefono`. También acepta los nombres de campo del Portal Web: `nombres` + `apellidos` en vez de `nombreCompleto`, y `clave` en vez de `password`. Devuelve `pacienteId`, `nombreCompleto` (repetido como `nombrePaciente`) y `correo` (`409` si un dato no es válido o el correo o la cédula ya están registrados). No crea expediente clínico. Si un médico ya había registrado a ese paciente en consulta con esa misma cédula y ese mismo correo, en vez de rechazarlo le activa el acceso. |
+| POST | `/api/auth/paciente/login` | Login del paciente del Portal Web con `correo` y `password` (o `clave`); devuelve `pacienteId`, `nombreCompleto` (repetido como `nombrePaciente`) y `correo`, sin token (`401` si no son válidos, `429` si la cuenta está bloqueada 15 minutos tras 5 intentos fallidos). |
 | GET | `/api/auth/yo` | Devuelve la identidad de empleado recibida en los encabezados (`401` si falta). |
 | GET | `/api/usuarios` y `/api/usuarios/{usuarioId}` | Empleados registrados con su rol, filial y estado de la cuenta. Nunca devuelve la contraseña. Solo rol Administrador, igual que el resto de `/api/usuarios`. |
 | GET | `/api/usuarios/roles` y `/api/usuarios/filiales` | Catálogos para el formulario de usuarios. |
@@ -222,4 +223,6 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | GET | `/api/pacientes/{pacienteId}/facturas` | Facturas del paciente. |
 | GET | `/api/pacientes/{pacienteId}/facturas/{facturaId}` | Detalle de una factura. |
 | POST | `/api/pacientes/{pacienteId}/facturas/{facturaId}/pagar` | Paga una factura (`409` si no se puede pagar). |
+| GET | `/api/pacientes/{pacienteId}/constancias` y `.../constancias/{constanciaId}` | Constancias de lo que el paciente hizo en el Portal Web, la más reciente primero. |
+| POST | `/api/pacientes/{pacienteId}/constancias` | Guarda una constancia que arma el Portal Web (`tipo`, `titulo`, `descripcion`, `referenciaId`, `detalles` con `etiqueta` y `valor`). El CORE pone `numero` (`CON-AAAAMMDD-NNNN`), `fechaEmision` y `nombrePaciente`. `409` si falta el tipo o el título. |
 | GET | `/api/pacientes/{pacienteId}/resultados` | Resultados de laboratorio del paciente: prueba, fecha, estado y nota, nunca el valor (RN-01). |

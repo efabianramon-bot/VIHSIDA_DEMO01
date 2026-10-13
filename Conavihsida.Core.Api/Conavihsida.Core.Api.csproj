@@ -114,6 +114,7 @@
     <Compile Include="Controllers\CajaController.cs" />
     <Compile Include="Controllers\CitasController.cs" />
     <Compile Include="Controllers\ClinicaController.cs" />
+    <Compile Include="Controllers\ConstanciasController.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\FacturasController.cs" />
     <Compile Include="Controllers\FarmaciaController.cs" />

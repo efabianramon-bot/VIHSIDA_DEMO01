@@ -51,8 +51,16 @@ namespace Conavihsida.Core.Aplicacion.Servicios
         /// </summary>
         public ResultadoOperacion<PacienteAutenticado> Registrar(
             string nombreCompleto, string cedula, string correo, string password,
-            DateTime? fechaNacimiento, string terminal)
+            DateTime? fechaNacimiento, string telefono, string terminal)
         {
+            // El telefono es opcional y se guarda solo con digitos.
+            string digitosTelefono = new string((telefono ?? string.Empty).Where(char.IsDigit).ToArray());
+            if (digitosTelefono.Length != 0 && (digitosTelefono.Length < 7 || digitosTelefono.Length > 15))
+            {
+                return Fallo("El teléfono debe tener entre 7 y 15 dígitos.");
+            }
+            telefono = digitosTelefono.Length == 0 ? null : digitosTelefono;
+
             nombreCompleto = (nombreCompleto ?? string.Empty).Trim();
             correo = (correo ?? string.Empty).Trim().ToLowerInvariant();
             string digitos = new string((cedula ?? string.Empty).Where(char.IsDigit).ToArray());
@@ -88,7 +96,7 @@ namespace Conavihsida.Core.Aplicacion.Servicios
             string cedulaConGuiones = digitos.Insert(10, "-").Insert(3, "-");
 
             var paciente = _pacientes.Registrar(nombreCompleto, cedulaConGuiones, correo, password,
-                fechaNacimiento == null ? (DateTime?)null : fechaNacimiento.Value.Date, DateTime.Now);
+                fechaNacimiento == null ? (DateTime?)null : fechaNacimiento.Value.Date, telefono, DateTime.Now);
             if (paciente == null)
             {
                 // Un solo mensaje para los dos casos: no se dice cual de los
