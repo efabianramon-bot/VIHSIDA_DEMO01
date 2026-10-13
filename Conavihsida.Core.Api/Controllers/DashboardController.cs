@@ -46,6 +46,14 @@ namespace Conavihsida.Core.Api.Controllers
             return Ok(CrearServicio().ObtenerInventarioCritico(diasAviso));
         }
 
+        // Reporte de cuadre: cada turno que Caja sincronizo, con el
+        // faltante o sobrante de su cierre.
+        [HttpGet, Route("cuadres-caja")]
+        public IHttpActionResult CuadresCaja([FromUri] int? dias = null)
+        {
+            return Ok(CrearServicio().ObtenerCuadresCaja(dias));
+        }
+
         [HttpGet, Route("subsidios")]
         public IHttpActionResult Subsidios([FromUri] int? dias = null)
         {

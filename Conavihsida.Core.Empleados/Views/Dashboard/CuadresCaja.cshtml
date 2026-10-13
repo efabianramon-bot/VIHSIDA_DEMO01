@@ -1,0 +1,125 @@
+@model CuadresCajaViewModel
+@{
+    ViewBag.Title = "Cuadres de caja";
+}
+
+<p class="migas no-imprimir"><a href="@Url.Action("Index")">Dashboard Ejecutivo</a> / Cuadres de caja</p>
+
+<div class="encabezado-pagina">
+    <div>
+        <h1 class="titulo-pagina">Cuadres de caja</h1>
+        <p class="subtitulo">
+            Turnos de los últimos @Model.Dias días: lo que debía haber en efectivo contra lo que el cajero contó al cerrar.
+        </p>
+    </div>
+    <nav class="periodos no-imprimir" aria-label="Periodo">
+        @foreach (var periodo in DashboardViewModel.Periodos)
+        {
+            <a class="periodo @(periodo == Model.Dias ? "activo" : "")"
+               href="@Url.Action("CuadresCaja", new { dias = periodo })"
+               @(periodo == Model.Dias ? "aria-current=page" : "")>@periodo días</a>
+        }
+    </nav>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="aviso aviso-error" role="alert">@Model.Error</div>
+}
+
+@if (Model.Datos != null)
+{
+    var datos = Model.Datos;
+
+    <div class="resumen">
+        <div class="resumen-dato">
+            <span class="resumen-numero">@datos.TurnosCerrados</span>
+            <span class="resumen-nombre">Turnos cerrados (@datos.TurnosAbiertos abiertos)</span>
+        </div>
+        <div class="resumen-dato">
+            <span class="resumen-numero">@datos.Cuadrados</span>
+            <span class="resumen-nombre">Cuadraron exacto</span>
+        </div>
+        <div class="resumen-dato @(datos.ConFaltante > 0 ? "resumen-error" : "")">
+            <span class="resumen-numero">@datos.ConFaltante</span>
+            <span class="resumen-nombre">Con faltante (RD$ @datos.TotalFaltante.ToString("#,0.00"))</span>
+        </div>
+        <div class="resumen-dato @(datos.ConSobrante > 0 ? "resumen-alerta" : "")">
+            <span class="resumen-numero">@datos.ConSobrante</span>
+            <span class="resumen-nombre">Con sobrante (RD$ @datos.TotalSobrante.ToString("#,0.00"))</span>
+        </div>
+    </div>
+
+    <div class="acciones no-imprimir">
+        <button type="button" class="boton boton-primario" onclick="window.print()">Imprimir o guardar como PDF</button>
+    </div>
+
+    if (datos.Turnos == null || datos.Turnos.Count == 0)
+    {
+        <p class="dato-suave">Caja no ha sincronizado turnos en este periodo.</p>
+    }
+    else
+    {
+        <div class="tabla-contenedor">
+            <table class="tabla tabla-compacta">
+                <thead>
+                    <tr>
+                        <th>Turno</th>
+                        <th>Caja</th>
+                        <th>Cajero</th>
+                        <th>Apertura</th>
+                        <th>Cierre</th>
+                        <th class="numero">Inicial</th>
+                        <th class="numero">Esperado</th>
+                        <th class="numero">Declarado</th>
+                        <th class="numero">Diferencia</th>
+                        <th>Resultado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var turno in datos.Turnos)
+                    {
+                        <tr>
+                            <td class="codigo">@turno.NumeroTurno</td>
+                            <td>@(string.IsNullOrEmpty(turno.Caja) ? "—" : turno.Caja)</td>
+                            <td>@turno.Cajero</td>
+                            <td class="sin-corte">@turno.FechaApertura.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="sin-corte">@(turno.FechaCierre == null ? "—" : turno.FechaCierre.Value.ToString("dd/MM/yyyy HH:mm"))</td>
+                            <td class="numero">@turno.BalanceInicial.ToString("#,0.00")</td>
+                            <td class="numero">@turno.SaldoEsperado.ToString("#,0.00")</td>
+                            <td class="numero">@(turno.EfectivoDeclarado == null ? "—" : turno.EfectivoDeclarado.Value.ToString("#,0.00"))</td>
+                            <td class="numero">@(turno.Diferencia == null ? "—" : turno.Diferencia.Value.ToString("+#,0.00;-#,0.00;0.00"))</td>
+                            <td>
+                                @if (turno.Diferencia == null)
+                                {
+                                    <span class="estado estado-pendiente">Turno abierto</span>
+                                }
+                                else if (turno.Diferencia < 0)
+                                {
+                                    <span class="estado estado-alerta-error">Faltante</span>
+                                }
+                                else if (turno.Diferencia > 0)
+                                {
+                                    <span class="estado estado-alerta">Sobrante</span>
+                                }
+                                else
+                                {
+                                    <span class="estado estado-activo">Cuadrado</span>
+                                }
+                                @if (!string.IsNullOrEmpty(turno.Observacion))
+                                {
+                                    <div class="dato-suave">@turno.Observacion</div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <p class="nota-indicador">
+        Los turnos los abre y los cierra el módulo de Caja; aquí solo se consultan. La diferencia es el efectivo declarado
+        menos el esperado. Reporte generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm").
+    </p>
+}

@@ -98,6 +98,40 @@ namespace Conavihsida.Core.Aplicacion.Servicios
             return vista;
         }
 
+        /// <summary>
+        /// Cuadre de caja: por cada turno, lo que debia haber en efectivo
+        /// contra lo que el cajero declaro al cerrar. La diferencia se
+        /// calcula aqui (declarado menos esperado) en vez de usar la que
+        /// manda Caja, para que el signo signifique siempre lo mismo:
+        /// negativa es faltante.
+        /// </summary>
+        public CuadresCajaVista ObtenerCuadresCaja(int? dias)
+        {
+            int periodo = Ajustar(dias, DiasPorDefecto);
+            var turnos = _dashboard.ObtenerTurnosCaja(Desde(periodo));
+
+            foreach (var turno in turnos)
+            {
+                turno.Diferencia = turno.Estado == "Cerrado" && turno.EfectivoDeclarado != null
+                    ? turno.EfectivoDeclarado - turno.SaldoEsperado
+                    : null;
+            }
+
+            var cerrados = turnos.Where(t => t.Diferencia != null).ToList();
+            return new CuadresCajaVista
+            {
+                Dias = periodo,
+                TurnosCerrados = turnos.Count(t => t.Estado == "Cerrado"),
+                TurnosAbiertos = turnos.Count(t => t.Estado != "Cerrado"),
+                Cuadrados = cerrados.Count(t => t.Diferencia == 0),
+                ConFaltante = cerrados.Count(t => t.Diferencia < 0),
+                ConSobrante = cerrados.Count(t => t.Diferencia > 0),
+                TotalFaltante = -cerrados.Where(t => t.Diferencia < 0).Sum(t => t.Diferencia.Value),
+                TotalSobrante = cerrados.Where(t => t.Diferencia > 0).Sum(t => t.Diferencia.Value),
+                Turnos = turnos
+            };
+        }
+
         private static int Ajustar(int? dias, int porDefecto)
         {
             return Math.Min(Math.Max(dias ?? porDefecto, 1), DiasMaximo);

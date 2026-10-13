@@ -219,6 +219,10 @@
                 <p class="nota-indicador">Caja todavía no ha sincronizado fondos ni convenios.</p>
             }
 
+            <div class="acciones">
+                <a class="boton boton-secundario" href="@Url.Action("CuadresCaja", new { dias = Model.Dias })">Ver cuadres de caja</a>
+            </div>
+
             <p class="nota-indicador">
                 @subsidios.UnidadesArvEntregadas.ToString("#,0") unidades de antirretrovirales entregadas en Farmacia, todas al 100 % de subsidio.
                 @subsidios.FacturasDescargadas de @subsidios.FacturasSubsidiadas facturas subsidiadas del Portal Web descargadas.

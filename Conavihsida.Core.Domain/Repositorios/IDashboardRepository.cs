@@ -18,5 +18,11 @@ namespace Conavihsida.Core.Domain.Repositorios
 
         /// <summary>Fondos y convenios activos sincronizados por Caja, el de mayor monto primero.</summary>
         List<FondoVista> ObtenerFondosActivos();
+
+        /// <summary>
+        /// Turnos de caja abiertos desde esa fecha, el mas reciente primero.
+        /// No calcula Diferencia: lo hace DashboardService.
+        /// </summary>
+        List<TurnoCajaVista> ObtenerTurnosCaja(DateTime desde);
     }
 }

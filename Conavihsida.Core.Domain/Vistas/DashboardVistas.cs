@@ -106,6 +106,51 @@ namespace Conavihsida.Core.Domain.Vistas
         public DateTime? FechaFin { get; set; }
     }
 
+    /// <summary>
+    /// Cuadres de caja del periodo: cada turno que Caja sincronizo, con lo
+    /// que debia haber en efectivo y lo que el cajero conto al cerrar.
+    /// </summary>
+    public class CuadresCajaVista
+    {
+        public int Dias { get; set; }
+        public int TurnosCerrados { get; set; }
+        public int TurnosAbiertos { get; set; }
+
+        /// <summary>Cerrados con diferencia cero.</summary>
+        public int Cuadrados { get; set; }
+        public int ConFaltante { get; set; }
+        public int ConSobrante { get; set; }
+
+        /// <summary>Suma de los faltantes, como numero positivo.</summary>
+        public decimal TotalFaltante { get; set; }
+        public decimal TotalSobrante { get; set; }
+        public List<TurnoCajaVista> Turnos { get; set; }
+    }
+
+    public class TurnoCajaVista
+    {
+        public string NumeroTurno { get; set; }
+        public string Caja { get; set; }
+        public string Cajero { get; set; }
+        public DateTime FechaApertura { get; set; }
+        public DateTime? FechaCierre { get; set; }
+        public decimal BalanceInicial { get; set; }
+        public decimal SaldoEsperado { get; set; }
+
+        /// <summary>null mientras el turno siga abierto.</summary>
+        public decimal? EfectivoDeclarado { get; set; }
+
+        /// <summary>
+        /// Declarado menos esperado: negativa = faltante, positiva =
+        /// sobrante. null mientras el turno siga abierto.
+        /// </summary>
+        public decimal? Diferencia { get; set; }
+
+        /// <summary>Abierto o Cerrado.</summary>
+        public string Estado { get; set; }
+        public string Observacion { get; set; }
+    }
+
     public class DashboardVista
     {
         public PacientesActivosVista Pacientes { get; set; }
