@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Conavihsida.Core.Domain.Entidades;
 using Conavihsida.Core.Domain.Vistas;
@@ -20,6 +21,16 @@ namespace Conavihsida.Core.Domain.Repositorios
         /// usa el criterio que no venga en null. null si no existe.
         /// </summary>
         PacienteClinicoVista BuscarPaciente(string cedulaSoloDigitos, int? pacienteId);
+
+        /// <summary>
+        /// Registra a un paciente que no tiene cuenta en el Portal Web (lo
+        /// hace un empleado en la consulta). Queda sin acceso a la web
+        /// hasta que el mismo cree su cuenta. cedula debe venir con el
+        /// formato 000-0000000-0; correo puede ser null. Devuelve el
+        /// PacienteID, o null si la cedula o el correo ya estan registrados.
+        /// </summary>
+        int? RegistrarPaciente(string nombreCompleto, string cedula, DateTime? fechaNacimiento,
+                               string correo, DateTime ahora);
 
         /// <summary>
         /// MedicoID del usuario, si tiene ficha activa en Medicos. null si

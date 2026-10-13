@@ -46,10 +46,18 @@ namespace Conavihsida.Core.Empleados.Controllers
             }
 
             var paciente = await Api.GetAsync<PacienteApi>("api/clinica/pacientes?cedula=" + digitos);
+            if (paciente.Codigo == 404)
+            {
+                // No esta registrado: se ofrece registrarlo ahi mismo, con
+                // la cedula que se busco ya puesta.
+                var inicio = await ArmarInicioAsync(q, null, null);
+                inicio.NuevoPaciente = new NuevoPacienteForm { Cedula = q };
+                return View("Index", inicio);
+            }
+
             if (!paciente.Exitosa)
             {
-                string error = paciente.Codigo == 404 ? "No hay ningún paciente registrado con esa cédula." : paciente.Error;
-                return View("Index", await ArmarInicioAsync(q, error, null));
+                return View("Index", await ArmarInicioAsync(q, paciente.Error, null));
             }
 
             if (!string.IsNullOrEmpty(paciente.Datos.CodigoSerologico))
@@ -58,6 +66,32 @@ namespace Conavihsida.Core.Empleados.Controllers
             }
 
             return View("Index", await ArmarInicioAsync(q, null, paciente.Datos));
+        }
+
+        // Para quien llega a consulta sin cuenta en el Portal Web. Al
+        // terminar se vuelve a la busqueda, que ya lo encuentra y ofrece
+        // abrirle el expediente.
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<ActionResult> RegistrarPaciente(NuevoPacienteForm paciente)
+        {
+            var respuesta = await Api.PostAsync<PacienteApi>("api/clinica/pacientes", new
+            {
+                nombreCompleto = paciente.NombreCompleto,
+                cedula = paciente.Cedula,
+                fechaNacimiento = paciente.FechaNacimiento,
+                correo = string.IsNullOrWhiteSpace(paciente.Correo) ? null : paciente.Correo
+            });
+
+            if (!respuesta.Exitosa)
+            {
+                var inicio = await ArmarInicioAsync(paciente.Cedula, respuesta.Error, null);
+                inicio.NuevoPaciente = paciente;
+                return View("Index", inicio);
+            }
+
+            var modelo = await ArmarInicioAsync(respuesta.Datos.Cedula, null, respuesta.Datos);
+            modelo.Exito = "Paciente registrado. Ya puedes abrirle el expediente.";
+            return View("Index", modelo);
         }
 
         [HttpPost, ValidateAntiForgeryToken]

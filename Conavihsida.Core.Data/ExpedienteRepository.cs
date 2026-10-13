@@ -52,6 +52,40 @@ namespace Conavihsida.Core.Data
             }
         }
 
+        public int? RegistrarPaciente(string nombreCompleto, string cedula, DateTime? fechaNacimiento,
+                                      string correo, DateTime ahora)
+        {
+            // "SIN-ACCESO" no es un hash de BCrypt: con el nadie puede
+            // iniciar sesion. La cuenta se activa cuando el paciente se
+            // registra en el Portal Web con esta misma cedula y correo.
+            const string sql = @"
+                INSERT INTO Pacientes (Correo, PasswordHash, PasswordSalt, NombreCompleto, Cedula,
+                                       FechaNacimiento, Activo, FechaRegistro)
+                OUTPUT INSERTED.PacienteID
+                VALUES (@Correo, 'SIN-ACCESO', '', @NombreCompleto, @Cedula, @FechaNacimiento, 1, @Ahora);";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@Correo", SqlDbType.VarChar, 150).Value = (object)correo ?? DBNull.Value;
+                cmd.Parameters.AddWithValue("@NombreCompleto", nombreCompleto);
+                cmd.Parameters.AddWithValue("@Cedula", cedula);
+                cmd.Parameters.Add("@FechaNacimiento", SqlDbType.Date).Value = (object)fechaNacimiento ?? DBNull.Value;
+                cmd.Parameters.AddWithValue("@Ahora", ahora);
+
+                conn.AbrirConLog();
+                try
+                {
+                    return Convert.ToInt32(cmd.ExecuteScalarConLog());
+                }
+                catch (SqlException ex) when (ex.Number == SqlErrorViolacionUnique
+                                            || ex.Number == SqlErrorViolacionUniqueConstraint)
+                {
+                    return null;
+                }
+            }
+        }
+
         public int? ObtenerMedicoIdPorUsuario(int usuarioId)
         {
             const string sql = "SELECT MedicoID FROM Medicos WHERE UsuarioID = @UsuarioID AND Activo = 1;";

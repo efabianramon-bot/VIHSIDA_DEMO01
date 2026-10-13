@@ -745,6 +745,115 @@
           }
         },
         {
+          "name": "Registrar en la consulta a un paciente sin cuenta web",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', function () { pm.expect(pm.response.code).to.be.oneOf([201]); });",
+                  "pm.test('Queda registrado y sin expediente', function () { var p = pm.response.json(); pm.expect(p.pacienteId).to.be.above(0); pm.expect(p.codigoSerologico).to.eql(null); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/pacientes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCompleto\": \"Paciente De Consulta\",\n  \"cedula\": \"5{{$timestamp}}\",\n  \"fechaNacimiento\": \"1980-02-02\",\n  \"correo\": \"consulta.{{$timestamp}}@conavihsida.test\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar un paciente con una cedula que ya existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', function () { pm.expect(pm.response.code).to.be.oneOf([409]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/pacientes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCompleto\": \"Repetido\",\n  \"cedula\": \"{{cedulaPaciente}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cajero intenta registrar un paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/pacientes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCompleto\": \"X\",\n  \"cedula\": \"4{{$timestamp}}\"\n}"
+            }
+          }
+        },
+        {
           "name": "Cajero intenta identificar a un paciente",
           "event": [
             {

@@ -19,6 +19,57 @@
     <button type="submit" class="boton boton-primario">Buscar</button>
 }
 
+@if (!string.IsNullOrEmpty(Model.Exito))
+{
+    <div class="aviso aviso-exito" role="status">@Model.Exito</div>
+}
+
+@if (Model.NuevoPaciente != null)
+{
+    var nuevo = Model.NuevoPaciente;
+    using (Html.BeginForm("RegistrarPaciente", "Medico", FormMethod.Post, new { @class = "panel formulario-estrecho" }))
+    {
+        @Html.AntiForgeryToken()
+        <h2>Registrar paciente</h2>
+        <p class="dato-suave">
+            No hay ningún paciente registrado con esa cédula. Si es alguien que llega por primera vez,
+            regístralo aquí para poder abrirle el expediente.
+        </p>
+
+        <div class="fila-campos">
+            <div class="campo">
+                <label for="paciente_Cedula">Cédula</label>
+                <input type="text" id="paciente_Cedula" name="paciente.Cedula" maxlength="13" required
+                       value="@nuevo.Cedula" placeholder="000-0000000-0" />
+            </div>
+            <div class="campo">
+                <label for="paciente_FechaNacimiento">Fecha de nacimiento (opcional)</label>
+                <input type="date" id="paciente_FechaNacimiento" name="paciente.FechaNacimiento"
+                       value="@(nuevo.FechaNacimiento == null ? "" : nuevo.FechaNacimiento.Value.ToString("yyyy-MM-dd"))" />
+            </div>
+        </div>
+
+        <div class="campo">
+            <label for="paciente_NombreCompleto">Nombre completo, como aparece en la cédula</label>
+            <input type="text" id="paciente_NombreCompleto" name="paciente.NombreCompleto" maxlength="150" required
+                   value="@nuevo.NombreCompleto" />
+        </div>
+
+        <div class="campo">
+            <label for="paciente_Correo">Correo electrónico (opcional)</label>
+            <input type="email" id="paciente_Correo" name="paciente.Correo" maxlength="150" value="@nuevo.Correo" />
+            <p class="dato-suave">
+                Anótalo si el paciente quiere usar el Portal Web: al crear su cuenta deberá usar esta misma cédula y este mismo correo.
+            </p>
+        </div>
+
+        <div class="acciones">
+            <button type="submit" class="boton boton-primario">Registrar paciente</button>
+            <a class="boton boton-neutro" href="@Url.Action("Index")">Cancelar</a>
+        </div>
+    }
+}
+
 @if (Model.PacienteSinExpediente != null)
 {
     var paciente = Model.PacienteSinExpediente;

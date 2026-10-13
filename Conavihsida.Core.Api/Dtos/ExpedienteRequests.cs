@@ -1,5 +1,19 @@
 namespace Conavihsida.Core.Api.Dtos
 {
+    /// <summary>Cuerpo de POST /api/clinica/pacientes.</summary>
+    public class RegistrarPacienteClinicaRequest
+    {
+        public string NombreCompleto { get; set; }
+
+        /// <summary>11 digitos, con o sin guiones.</summary>
+        public string Cedula { get; set; }
+        public System.DateTime? FechaNacimiento { get; set; }
+
+        /// <summary>Opcional. Si se anota, el paciente debe usar este mismo
+        /// correo al crear su cuenta en el Portal Web.</summary>
+        public string Correo { get; set; }
+    }
+
     /// <summary>Cuerpo de POST /api/clinica/expediente.</summary>
     public class AbrirExpedienteRequest
     {

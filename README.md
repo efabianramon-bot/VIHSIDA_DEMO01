@@ -63,6 +63,7 @@ contraseña; los deja listos `Database/Datos/medico_prueba.sql`.
 Portales disponibles:
 
 - **Portal Médico** (rol Médico): busca por cédula o por código serológico,
+  registra al paciente que llega sin cuenta,
   abre el expediente de un paciente que no lo tiene, muestra el historial con
   carga viral, CD4 y recetas, registra consultas con sus recetas TARV e
   imprime cada receta para entregarla al paciente.
@@ -107,8 +108,8 @@ Para crear la base desde cero, ejecuta en este orden:
 1. `Database/ConavihsidaCoreDb_schema.sql` (estructura).
 2. Los scripts de `Database/Migraciones/`, por número: `001` (roles y
    restricciones) y `002` (cédula del paciente obligatoria, única y con el
-   formato `000-0000000-0`) `003` (bloqueo temporal del login del paciente) `004` (tablas para la sincronización de Caja) y `005` (filiales y filial
-   de cada usuario).
+   formato `000-0000000-0`) `003` (bloqueo temporal del login del paciente) `004` (tablas para la sincronización de Caja), `005` (filiales y filial
+   de cada usuario) y `006` (correo del paciente opcional).
 3. Los scripts de `Database/Datos/` (solo desarrollo y demo), en este orden:
    `usuarios_prueba`, `medico_prueba`, `paciente_prueba`, `medicamentos_prueba`,
    `facturas_subsidiadas_prueba` y `caja_prueba`. Además `filiales`, que no es
@@ -150,7 +151,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 113 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 116 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -178,7 +179,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | Método | Ruta | Descripción |
 | --- | --- | --- |
 | POST | `/api/auth/login` | Valida usuario y contraseña; devuelve el usuario y sus roles, sin token (`401` si no son válidos). |
-| POST | `/api/auth/paciente/registro` | Crea la cuenta de un paciente del Portal Web con `nombreCompleto`, `cedula`, `correo`, `password` (8 a 72 caracteres) y `fechaNacimiento` (opcional). Devuelve `pacienteId`, `nombreCompleto` y `correo` (`409` si un dato no es válido o el correo o la cédula ya están registrados). No crea expediente clínico. |
+| POST | `/api/auth/paciente/registro` | Crea la cuenta de un paciente del Portal Web con `nombreCompleto`, `cedula`, `correo`, `password` (8 a 72 caracteres) y `fechaNacimiento` (opcional). Devuelve `pacienteId`, `nombreCompleto` y `correo` (`409` si un dato no es válido o el correo o la cédula ya están registrados). No crea expediente clínico. Si un médico ya había registrado a ese paciente en consulta con esa misma cédula y ese mismo correo, en vez de rechazarlo le activa el acceso. |
 | POST | `/api/auth/paciente/login` | Login del paciente del Portal Web con `correo` y `password`; devuelve `pacienteId`, `nombreCompleto` y `correo`, sin token (`401` si no son válidos, `429` si la cuenta está bloqueada 15 minutos tras 5 intentos fallidos). |
 | GET | `/api/auth/yo` | Devuelve la identidad de empleado recibida en los encabezados (`401` si falta). |
 | GET | `/api/usuarios` y `/api/usuarios/{usuarioId}` | Empleados registrados con su rol, filial y estado de la cuenta. Nunca devuelve la contraseña. Solo rol Administrador, igual que el resto de `/api/usuarios`. |
@@ -189,6 +190,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | POST | `/api/usuarios/{usuarioId}/desbloquear` | Quita el bloqueo por intentos fallidos de inicio de sesión. |
 | GET | `/api/clinica/expedientes` | Lista de expedientes (código, estado y apertura). Solo rol Médico. |
 | GET | `/api/clinica/pacientes?cedula=` o `?pacienteId=` | Identifica a un paciente y dice si tiene expediente. Es el único cruce entre identidad y código serológico; solo rol Médico y siempre auditado. |
+| POST | `/api/clinica/pacientes` | Registra a un paciente que llega a consulta sin cuenta en el Portal Web (`nombreCompleto`, `cedula`, `fechaNacimiento` y `correo` opcionales). No le da acceso a la web ni le abre expediente. `409` si la cédula o el correo ya existen. Solo rol Médico. |
 | GET | `/api/clinica/expediente/{codigo}` | Expediente clínico por código serológico. Solo rol Médico (`403` para los demás). |
 | POST | `/api/clinica/expediente` | Abre el expediente de un paciente y genera su código serológico. Si no se indica `medicoResponsableId`, queda como responsable el médico que lo abre. Solo rol Médico. |
 | PUT | `/api/clinica/expediente/{codigo}` | Cambia el médico responsable y el estado. Solo rol Médico. |

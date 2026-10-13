@@ -129,6 +129,10 @@ POST /api/auth/paciente/registro
   registrados. En ese último caso el mensaje no dice cuál de los dos.
 - No pide llave de paciente ni token: el Gateway debe exponerla sin
   autenticación y conviene que limite los intentos por IP.
+- Un médico también puede registrar en la consulta a un paciente sin
+  cuenta. Si ese paciente crea después su cuenta con la misma cédula y el
+  mismo correo que se anotó, esta ruta le activa el acceso y responde
+  `201`; con la cédula sola, no.
 
 ### Login de pacientes
 
@@ -165,7 +169,7 @@ POST /api/auth/paciente/login
 | `/api/auth/yo` | Cualquier empleado; devuelve la identidad que recibió el CORE |
 
 La lista completa, con cada ruta y su descripción, está en el `README.md`.
-La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 112
+La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 116
 peticiones con el código esperado de cada una.
 
 ## 4. Guion paso a paso

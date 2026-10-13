@@ -29,7 +29,9 @@ namespace Conavihsida.Core.Domain.Repositorios
         /// Crea la cuenta del paciente guardando solo el hash (BCrypt) de la
         /// contraseña. cedula debe venir con el formato 000-0000000-0.
         /// Devuelve null, sin crear nada, si el correo o la cedula ya
-        /// estan registrados.
+        /// estan registrados. Excepcion: si un empleado ya habia
+        /// registrado a ese paciente sin cuenta, con esa misma cedula y ese
+        /// mismo correo, le activa el acceso y lo devuelve.
         /// </summary>
         PacienteAutenticado Registrar(string nombreCompleto, string cedula, string correo, string password,
                                       DateTime? fechaNacimiento, DateTime ahora);
