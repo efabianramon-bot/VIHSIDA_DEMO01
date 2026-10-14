@@ -69,8 +69,8 @@ Portales disponibles:
   imprime cada receta para entregarla al paciente.
 - **Farmacia** (rol Farmacéutico): cola de recetas por despachar, lotes con
   alertas (vencido, por vencer, agotado, bajo mínimo), registro de lotes y
-  despacho de recetas indicando de qué lote sale cada unidad, y comprobante
-  de despacho imprimible.
+  despacho de recetas (toma primero del lote que caduca antes y registra de
+  qué lote sale cada unidad), y comprobante de despacho imprimible.
 - **Dashboard Ejecutivo** (rol Administrador): pacientes activos, adherencia
   al tratamiento, inventario crítico y ejecución de subsidios, con gráficos
   y para periodos de 30, 90, 180 o 365 días. Solo muestra totales. Incluye
