@@ -25,6 +25,22 @@ namespace Conavihsida.Core.Domain.Repositorios
         /// </summary>
         bool? GuardarTransaccion(TransaccionCaja transaccion, DateTime ahora);
 
+        /// <summary>
+        /// RN-05: en una sola transaccion crea la factura Pagada de esa
+        /// transaccion ya guardada, con su pago y su comprobante (REC/FAC).
+        /// Devuelve null, sin crear nada, si la transaccion no tiene
+        /// paciente registrado o si ya tiene factura (Caja la reenvio).
+        /// </summary>
+        FacturaDeCaja CrearFacturaDeTransaccion(string numeroTransaccion, string concepto, decimal monto,
+                                                bool esSubsidiada, string formaPago, DateTime fechaPago,
+                                                DateTime ahora);
+
+        /// <summary>
+        /// Pasa a Anulada la factura de esa transaccion. Devuelve null si no
+        /// tenia factura o si ya estaba anulada.
+        /// </summary>
+        FacturaDeCaja AnularFacturaDeTransaccion(string numeroTransaccion);
+
         bool GuardarComprobante(ComprobanteCaja comprobante, DateTime ahora);
 
         bool GuardarFondo(FondoConvenio fondo, DateTime ahora);

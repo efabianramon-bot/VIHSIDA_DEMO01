@@ -189,7 +189,7 @@ POST /api/auth/paciente/login
 | `/api/auth/yo` | Cualquier empleado; devuelve la identidad que recibió el CORE |
 
 La lista completa, con cada ruta y su descripción, está en el `README.md`.
-La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 125
+La colección `Postman/Conavihsida.Core.Api.postman_collection.json` trae 133
 peticiones con el código esperado de cada una.
 
 ## 4. Guion paso a paso
@@ -270,6 +270,13 @@ Sobre los cinco endpoints de sincronización del CORE:
 - Un dato inválido responde `400` con `{"exito":false,"mensaje":"..."}`
   diciendo qué campo corregir. Devuélvelo tal cual: Caja deja el registro
   pendiente.
+- **Cada cobro Completado crea la factura del paciente**, ya Pagada, con su
+  pago y su recibo y factura (`REC-n`/`FAC-n`). El paciente la ve en el
+  Portal Web junto con las demás. Una entrega de ARV subsidiada queda en
+  RD$ 0.00 con forma de pago Subsidio. Si Caja reenvía el cobro, no se
+  duplica; si lo anula, la factura pasa a Anulada y el Portal deja de
+  mostrarla. Una transacción Pendiente, o la de una cédula sin paciente
+  registrado, no crea factura.
 - `idLocal` se guarda solo como referencia. Los enlaces por
   `turnoCajaIdLocal` y `transaccionIdLocal` solo son fiables con una
   terminal; con más de una habría que enlazar por número de negocio.

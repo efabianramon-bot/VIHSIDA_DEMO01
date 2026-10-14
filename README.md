@@ -110,8 +110,9 @@ Para crear la base desde cero, ejecuta en este orden:
 2. Los scripts de `Database/Migraciones/`, por número: `001` (roles y
    restricciones) y `002` (cédula del paciente obligatoria, única y con el
    formato `000-0000000-0`) `003` (bloqueo temporal del login del paciente) `004` (tablas para la sincronización de Caja), `005` (filiales y filial
-   de cada usuario), `006` (correo del paciente opcional) y `007`
-   (constancias del paciente y teléfono).
+   de cada usuario), `006` (correo del paciente opcional), `007`
+   (constancias del paciente y teléfono) y `008` (facturas creadas por los
+   cobros de Caja).
 3. Los scripts de `Database/Datos/` (solo desarrollo y demo), en este orden:
    `usuarios_prueba`, `medico_prueba`, `paciente_prueba`, `medicamentos_prueba`,
    `facturas_subsidiadas_prueba` y `caja_prueba`. Además `filiales`, que no es
@@ -153,7 +154,7 @@ acordar con Integración y Caja.
 
 ## Pruebas con Postman
 
-`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 125 peticiones
+`Postman/Conavihsida.Core.Api.postman_collection.json` contiene 133 peticiones
 con sus pruebas, ordenadas según el flujo de la demo. Impórtala en Postman,
 llena las variables `apiKey` y `clavePrueba` como indica su descripción y usa
 *Run collection* para ejecutarlas todas.
@@ -222,7 +223,7 @@ paciente no es el mismo `pacienteId` de la petición. Los catálogos
 | GET | `/api/pacientes/{pacienteId}/citas` | Citas del paciente. |
 | POST | `/api/citas` | Agenda una cita (`409` si no se puede agendar). |
 | POST | `/api/citas/{citaId}/cancelar?pacienteId=` | Cancela una cita (`404` si no existe). |
-| GET | `/api/pacientes/{pacienteId}/facturas` | Facturas del paciente. |
+| GET | `/api/pacientes/{pacienteId}/facturas` | Facturas del paciente, incluidas las de sus cobros en Caja. No muestra las anuladas. |
 | GET | `/api/pacientes/{pacienteId}/facturas/{facturaId}` | Detalle de una factura. |
 | POST | `/api/pacientes/{pacienteId}/facturas/{facturaId}/pagar` | Paga una factura (`409` si no se puede pagar). |
 | GET | `/api/pacientes/{pacienteId}/constancias` y `.../constancias/{constanciaId}` | Constancias de lo que el paciente hizo en el Portal Web, la más reciente primero. |

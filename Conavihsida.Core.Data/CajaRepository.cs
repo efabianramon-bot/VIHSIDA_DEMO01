@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.SqlClient;
+using Conavihsida.Core.Domain.Catalogos;
 using Conavihsida.Core.Domain.Entidades;
 using Conavihsida.Core.Domain.Repositorios;
 
@@ -99,6 +100,106 @@ namespace Conavihsida.Core.Data
                     { "UsuarioCajero", transaccion.UsuarioCajero },
                     { "NumeroReceta", transaccion.NumeroReceta }
                 });
+        }
+
+        public FacturaDeCaja CrearFacturaDeTransaccion(string numeroTransaccion, string concepto, decimal monto,
+                                                       bool esSubsidiada, string formaPago, DateTime fechaPago,
+                                                       DateTime ahora)
+        {
+            // UPDLOCK + HOLDLOCK sobre la transaccion: si Caja manda el mismo
+            // cobro dos veces a la vez, el segundo espera y ya encuentra la
+            // factura. El indice UX_Facturas_TransaccionCaja respalda lo mismo.
+            const string sql = @"
+                DECLARE @TransaccionID INT, @PacienteID INT, @FacturaID INT, @Numero INT;
+
+                SELECT @TransaccionID = TransaccionID, @PacienteID = PacienteID
+                FROM CajaTransacciones WITH (UPDLOCK, HOLDLOCK)
+                WHERE NumeroTransaccion = @NumeroTransaccion;
+
+                IF @PacienteID IS NOT NULL
+                   AND NOT EXISTS (SELECT 1 FROM Facturas WHERE TransaccionCajaID = @TransaccionID)
+                BEGIN
+                    SELECT @Numero = NEXT VALUE FOR dbo.SeqComprobante;
+
+                    INSERT INTO Facturas (PacienteID, Concepto, Fecha, Monto, EsSubsidiada, Estado, TransaccionCajaID)
+                    VALUES (@PacienteID, @Concepto, CONVERT(DATE, @FechaPago), @Monto, @EsSubsidiada, @Pagada, @TransaccionID);
+                    SET @FacturaID = SCOPE_IDENTITY();
+
+                    -- Quien cobro fue un usuario de Caja, no del CORE: CajeroID queda NULL.
+                    INSERT INTO Pagos (FacturaID, Monto, FormaPago, ReferenciaPasarela, CajeroID, FechaPago)
+                    VALUES (@FacturaID, @Monto, @FormaPago, NULL, NULL, @FechaPago);
+
+                    INSERT INTO Comprobantes (FacturaID, NumeroRecibo, NumeroFactura, FechaEmision)
+                    VALUES (@FacturaID, 'REC-' + CAST(@Numero AS VARCHAR(12)), 'FAC-' + CAST(@Numero AS VARCHAR(12)), @Ahora);
+
+                    SELECT @FacturaID, @PacienteID, 'REC-' + CAST(@Numero AS VARCHAR(12));
+                END";
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                conn.AbrirConLog();
+                using (var tx = conn.BeginTransaction())
+                using (var cmd = new SqlCommand(sql, conn, tx))
+                {
+                    cmd.Parameters.AddWithValue("@NumeroTransaccion", numeroTransaccion);
+                    cmd.Parameters.AddWithValue("@Concepto", concepto);
+                    cmd.Parameters.AddWithValue("@Monto", monto);
+                    cmd.Parameters.AddWithValue("@EsSubsidiada", esSubsidiada);
+                    cmd.Parameters.AddWithValue("@FormaPago", formaPago);
+                    cmd.Parameters.AddWithValue("@FechaPago", fechaPago);
+                    cmd.Parameters.AddWithValue("@Ahora", ahora);
+                    cmd.Parameters.AddWithValue("@Pagada", EstadosFactura.Pagada);
+
+                    // Si algo falla, el using deshace todo: ni factura sin pago
+                    // ni pago sin comprobante. La excepcion llega a Caja como
+                    // error y Caja reenvia la transaccion.
+                    FacturaDeCaja factura = null;
+                    using (var reader = cmd.ExecuteReaderConLog())
+                    {
+                        if (reader.Read())
+                        {
+                            factura = new FacturaDeCaja
+                            {
+                                FacturaId = reader.GetInt32(0),
+                                PacienteId = reader.GetInt32(1),
+                                NumeroRecibo = reader.GetString(2)
+                            };
+                        }
+                    }
+                    tx.CommitConLog();
+                    return factura;
+                }
+            }
+        }
+
+        public FacturaDeCaja AnularFacturaDeTransaccion(string numeroTransaccion)
+        {
+            const string sql = @"
+                UPDATE f SET Estado = @Anulada
+                OUTPUT inserted.FacturaID, inserted.PacienteID
+                FROM Facturas f
+                JOIN CajaTransacciones t ON t.TransaccionID = f.TransaccionCajaID
+                WHERE t.NumeroTransaccion = @NumeroTransaccion AND f.Estado <> @Anulada;";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@NumeroTransaccion", numeroTransaccion);
+                cmd.Parameters.AddWithValue("@Anulada", EstadosFactura.Anulada);
+                conn.AbrirConLog();
+                using (var reader = cmd.ExecuteReaderConLog())
+                {
+                    if (!reader.Read())
+                    {
+                        return null;
+                    }
+                    return new FacturaDeCaja
+                    {
+                        FacturaId = reader.GetInt32(0),
+                        PacienteId = reader.GetInt32(1)
+                    };
+                }
+            }
         }
 
         public bool GuardarComprobante(ComprobanteCaja comprobante, DateTime ahora)

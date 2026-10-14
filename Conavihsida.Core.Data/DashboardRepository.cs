@@ -95,7 +95,7 @@ namespace Conavihsida.Core.Data
             const string sql = @"
                 SELECT
                     (SELECT COUNT(*) FROM Facturas
-                      WHERE EsSubsidiada = 1 AND Fecha >= @Desde)                       AS Subsidiadas,
+                      WHERE EsSubsidiada = 1 AND Fecha >= @Desde AND Estado <> @Anulada) AS Subsidiadas,
                     (SELECT COUNT(*) FROM Facturas
                       WHERE EsSubsidiada = 1 AND Fecha >= @Desde AND Estado = @Pagada)  AS Descargadas,
                     (SELECT COUNT(DISTINCT RecetaID) FROM MovimientosInventario

@@ -48,6 +48,9 @@
     {
         public const string Pendiente = "Pendiente";
         public const string Pagada = "Pagada";
+
+        /// <summary>Su cobro se anulo en Caja. No se muestra al paciente.</summary>
+        public const string Anulada = "Anulada";
     }
 
     public static class FormasPago

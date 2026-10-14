@@ -106,6 +106,22 @@
       "value": ""
     },
     {
+      "key": "pacienteCajaId",
+      "value": ""
+    },
+    {
+      "key": "trxFactura",
+      "value": ""
+    },
+    {
+      "key": "facturasAntes",
+      "value": ""
+    },
+    {
+      "key": "facturaCajaId",
+      "value": ""
+    },
+    {
       "key": "citaId",
       "value": "0"
     },
@@ -3403,6 +3419,261 @@
               "mode": "raw",
               "raw": "{\n  \"idLocal\": 5,\n  \"numeroTransaccion\": \"TRX-DEMO-MALA\",\n  \"fecha\": \"2026-10-12T10:00:00\",\n  \"cedulaPaciente\": \"000-0000004-0\",\n  \"tipoServicio\": \"Entrega de medicamento\",\n  \"monto\": 0,\n  \"formaPago\": \"Subsidiado\",\n  \"esSubsidiado\": true,\n  \"estado\": \"Completada\",\n  \"comprobanteGenerado\": false,\n  \"usuarioCajero\": \"cajero.prueba\",\n  \"numeroReceta\": {{recetaId}}\n}"
             }
+          }
+        },
+        {
+          "name": "Facturas desde Caja: identificar al paciente 000-0000004-0",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.collectionVariables.set(\"pacienteCajaId\", pm.response.json().pacienteId);",
+                  "pm.collectionVariables.set(\"trxFactura\", \"TRX-PM-\" + Date.now());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioMedico}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Medico"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clinica/pacientes?cedula=000-0000004-0"
+          }
+        },
+        {
+          "name": "Facturas del paciente antes del cobro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.collectionVariables.set(\"facturasAntes\", JSON.stringify(pm.response.json().map(function (f) { return f.id; })));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteCajaId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteCajaId}}/facturas"
+          }
+        },
+        {
+          "name": "Consulta cobrada en Caja (crea su factura Pagada)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/transacciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 6,\n  \"numeroTransaccion\": \"{{trxFactura}}\",\n  \"fecha\": \"2026-10-14T10:30:00\",\n  \"cedulaPaciente\": \"000-0000004-0\",\n  \"tipoServicio\": \"Consulta\",\n  \"monto\": 1500.00,\n  \"formaPago\": \"Efectivo\",\n  \"esSubsidiado\": false,\n  \"estado\": \"Completada\",\n  \"comprobanteGenerado\": true,\n  \"usuarioCajero\": \"cajero.prueba\"\n}"
+            }
+          }
+        },
+        {
+          "name": "El mismo cobro reenviado (no duplica la factura)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/transacciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 6,\n  \"numeroTransaccion\": \"{{trxFactura}}\",\n  \"fecha\": \"2026-10-14T10:30:00\",\n  \"cedulaPaciente\": \"000-0000004-0\",\n  \"tipoServicio\": \"Consulta\",\n  \"monto\": 1500.00,\n  \"formaPago\": \"Efectivo\",\n  \"esSubsidiado\": false,\n  \"estado\": \"Completada\",\n  \"comprobanteGenerado\": true,\n  \"usuarioCajero\": \"cajero.prueba\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Entrega de ARV subsidiada (factura en RD$ 0.00)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/transacciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 7,\n  \"numeroTransaccion\": \"{{trxFactura}}-ARV\",\n  \"fecha\": \"2026-10-14T10:40:00\",\n  \"cedulaPaciente\": \"000-0000004-0\",\n  \"tipoServicio\": \"Entrega de ARV\",\n  \"monto\": 0.00,\n  \"formaPago\": \"Subsidiado\",\n  \"esSubsidiado\": true,\n  \"estado\": \"Completada\",\n  \"comprobanteGenerado\": true,\n  \"usuarioCajero\": \"cajero.prueba\"\n}"
+            }
+          }
+        },
+        {
+          "name": "El portal muestra las dos facturas nuevas, ya pagadas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "var antes = JSON.parse(pm.collectionVariables.get(\"facturasAntes\") || \"[]\");",
+                  "var nuevas = pm.response.json().filter(function (f) { return antes.indexOf(f.id) < 0; });",
+                  "var consulta = nuevas.filter(function (f) { return f.concepto === \"Consulta\"; });",
+                  "var arv = nuevas.filter(function (f) { return f.concepto === \"Entrega de ARV\"; });",
+                  "pm.test(\"Una sola factura por cobro, aunque Caja lo reenvio\", function () { pm.expect(nuevas.length).to.eql(2); pm.expect(consulta.length).to.eql(1); pm.expect(arv.length).to.eql(1); });",
+                  "pm.test(\"La consulta queda Pagada con su monto y su recibo\", function () { pm.expect(consulta[0].estado).to.eql(\"Pagada\"); pm.expect(consulta[0].monto).to.eql(1500); pm.expect(consulta[0].numeroRecibo).to.match(/^REC-/); pm.expect(consulta[0].numeroFactura).to.match(/^FAC-/); });",
+                  "pm.test(\"La entrega de ARV queda subsidiada en RD$ 0.00\", function () { pm.expect(arv[0].esSubsidiada).to.eql(true); pm.expect(arv[0].monto).to.eql(0); pm.expect(arv[0].estado).to.eql(\"Pagada\"); });",
+                  "if (consulta.length === 1) { pm.collectionVariables.set(\"facturaCajaId\", consulta[0].id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteCajaId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteCajaId}}/facturas"
+          }
+        },
+        {
+          "name": "Caja anula el cobro de la consulta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{usuarioCajero}}"
+              },
+              {
+                "key": "X-Roles",
+                "value": "Cajero"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/caja/sync/transacciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idLocal\": 6,\n  \"numeroTransaccion\": \"{{trxFactura}}\",\n  \"fecha\": \"2026-10-14T10:30:00\",\n  \"cedulaPaciente\": \"000-0000004-0\",\n  \"tipoServicio\": \"Consulta\",\n  \"monto\": 1500.00,\n  \"formaPago\": \"Efectivo\",\n  \"esSubsidiado\": false,\n  \"estado\": \"Anulada\",\n  \"comprobanteGenerado\": true,\n  \"usuarioCajero\": \"cajero.prueba\"\n}"
+            }
+          }
+        },
+        {
+          "name": "La factura anulada ya no se muestra al paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', function () { pm.expect(pm.response.code).to.be.oneOf([404]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Paciente-Id",
+                "value": "{{pacienteCajaId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pacientes/{{pacienteCajaId}}/facturas/{{facturaCajaId}}"
           }
         },
         {

@@ -111,7 +111,56 @@ namespace Conavihsida.Core.Aplicacion.Servicios
                 return Fallo("numeroReceta no corresponde a una receta de ese paciente.");
             }
 
-            return Recibido(nuevo.Value, usuarioId, terminal, "CajaTransacciones", transaccion.NumeroTransaccion);
+            var resultado = Recibido(nuevo.Value, usuarioId, terminal, "CajaTransacciones", transaccion.NumeroTransaccion);
+            SincronizarFactura(transaccion, usuarioId, terminal);
+            return resultado;
+        }
+
+        /// <summary>
+        /// El cobro de Caja se refleja en las facturas del paciente, que es lo
+        /// que ve en el Portal Web:
+        ///  - Completada: se crea su factura ya Pagada, con pago y comprobante.
+        ///    Una entrega subsidiada (RF-CAJ-04) queda en RD$ 0.00 con forma de
+        ///    pago Subsidio. Si Caja la reenvia, no se duplica.
+        ///  - Anulada: su factura pasa a Anulada y deja de mostrarse.
+        ///  - Pendiente, o cedula sin paciente registrado: no se crea nada.
+        /// Una transaccion anulada no vuelve a activarse aunque llegue otra vez
+        /// como Completada: Caja no permite deshacer una anulacion.
+        /// </summary>
+        private void SincronizarFactura(TransaccionCaja transaccion, int usuarioId, string terminal)
+        {
+            FacturaDeCaja factura;
+            string accion;
+
+            if (transaccion.Estado == "Completada")
+            {
+                bool subsidiada = transaccion.EsSubsidiado || transaccion.FormaPago == "Subsidiado";
+                factura = _caja.CrearFacturaDeTransaccion(
+                    transaccion.NumeroTransaccion,
+                    transaccion.TipoServicio.Trim(),
+                    subsidiada ? 0m : transaccion.Monto,
+                    subsidiada,
+                    subsidiada ? FormasPago.Subsidio : transaccion.FormaPago,
+                    transaccion.Fecha,
+                    DateTime.Now);
+                accion = "FacturaDesdeCaja";
+            }
+            else if (transaccion.Estado == "Anulada")
+            {
+                factura = _caja.AnularFacturaDeTransaccion(transaccion.NumeroTransaccion);
+                accion = "AnularFacturaCaja";
+            }
+            else
+            {
+                return;
+            }
+
+            if (factura != null)
+            {
+                _auditoria.Registrar(usuarioId, factura.PacienteId, terminal, accion, "facturas", factura.FacturaId,
+                    string.Format("transaccion={0}{1}", transaccion.NumeroTransaccion,
+                        factura.NumeroRecibo == null ? string.Empty : ";recibo=" + factura.NumeroRecibo));
+            }
         }
 
         public ResultadoOperacion<bool> RecibirComprobante(ComprobanteCaja comprobante, int usuarioId, string terminal)

@@ -25,13 +25,14 @@ namespace Conavihsida.Core.Data
 
         public List<Factura> ObtenerPorPaciente(int pacienteId)
         {
-            string sql = SelectBase + " WHERE f.PacienteID = @PacienteID ORDER BY f.Fecha DESC;";
+            string sql = SelectBase + " WHERE f.PacienteID = @PacienteID AND f.Estado <> @Anulada ORDER BY f.Fecha DESC;";
 
             var lista = new List<Factura>();
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@PacienteID", pacienteId);
+                cmd.Parameters.AddWithValue("@Anulada", EstadosFactura.Anulada);
                 conn.AbrirConLog();
                 using (var reader = cmd.ExecuteReaderConLog())
                 {
@@ -46,13 +47,15 @@ namespace Conavihsida.Core.Data
 
         public Factura ObtenerPorId(int pacienteId, int facturaId)
         {
-            string sql = SelectBase + " WHERE f.PacienteID = @PacienteID AND f.FacturaID = @FacturaID;";
+            // Una factura anulada (su cobro se anulo en Caja) no existe para el paciente.
+            string sql = SelectBase + " WHERE f.PacienteID = @PacienteID AND f.FacturaID = @FacturaID AND f.Estado <> @Anulada;";
 
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@PacienteID", pacienteId);
                 cmd.Parameters.AddWithValue("@FacturaID", facturaId);
+                cmd.Parameters.AddWithValue("@Anulada", EstadosFactura.Anulada);
                 conn.AbrirConLog();
                 using (var reader = cmd.ExecuteReaderConLog())
                 {
