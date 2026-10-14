@@ -165,7 +165,21 @@ a.menu-item:hover,
     background: var(--primario-oscuro);
 }
 
+/* Boton con borde, sobre fondo claro (Modificar, Desbloquear, Publicar
+   resultado, Ver cuadres de caja). Antes tenia letras blancas y solo se
+   veia en la barra oscura: en las paginas quedaba invisible. */
 .boton-secundario {
+    background: var(--superficie);
+    border-color: var(--primario);
+    color: var(--primario);
+}
+
+.boton-secundario:hover {
+    background: var(--primario-claro);
+}
+
+/* El mismo boton dentro de la barra oscura de arriba (Salir). */
+.barra .boton-secundario {
     background: transparent;
     border-color: rgba(255, 255, 255, 0.55);
     color: #fff;
@@ -173,7 +187,7 @@ a.menu-item:hover,
     font-size: 14px;
 }
 
-.boton-secundario:hover {
+.barra .boton-secundario:hover {
     background: rgba(255, 255, 255, 0.16);
 }
 
@@ -1039,6 +1053,28 @@ body.sin-sesion .contenido {
 
 .acciones-fila form {
     margin: 0;
+}
+
+/* La lista de usuarios tiene ocho columnas: con el ancho normal la columna
+   Acciones quedaba fuera de la pantalla. */
+.contenido-ancho {
+    max-width: 1440px;
+}
+
+/* Usuarios y correos largos se cortan en vez de ensanchar la tabla. */
+.tabla-usuarios td {
+    overflow-wrap: anywhere;
+}
+
+/* Los botones van uno debajo del otro para que la columna sea angosta. */
+.tabla-usuarios .acciones-fila {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.tabla-usuarios .acciones-fila .boton {
+    width: 100%;
+    text-align: center;
 }
 
 /* ---------- Documentos imprimibles (receta, comprobante de despacho) ---------- */

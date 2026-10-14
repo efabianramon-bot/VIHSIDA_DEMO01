@@ -1,6 +1,9 @@
 @model UsuariosInicioViewModel
 @{
     ViewBag.Title = "Usuarios";
+    // La tabla tiene muchas columnas: esta pagina usa mas ancho de pantalla
+    // para que la columna Acciones (Modificar, Desactivar) se vea sin desplazar.
+    ViewBag.ClaseContenido = "contenido-ancho";
 }
 
 <div class="encabezado-pagina">
@@ -49,7 +52,7 @@
 else
 {
     <div class="tabla-contenedor">
-        <table class="tabla">
+        <table class="tabla tabla-usuarios">
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -59,7 +62,7 @@ else
                     <th>Filial</th>
                     <th>Estado</th>
                     <th>Último acceso</th>
-                    <th><span class="solo-lectores">Acciones</span></th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
