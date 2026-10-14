@@ -71,6 +71,19 @@ namespace Conavihsida.Core.Domain.Entidades
         public int? NumeroReceta { get; set; }
     }
 
+    /// <summary>
+    /// La factura del paciente que se creo o se anulo al sincronizar una
+    /// transaccion de Caja (Facturas.TransaccionCajaID).
+    /// </summary>
+    public class FacturaDeCaja
+    {
+        public int FacturaId { get; set; }
+        public int PacienteId { get; set; }
+
+        /// <summary>null cuando la factura se anulo.</summary>
+        public string NumeroRecibo { get; set; }
+    }
+
     /// <summary>Tabla: CajaComprobantes. Clave: NumeroComprobante. Solo metadatos: el PDF queda en la terminal.</summary>
     public class ComprobanteCaja
     {
